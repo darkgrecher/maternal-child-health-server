@@ -5,10 +5,115 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// USER & AUTHENTICATION
+// ============================================================================
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String?
+  givenName     String?   @map("given_name")
+  familyName    String?   @map("family_name")
+  picture       String?
+  
+  // Google OAuth fields
+  googleId      String    @unique @map("google_id")
+  
+  // Auth metadata
+  lastLoginAt   DateTime? @map("last_login_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  
+  // Relations
+  children      Child[]
+  refreshTokens RefreshToken[]
+  
+  @@map("users")
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  token       String   @unique
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime @map("expires_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  @@map("refresh_tokens")
+}
+
+// ============================================================================
+// CHILD PROFILES
+// ============================================================================
+
+model Child {
+  id                    String    @id @default(uuid())
+  chdrNumber            String?   @map("chdr_number")
+  
+  // Personal Information
+  firstName             String    @map("first_name")
+  lastName              String    @map("last_name")
+  dateOfBirth           DateTime  @map("date_of_birth")
+  gender                Gender
+  photoUri              String?   @map("photo_uri")
+  
+  // Birth Information
+  birthWeight           Float?    @map("birth_weight")
+  birthHeight           Float?    @map("birth_height")
+  birthHeadCircumference Float?   @map("birth_head_circumference")
+  bloodType             BloodType? @map("blood_type")
+  placeOfBirth          String?   @map("place_of_birth")
+  deliveryType          DeliveryType? @map("delivery_type")
+  
+  // Medical Information
+  allergies             String[]
+  specialConditions     String[]  @map("special_conditions")
+  
+  // Family Information
+  motherName            String?   @map("mother_name")
+  fatherName            String?   @map("father_name")
+  emergencyContact      String?   @map("emergency_contact")
+  address               String?
+  
+  // Owner
+  userId                String    @map("user_id")
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Metadata
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+  
+  @@map("children")
+}
+
+enum Gender {
+  male
+  female
+}
+
+enum BloodType {
+  A_POSITIVE  @map("A+")
+  A_NEGATIVE  @map("A-")
+  B_POSITIVE  @map("B+")
+  B_NEGATIVE  @map("B-")
+  AB_POSITIVE @map("AB+")
+  AB_NEGATIVE @map("AB-")
+  O_POSITIVE  @map("O+")
+  O_NEGATIVE  @map("O-")
+  unknown
+}
+
+enum DeliveryType {
+  normal
+  cesarean
+  assisted
 }
