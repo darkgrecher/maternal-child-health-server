@@ -18,36 +18,36 @@ datasource db {
 // ============================================================================
 
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  name          String?
-  givenName     String?   @map("given_name")
-  familyName    String?   @map("family_name")
-  picture       String?
-  
+  id         String  @id @default(uuid())
+  email      String  @unique
+  name       String?
+  givenName  String? @map("given_name")
+  familyName String? @map("family_name")
+  picture    String?
+
   // Google OAuth fields
-  googleId      String    @unique @map("google_id")
-  
+  googleId String @unique @map("google_id")
+
   // Auth metadata
-  lastLoginAt   DateTime? @map("last_login_at")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-  
+  lastLoginAt DateTime? @map("last_login_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
   // Relations
   children      Child[]
   refreshTokens RefreshToken[]
-  
+
   @@map("users")
 }
 
 model RefreshToken {
-  id          String   @id @default(uuid())
-  token       String   @unique
-  userId      String   @map("user_id")
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt   DateTime @map("expires_at")
-  createdAt   DateTime @default(now()) @map("created_at")
-  
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
   @@map("refresh_tokens")
 }
 
@@ -56,42 +56,42 @@ model RefreshToken {
 // ============================================================================
 
 model Child {
-  id                    String    @id @default(uuid())
-  chdrNumber            String?   @map("chdr_number")
-  
+  id         String  @id @default(uuid())
+  chdrNumber String? @map("chdr_number")
+
   // Personal Information
-  firstName             String    @map("first_name")
-  lastName              String    @map("last_name")
-  dateOfBirth           DateTime  @map("date_of_birth")
-  gender                Gender
-  photoUri              String?   @map("photo_uri")
-  
+  firstName   String   @map("first_name")
+  lastName    String   @map("last_name")
+  dateOfBirth DateTime @map("date_of_birth")
+  gender      Gender
+  photoUri    String?  @map("photo_uri")
+
   // Birth Information
-  birthWeight           Float?    @map("birth_weight")
-  birthHeight           Float?    @map("birth_height")
-  birthHeadCircumference Float?   @map("birth_head_circumference")
-  bloodType             BloodType? @map("blood_type")
-  placeOfBirth          String?   @map("place_of_birth")
-  deliveryType          DeliveryType? @map("delivery_type")
-  
+  birthWeight            Float?        @map("birth_weight")
+  birthHeight            Float?        @map("birth_height")
+  birthHeadCircumference Float?        @map("birth_head_circumference")
+  bloodType              BloodType?    @map("blood_type")
+  placeOfBirth           String?       @map("place_of_birth")
+  deliveryType           DeliveryType? @map("delivery_type")
+
   // Medical Information
-  allergies             String[]
-  specialConditions     String[]  @map("special_conditions")
-  
+  allergies         String[]
+  specialConditions String[] @map("special_conditions")
+
   // Family Information
-  motherName            String?   @map("mother_name")
-  fatherName            String?   @map("father_name")
-  emergencyContact      String?   @map("emergency_contact")
-  address               String?
-  
+  motherName       String? @map("mother_name")
+  fatherName       String? @map("father_name")
+  emergencyContact String? @map("emergency_contact")
+  address          String?
+
   // Owner
-  userId                String    @map("user_id")
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Metadata
-  createdAt             DateTime  @default(now()) @map("created_at")
-  updatedAt             DateTime  @updatedAt @map("updated_at")
-  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
   @@map("children")
 }
 
