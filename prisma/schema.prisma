@@ -28,7 +28,7 @@ model User {
   // OAuth fields - at least one should be set
   googleId String? @unique @map("google_id")
   auth0Id  String? @unique @map("auth0_id")
-  
+
   // Password auth (optional - for email/password users via Auth0)
   passwordHash String? @map("password_hash")
 
