@@ -92,11 +92,92 @@ model Child {
   userId String @map("user_id")
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  // Relations
+  vaccinationRecords VaccinationRecord[]
+
   // Metadata
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("children")
+}
+
+// ============================================================================
+// VACCINATION SCHEDULE & RECORDS
+// ============================================================================
+
+// Sri Lanka National Immunization Schedule vaccines
+model Vaccine {
+  id          String @id @default(uuid())
+  name        String // Full name e.g., "Bacillus Calmette-Guérin"
+  shortName   String @map("short_name") // e.g., "BCG"
+  description String?
+
+  // Schedule information
+  scheduledAgeMonths Int     @map("scheduled_age_months") // Age in months when due
+  scheduledAgeDays   Int?    @map("scheduled_age_days") // Additional days (for birth = 0 months 0 days)
+  doseNumber         Int     @default(1) @map("dose_number") // For multi-dose vaccines
+  totalDoses         Int     @default(1) @map("total_doses")
+  ageGroup           String  @map("age_group") // Display label e.g., "At Birth", "2 Months"
+
+  // Vaccine details
+  diseasesPrevented String[] @map("diseases_prevented")
+  sideEffects       String[] @map("side_effects")
+  contraindications String[]
+
+  // Order for display
+  sortOrder Int @default(0) @map("sort_order")
+
+  // Relations
+  vaccinationRecords VaccinationRecord[]
+
+  // Metadata
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([shortName, doseNumber])
+  @@map("vaccines")
+}
+
+// Individual child's vaccination record
+model VaccinationRecord {
+  id        String @id @default(uuid())
+  childId   String @map("child_id")
+  vaccineId String @map("vaccine_id")
+
+  // Status
+  status VaccinationStatus @default(pending)
+
+  // Administration details
+  scheduledDate    DateTime  @map("scheduled_date")
+  administeredDate DateTime? @map("administered_date")
+  administeredBy   String?   @map("administered_by")
+  location         String?
+  batchNumber      String?   @map("batch_number")
+
+  // Notes
+  notes         String?
+  sideEffectsOccurred String[] @map("side_effects_occurred")
+
+  // Relations
+  child   Child   @relation(fields: [childId], references: [id], onDelete: Cascade)
+  vaccine Vaccine @relation(fields: [vaccineId], references: [id])
+
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([childId, vaccineId])
+  @@map("vaccination_records")
+}
+
+enum VaccinationStatus {
+  pending
+  completed
+  overdue
+  missed
+  scheduled
 }
 
 enum Gender {
