@@ -93,8 +93,8 @@ model Child {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Relations
-  vaccinationRecords  VaccinationRecord[]
-  growthMeasurements  GrowthMeasurement[]
+  vaccinationRecords VaccinationRecord[]
+  growthMeasurements GrowthMeasurement[]
 
   // Metadata
   createdAt DateTime @default(now()) @map("created_at")
