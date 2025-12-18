@@ -16,4 +16,5 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./google-auth.dto"), exports);
 __exportStar(require("./refresh-token.dto"), exports);
+__exportStar(require("./auth0-auth.dto"), exports);
 //# sourceMappingURL=index.js.map

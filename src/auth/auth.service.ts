@@ -1,15 +1,17 @@
 /**
  * Auth Service
  * 
- * Service for handling Google OAuth authentication and JWT token management.
+ * Service for handling Google OAuth authentication, Auth0 authentication, and JWT token management.
  */
 
 import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { OAuth2Client } from 'google-auth-library';
+import jwksRsa from 'jwks-rsa';
 import { PrismaService } from '../prisma/prisma.service';
 import { GoogleAuthDto } from './dto/google-auth.dto';
+import { Auth0AuthDto } from './dto/auth0-auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface JwtPayload {
@@ -33,10 +35,22 @@ export interface GoogleUserInfo {
   picture?: string;
 }
 
+export interface Auth0UserInfo {
+  auth0Id: string;
+  email: string;
+  emailVerified?: boolean;
+  name?: string;
+  givenName?: string;
+  familyName?: string;
+  picture?: string;
+  nickname?: string;
+}
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
   private googleClient: OAuth2Client;
+  private jwksClient: jwksRsa.JwksClient | null = null;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -46,6 +60,154 @@ export class AuthService {
     this.googleClient = new OAuth2Client(
       this.configService.get<string>('GOOGLE_CLIENT_ID'),
     );
+    
+    // Initialize JWKS client for Auth0 token verification
+    const auth0Domain = this.configService.get<string>('AUTH0_DOMAIN');
+    if (auth0Domain) {
+      this.jwksClient = jwksRsa({
+        jwksUri: `https://${auth0Domain}/.well-known/jwks.json`,
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+      });
+    }
+  }
+
+  /**
+   * Authenticate user with Auth0 token
+   */
+  async auth0Auth(dto: Auth0AuthDto): Promise<AuthTokens & { user: any }> {
+    const auth0User = await this.verifyAuth0Token(dto.auth0Token);
+    const user = await this.findOrCreateUserFromAuth0(auth0User);
+    
+    // Update last login
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    });
+
+    const tokens = await this.generateTokens(user.id, user.email, user.name);
+    
+    return {
+      ...tokens,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        givenName: user.givenName,
+        familyName: user.familyName,
+        picture: user.picture,
+        auth0Id: (user as any).auth0Id,
+      },
+    };
+  }
+
+  /**
+   * Verify Auth0 access token
+   */
+  private async verifyAuth0Token(token: string): Promise<Auth0UserInfo> {
+    const auth0Domain = this.configService.get<string>('AUTH0_DOMAIN');
+
+    if (!auth0Domain) {
+      throw new UnauthorizedException('Auth0 not configured');
+    }
+
+    try {
+      // Fetch user info from Auth0 using the access token
+      const userInfoResponse = await fetch(`https://${auth0Domain}/userinfo`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!userInfoResponse.ok) {
+        this.logger.error('Auth0 userinfo request failed:', await userInfoResponse.text());
+        throw new UnauthorizedException('Invalid Auth0 token');
+      }
+
+      const userInfo = await userInfoResponse.json();
+
+      if (!userInfo.sub || !userInfo.email) {
+        throw new UnauthorizedException('Invalid Auth0 token payload');
+      }
+
+      return {
+        auth0Id: userInfo.sub,
+        email: userInfo.email,
+        emailVerified: userInfo.email_verified,
+        name: userInfo.name,
+        givenName: userInfo.given_name,
+        familyName: userInfo.family_name,
+        picture: userInfo.picture,
+        nickname: userInfo.nickname,
+      };
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      this.logger.error('Auth0 token verification failed', error);
+      throw new UnauthorizedException('Failed to verify Auth0 token');
+    }
+  }
+
+  /**
+   * Find existing user or create new one from Auth0
+   */
+  private async findOrCreateUserFromAuth0(auth0User: Auth0UserInfo) {
+    // First try to find by auth0Id
+    let user = await this.prisma.user.findFirst({
+      where: { auth0Id: auth0User.auth0Id } as any,
+    });
+
+    if (!user) {
+      // Check if email already exists
+      const existingEmail = await this.prisma.user.findUnique({
+        where: { email: auth0User.email },
+      });
+
+      if (existingEmail) {
+        // Link Auth0 account to existing user
+        user = await this.prisma.user.update({
+          where: { email: auth0User.email },
+          data: { 
+            auth0Id: auth0User.auth0Id,
+            // Update profile if more complete from Auth0
+            name: auth0User.name || existingEmail.name,
+            givenName: auth0User.givenName || existingEmail.givenName,
+            familyName: auth0User.familyName || existingEmail.familyName,
+            picture: auth0User.picture || existingEmail.picture,
+          } as any,
+        });
+        this.logger.log(`Linked Auth0 account to existing user: ${user.email}`);
+      } else {
+        // Create new user - need to generate a placeholder googleId since it's required
+        user = await this.prisma.user.create({
+          data: {
+            auth0Id: auth0User.auth0Id,
+            googleId: `auth0_${auth0User.auth0Id}`, // Placeholder for auth0 users
+            email: auth0User.email,
+            name: auth0User.name,
+            givenName: auth0User.givenName,
+            familyName: auth0User.familyName,
+            picture: auth0User.picture,
+          } as any,
+        });
+        this.logger.log(`New user created from Auth0: ${user.email}`);
+      }
+    } else {
+      // Update user info from Auth0
+      user = await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          name: auth0User.name,
+          givenName: auth0User.givenName,
+          familyName: auth0User.familyName,
+          picture: auth0User.picture,
+        },
+      });
+    }
+
+    return user;
   }
 
   /**

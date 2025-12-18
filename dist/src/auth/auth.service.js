@@ -8,6 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var AuthService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
@@ -15,6 +18,7 @@ const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const config_1 = require("@nestjs/config");
 const google_auth_library_1 = require("google-auth-library");
+const jwks_rsa_1 = __importDefault(require("jwks-rsa"));
 const prisma_service_1 = require("../prisma/prisma.service");
 const uuid_1 = require("uuid");
 let AuthService = AuthService_1 = class AuthService {
@@ -23,11 +27,129 @@ let AuthService = AuthService_1 = class AuthService {
     configService;
     logger = new common_1.Logger(AuthService_1.name);
     googleClient;
+    jwksClient = null;
     constructor(prisma, jwtService, configService) {
         this.prisma = prisma;
         this.jwtService = jwtService;
         this.configService = configService;
         this.googleClient = new google_auth_library_1.OAuth2Client(this.configService.get('GOOGLE_CLIENT_ID'));
+        const auth0Domain = this.configService.get('AUTH0_DOMAIN');
+        if (auth0Domain) {
+            this.jwksClient = (0, jwks_rsa_1.default)({
+                jwksUri: `https://${auth0Domain}/.well-known/jwks.json`,
+                cache: true,
+                rateLimit: true,
+                jwksRequestsPerMinute: 5,
+            });
+        }
+    }
+    async auth0Auth(dto) {
+        const auth0User = await this.verifyAuth0Token(dto.auth0Token);
+        const user = await this.findOrCreateUserFromAuth0(auth0User);
+        await this.prisma.user.update({
+            where: { id: user.id },
+            data: { lastLoginAt: new Date() },
+        });
+        const tokens = await this.generateTokens(user.id, user.email, user.name);
+        return {
+            ...tokens,
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                givenName: user.givenName,
+                familyName: user.familyName,
+                picture: user.picture,
+                auth0Id: user.auth0Id,
+            },
+        };
+    }
+    async verifyAuth0Token(token) {
+        const auth0Domain = this.configService.get('AUTH0_DOMAIN');
+        if (!auth0Domain) {
+            throw new common_1.UnauthorizedException('Auth0 not configured');
+        }
+        try {
+            const userInfoResponse = await fetch(`https://${auth0Domain}/userinfo`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            if (!userInfoResponse.ok) {
+                this.logger.error('Auth0 userinfo request failed:', await userInfoResponse.text());
+                throw new common_1.UnauthorizedException('Invalid Auth0 token');
+            }
+            const userInfo = await userInfoResponse.json();
+            if (!userInfo.sub || !userInfo.email) {
+                throw new common_1.UnauthorizedException('Invalid Auth0 token payload');
+            }
+            return {
+                auth0Id: userInfo.sub,
+                email: userInfo.email,
+                emailVerified: userInfo.email_verified,
+                name: userInfo.name,
+                givenName: userInfo.given_name,
+                familyName: userInfo.family_name,
+                picture: userInfo.picture,
+                nickname: userInfo.nickname,
+            };
+        }
+        catch (error) {
+            if (error instanceof common_1.UnauthorizedException) {
+                throw error;
+            }
+            this.logger.error('Auth0 token verification failed', error);
+            throw new common_1.UnauthorizedException('Failed to verify Auth0 token');
+        }
+    }
+    async findOrCreateUserFromAuth0(auth0User) {
+        let user = await this.prisma.user.findFirst({
+            where: { auth0Id: auth0User.auth0Id },
+        });
+        if (!user) {
+            const existingEmail = await this.prisma.user.findUnique({
+                where: { email: auth0User.email },
+            });
+            if (existingEmail) {
+                user = await this.prisma.user.update({
+                    where: { email: auth0User.email },
+                    data: {
+                        auth0Id: auth0User.auth0Id,
+                        name: auth0User.name || existingEmail.name,
+                        givenName: auth0User.givenName || existingEmail.givenName,
+                        familyName: auth0User.familyName || existingEmail.familyName,
+                        picture: auth0User.picture || existingEmail.picture,
+                    },
+                });
+                this.logger.log(`Linked Auth0 account to existing user: ${user.email}`);
+            }
+            else {
+                user = await this.prisma.user.create({
+                    data: {
+                        auth0Id: auth0User.auth0Id,
+                        googleId: `auth0_${auth0User.auth0Id}`,
+                        email: auth0User.email,
+                        name: auth0User.name,
+                        givenName: auth0User.givenName,
+                        familyName: auth0User.familyName,
+                        picture: auth0User.picture,
+                    },
+                });
+                this.logger.log(`New user created from Auth0: ${user.email}`);
+            }
+        }
+        else {
+            user = await this.prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    name: auth0User.name,
+                    givenName: auth0User.givenName,
+                    familyName: auth0User.familyName,
+                    picture: auth0User.picture,
+                },
+            });
+        }
+        return user;
     }
     async googleAuth(dto) {
         let googleUser;

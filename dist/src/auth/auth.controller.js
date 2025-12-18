@@ -17,11 +17,19 @@ const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const google_auth_dto_1 = require("./dto/google-auth.dto");
 const refresh_token_dto_1 = require("./dto/refresh-token.dto");
+const auth0_auth_dto_1 = require("./dto/auth0-auth.dto");
 const jwt_auth_guard_1 = require("./guards/jwt-auth.guard");
 let AuthController = class AuthController {
     authService;
     constructor(authService) {
         this.authService = authService;
+    }
+    async auth0Auth(dto) {
+        const result = await this.authService.auth0Auth(dto);
+        return {
+            success: true,
+            data: result,
+        };
     }
     async googleAuth(dto) {
         const tokens = await this.authService.googleAuth(dto);
@@ -60,6 +68,14 @@ let AuthController = class AuthController {
     }
 };
 exports.AuthController = AuthController;
+__decorate([
+    (0, common_1.Post)('auth0'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [auth0_auth_dto_1.Auth0AuthDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "auth0Auth", null);
 __decorate([
     (0, common_1.Post)('google'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),

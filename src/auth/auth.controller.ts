@@ -17,11 +17,26 @@ import {
 import { AuthService } from './auth.service';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { Auth0AuthDto } from './dto/auth0-auth.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  /**
+   * Authenticate with Auth0 token
+   * POST /auth/auth0
+   */
+  @Post('auth0')
+  @HttpCode(HttpStatus.OK)
+  async auth0Auth(@Body() dto: Auth0AuthDto) {
+    const result = await this.authService.auth0Auth(dto);
+    return {
+      success: true,
+      data: result,
+    };
+  }
 
   /**
    * Authenticate with Google ID token
