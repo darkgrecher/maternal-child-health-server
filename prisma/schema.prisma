@@ -96,6 +96,7 @@ model Child {
   vaccinationRecords VaccinationRecord[]
   growthMeasurements GrowthMeasurement[]
   appointments       Appointment[]
+  activities         Activity[]
 
   // Metadata
   createdAt DateTime @default(now()) @map("created_at")
@@ -308,4 +309,35 @@ enum AppointmentStatus {
   cancelled
   rescheduled
   missed
+}
+
+// ============================================================================
+// ACTIVITY LOG
+// ============================================================================
+
+model Activity {
+  id          String       @id @default(uuid())
+  childId     String       @map("child_id")
+  type        ActivityType
+  title       String
+  description String?
+  date        DateTime     @default(now())
+  icon        String?
+
+  // Relations
+  child Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("activities")
+}
+
+enum ActivityType {
+  vaccination
+  growth
+  milestone
+  appointment
+  checkup
 }

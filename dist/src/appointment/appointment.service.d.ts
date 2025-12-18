@@ -91,11 +91,11 @@ export declare class AppointmentService {
             createdAt: Date;
             updatedAt: Date;
             userId: string;
+            chdrNumber: string | null;
             firstName: string;
             lastName: string;
             dateOfBirth: Date;
             gender: import("@prisma/client").$Enums.Gender;
-            chdrNumber: string | null;
             photoUri: string | null;
             birthWeight: number | null;
             birthHeight: number | null;

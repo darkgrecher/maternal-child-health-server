@@ -8,6 +8,7 @@ import { ChildModule } from './child/child.module';
 import { VaccineModule } from './vaccine/vaccine.module';
 import { GrowthModule } from './growth/growth.module';
 import { AppointmentModule } from './appointment/appointment.module';
+import { ActivityModule } from './activity/activity.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AppointmentModule } from './appointment/appointment.module';
     VaccineModule,
     GrowthModule,
     AppointmentModule,
+    ActivityModule,
   ],
   controllers: [AppController],
   providers: [AppService],
