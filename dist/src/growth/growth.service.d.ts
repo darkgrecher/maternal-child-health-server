@@ -1,0 +1,122 @@
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateGrowthMeasurementDto, UpdateGrowthMeasurementDto } from './dto';
+export declare class GrowthService {
+    private prisma;
+    constructor(prisma: PrismaService);
+    private calculateAgeInMonths;
+    private calculateAgeInDays;
+    private getClosestReferenceAge;
+    private calculateZScore;
+    private zScoreToPercentile;
+    private calculateGrowthMetrics;
+    getChildMeasurements(childId: string): Promise<{
+        childId: string;
+        childName: string;
+        dateOfBirth: Date;
+        gender: import("@prisma/client").$Enums.Gender;
+        birthWeight: number | null;
+        birthHeight: number | null;
+        birthHeadCircumference: number | null;
+        measurements: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            childId: string;
+            location: string | null;
+            notes: string | null;
+            measurementDate: Date;
+            ageInMonths: number;
+            ageInDays: number | null;
+            weight: number;
+            height: number;
+            headCircumference: number | null;
+            weightPercentile: number | null;
+            heightPercentile: number | null;
+            headCircumferencePercentile: number | null;
+            weightZScore: number | null;
+            heightZScore: number | null;
+            headCircumferenceZScore: number | null;
+            bmi: number | null;
+            bmiPercentile: number | null;
+            bmiZScore: number | null;
+            measuredBy: string | null;
+        }[];
+        summary: {
+            latestWeight: number;
+            latestHeight: number;
+            latestHeadCircumference: number | null;
+            latestWeightPercentile: number | null;
+            latestHeightPercentile: number | null;
+            latestHeadCircumferencePercentile: number | null;
+            totalMeasurements: number;
+            lastMeasurementDate: Date;
+        } | null;
+    }>;
+    addMeasurement(childId: string, dto: CreateGrowthMeasurementDto): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        childId: string;
+        location: string | null;
+        notes: string | null;
+        measurementDate: Date;
+        ageInMonths: number;
+        ageInDays: number | null;
+        weight: number;
+        height: number;
+        headCircumference: number | null;
+        weightPercentile: number | null;
+        heightPercentile: number | null;
+        headCircumferencePercentile: number | null;
+        weightZScore: number | null;
+        heightZScore: number | null;
+        headCircumferenceZScore: number | null;
+        bmi: number | null;
+        bmiPercentile: number | null;
+        bmiZScore: number | null;
+        measuredBy: string | null;
+    }>;
+    updateMeasurement(measurementId: string, dto: UpdateGrowthMeasurementDto): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        childId: string;
+        location: string | null;
+        notes: string | null;
+        measurementDate: Date;
+        ageInMonths: number;
+        ageInDays: number | null;
+        weight: number;
+        height: number;
+        headCircumference: number | null;
+        weightPercentile: number | null;
+        heightPercentile: number | null;
+        headCircumferencePercentile: number | null;
+        weightZScore: number | null;
+        heightZScore: number | null;
+        headCircumferenceZScore: number | null;
+        bmi: number | null;
+        bmiPercentile: number | null;
+        bmiZScore: number | null;
+        measuredBy: string | null;
+    }>;
+    deleteMeasurement(measurementId: string): Promise<{
+        message: string;
+    }>;
+    getChartData(childId: string, chartType: 'weight' | 'height' | 'head'): Promise<{
+        childId: string;
+        chartType: "weight" | "height" | "head";
+        gender: import("@prisma/client").$Enums.Gender;
+        dataPoints: {
+            date: Date;
+            ageInMonths: number;
+            value: number | null;
+            percentile: number | null;
+        }[];
+        referenceData: Record<string, {
+            age: number;
+            value: number;
+        }[]>;
+    }>;
+    private getWHOReferenceData;
+}

@@ -93,7 +93,8 @@ model Child {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Relations
-  vaccinationRecords VaccinationRecord[]
+  vaccinationRecords  VaccinationRecord[]
+  growthMeasurements  GrowthMeasurement[]
 
   // Metadata
   createdAt DateTime @default(now()) @map("created_at")
@@ -178,6 +179,54 @@ enum VaccinationStatus {
   overdue
   missed
   scheduled
+}
+
+// ============================================================================
+// GROWTH MEASUREMENTS
+// ============================================================================
+
+model GrowthMeasurement {
+  id      String @id @default(uuid())
+  childId String @map("child_id")
+
+  // Measurement data
+  measurementDate DateTime @map("measurement_date")
+  ageInMonths     Int      @map("age_in_months")
+  ageInDays       Int?     @map("age_in_days")
+
+  // Physical measurements
+  weight            Float // in kg
+  height            Float // in cm
+  headCircumference Float? @map("head_circumference") // in cm
+
+  // WHO Percentiles (calculated based on age and gender)
+  weightPercentile            Float? @map("weight_percentile")
+  heightPercentile            Float? @map("height_percentile")
+  headCircumferencePercentile Float? @map("head_circumference_percentile")
+
+  // Z-scores (standard deviations from median)
+  weightZScore            Float? @map("weight_z_score")
+  heightZScore            Float? @map("height_z_score")
+  headCircumferenceZScore Float? @map("head_circumference_z_score")
+
+  // BMI (calculated)
+  bmi           Float?
+  bmiPercentile Float? @map("bmi_percentile")
+  bmiZScore     Float? @map("bmi_z_score")
+
+  // Measurement context
+  measuredBy String? @map("measured_by")
+  location   String?
+  notes      String?
+
+  // Relations
+  child Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("growth_measurements")
 }
 
 enum Gender {
