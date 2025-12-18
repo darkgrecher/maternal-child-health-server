@@ -4,48 +4,48 @@ export declare class ActivityService {
     private prisma;
     constructor(prisma: PrismaService);
     getChildActivities(childId: string): Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        description: string | null;
-        childId: string;
         type: import("@prisma/client").$Enums.ActivityType;
         title: string;
+        description: string | null;
         date: Date;
         icon: string | null;
+        id: string;
+        childId: string;
+        createdAt: Date;
+        updatedAt: Date;
     }[]>;
     getActivity(id: string): Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        description: string | null;
-        childId: string;
         type: import("@prisma/client").$Enums.ActivityType;
         title: string;
+        description: string | null;
         date: Date;
         icon: string | null;
+        id: string;
+        childId: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     createActivity(childId: string, dto: CreateActivityDto): Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        description: string | null;
-        childId: string;
         type: import("@prisma/client").$Enums.ActivityType;
         title: string;
+        description: string | null;
         date: Date;
         icon: string | null;
+        id: string;
+        childId: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     updateActivity(id: string, dto: UpdateActivityDto): Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        description: string | null;
-        childId: string;
         type: import("@prisma/client").$Enums.ActivityType;
         title: string;
+        description: string | null;
         date: Date;
         icon: string | null;
+        id: string;
+        childId: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     deleteActivity(id: string): Promise<{
         message: string;

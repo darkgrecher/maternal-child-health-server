@@ -1,4 +1,8 @@
-declare const UpdateActivityDto_base: any;
-export declare class UpdateActivityDto extends UpdateActivityDto_base {
+import { ActivityType } from './create-activity.dto';
+export declare class UpdateActivityDto {
+    type?: ActivityType;
+    title?: string;
+    description?: string;
+    date?: string;
+    icon?: string;
 }
-export {};

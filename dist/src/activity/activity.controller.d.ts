@@ -6,57 +6,57 @@ export declare class ActivityController {
     getChildActivities(childId: string): Promise<{
         success: boolean;
         data: {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            description: string | null;
-            childId: string;
             type: import("@prisma/client").$Enums.ActivityType;
             title: string;
+            description: string | null;
             date: Date;
             icon: string | null;
+            id: string;
+            childId: string;
+            createdAt: Date;
+            updatedAt: Date;
         }[];
     }>;
     getActivity(id: string): Promise<{
         success: boolean;
         data: {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            description: string | null;
-            childId: string;
             type: import("@prisma/client").$Enums.ActivityType;
             title: string;
+            description: string | null;
             date: Date;
             icon: string | null;
+            id: string;
+            childId: string;
+            createdAt: Date;
+            updatedAt: Date;
         };
     }>;
     createActivity(childId: string, dto: CreateActivityDto): Promise<{
         success: boolean;
         data: {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            description: string | null;
-            childId: string;
             type: import("@prisma/client").$Enums.ActivityType;
             title: string;
+            description: string | null;
             date: Date;
             icon: string | null;
+            id: string;
+            childId: string;
+            createdAt: Date;
+            updatedAt: Date;
         };
     }>;
     updateActivity(id: string, dto: UpdateActivityDto): Promise<{
         success: boolean;
         data: {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            description: string | null;
-            childId: string;
             type: import("@prisma/client").$Enums.ActivityType;
             title: string;
+            description: string | null;
             date: Date;
             icon: string | null;
+            id: string;
+            childId: string;
+            createdAt: Date;
+            updatedAt: Date;
         };
     }>;
     deleteActivity(id: string): Promise<{
