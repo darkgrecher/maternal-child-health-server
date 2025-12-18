@@ -95,6 +95,7 @@ model Child {
   // Relations
   vaccinationRecords VaccinationRecord[]
   growthMeasurements GrowthMeasurement[]
+  appointments       Appointment[]
 
   // Metadata
   createdAt DateTime @default(now()) @map("created_at")
@@ -250,4 +251,61 @@ enum DeliveryType {
   normal
   cesarean
   assisted
+}
+
+// ============================================================================
+// APPOINTMENTS
+// ============================================================================
+
+model Appointment {
+  id      String @id @default(uuid())
+  childId String @map("child_id")
+
+  // Appointment details
+  title    String
+  type     AppointmentType
+  dateTime DateTime        @map("date_time")
+  duration Int?            // Duration in minutes
+
+  // Location
+  location String
+  address  String?
+
+  // Provider information
+  providerName String? @map("provider_name")
+  providerRole String? @map("provider_role")
+  providerPhone String? @map("provider_phone")
+
+  // Status
+  status AppointmentStatus @default(scheduled)
+  notes  String?
+
+  // Reminder
+  reminderSent Boolean @default(false) @map("reminder_sent")
+
+  // Relations
+  child Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("appointments")
+}
+
+enum AppointmentType {
+  vaccination
+  growth_check
+  development_check
+  general_checkup
+  specialist
+  emergency
+}
+
+enum AppointmentStatus {
+  scheduled
+  completed
+  cancelled
+  rescheduled
+  missed
 }

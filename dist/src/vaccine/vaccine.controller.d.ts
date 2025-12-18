@@ -155,8 +155,8 @@ export declare class VaccineController {
             updatedAt: Date;
             childId: string;
             vaccineId: string;
-            status: import("@prisma/client").$Enums.VaccinationStatus;
             scheduledDate: Date;
+            status: import("@prisma/client").$Enums.VaccinationStatus;
             administeredDate: Date | null;
             administeredBy: string | null;
             location: string | null;
@@ -192,8 +192,8 @@ export declare class VaccineController {
             updatedAt: Date;
             childId: string;
             vaccineId: string;
-            status: import("@prisma/client").$Enums.VaccinationStatus;
             scheduledDate: Date;
+            status: import("@prisma/client").$Enums.VaccinationStatus;
             administeredDate: Date | null;
             administeredBy: string | null;
             location: string | null;

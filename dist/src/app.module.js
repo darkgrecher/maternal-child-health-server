@@ -16,6 +16,7 @@ const auth_module_1 = require("./auth/auth.module");
 const child_module_1 = require("./child/child.module");
 const vaccine_module_1 = require("./vaccine/vaccine.module");
 const growth_module_1 = require("./growth/growth.module");
+const appointment_module_1 = require("./appointment/appointment.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -31,6 +32,7 @@ exports.AppModule = AppModule = __decorate([
             child_module_1.ChildModule,
             vaccine_module_1.VaccineModule,
             growth_module_1.GrowthModule,
+            appointment_module_1.AppointmentModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
