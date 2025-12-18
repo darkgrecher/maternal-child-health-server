@@ -108,17 +108,17 @@ model Child {
 
 // Sri Lanka National Immunization Schedule vaccines
 model Vaccine {
-  id          String @id @default(uuid())
+  id          String  @id @default(uuid())
   name        String // Full name e.g., "Bacillus Calmette-Guérin"
-  shortName   String @map("short_name") // e.g., "BCG"
+  shortName   String  @map("short_name") // e.g., "BCG"
   description String?
 
   // Schedule information
-  scheduledAgeMonths Int     @map("scheduled_age_months") // Age in months when due
-  scheduledAgeDays   Int?    @map("scheduled_age_days") // Additional days (for birth = 0 months 0 days)
-  doseNumber         Int     @default(1) @map("dose_number") // For multi-dose vaccines
-  totalDoses         Int     @default(1) @map("total_doses")
-  ageGroup           String  @map("age_group") // Display label e.g., "At Birth", "2 Months"
+  scheduledAgeMonths Int    @map("scheduled_age_months") // Age in months when due
+  scheduledAgeDays   Int?   @map("scheduled_age_days") // Additional days (for birth = 0 months 0 days)
+  doseNumber         Int    @default(1) @map("dose_number") // For multi-dose vaccines
+  totalDoses         Int    @default(1) @map("total_doses")
+  ageGroup           String @map("age_group") // Display label e.g., "At Birth", "2 Months"
 
   // Vaccine details
   diseasesPrevented String[] @map("diseases_prevented")
@@ -157,7 +157,7 @@ model VaccinationRecord {
   batchNumber      String?   @map("batch_number")
 
   // Notes
-  notes         String?
+  notes               String?
   sideEffectsOccurred String[] @map("side_effects_occurred")
 
   // Relations
