@@ -265,15 +265,15 @@ model Appointment {
   title    String
   type     AppointmentType
   dateTime DateTime        @map("date_time")
-  duration Int?            // Duration in minutes
+  duration Int? // Duration in minutes
 
   // Location
   location String
   address  String?
 
   // Provider information
-  providerName String? @map("provider_name")
-  providerRole String? @map("provider_role")
+  providerName  String? @map("provider_name")
+  providerRole  String? @map("provider_role")
   providerPhone String? @map("provider_phone")
 
   // Status
