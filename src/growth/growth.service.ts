@@ -340,6 +340,18 @@ export class GrowthService {
       },
     });
 
+    // Automatically create an activity for this growth measurement
+    await this.prisma.activity.create({
+      data: {
+        childId,
+        type: 'growth',
+        title: `Growth Measurement: ${dto.weight}kg, ${dto.height}cm`,
+        description: `Weight: ${dto.weight}kg | Height: ${dto.height}cm${dto.headCircumference ? ` | Head: ${dto.headCircumference}cm` : ''}${dto.notes ? ` | Notes: ${dto.notes}` : ''}`,
+        date: measurementDate,
+        icon: 'growth',
+      },
+    });
+
     return measurement;
   }
 

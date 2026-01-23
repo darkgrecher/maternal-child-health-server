@@ -158,6 +158,16 @@ let VaccineService = class VaccineService {
             },
             include: { vaccine: true },
         });
+        await this.prisma.activity.create({
+            data: {
+                childId,
+                type: 'vaccination',
+                title: `Vaccination: ${record.vaccine.shortName}`,
+                description: `Administered ${record.vaccine.fullName}${dto.location ? ` at ${dto.location}` : ''}${dto.notes ? ` | Notes: ${dto.notes}` : ''}`,
+                date: record.administeredDate || new Date(),
+                icon: 'vaccination',
+            },
+        });
         return record;
     }
     async updateVaccinationRecord(userId, recordId, dto) {
