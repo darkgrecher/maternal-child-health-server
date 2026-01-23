@@ -9,6 +9,7 @@ import { VaccineModule } from './vaccine/vaccine.module';
 import { GrowthModule } from './growth/growth.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { ActivityModule } from './activity/activity.module';
+import { EmergencyContactModule } from './emergency-contact/emergency-contact.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ActivityModule } from './activity/activity.module';
     GrowthModule,
     AppointmentModule,
     ActivityModule,
+    EmergencyContactModule,
   ],
   controllers: [AppController],
   providers: [AppService],

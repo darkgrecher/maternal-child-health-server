@@ -214,7 +214,7 @@ export class VaccineService {
         childId,
         type: 'vaccination',
         title: `Vaccination: ${record.vaccine.shortName}`,
-        description: `Administered ${record.vaccine.fullName}${dto.location ? ` at ${dto.location}` : ''}${dto.notes ? ` | Notes: ${dto.notes}` : ''}`,
+        description: `Administered ${record.vaccine.name}${dto.location ? ` at ${dto.location}` : ''}${dto.notes ? ` | Notes: ${dto.notes}` : ''}`,
         date: record.administeredDate || new Date(),
         icon: 'vaccination',
       },

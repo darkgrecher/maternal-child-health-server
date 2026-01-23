@@ -38,8 +38,9 @@ model User {
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
   // Relations
-  children      Child[]
-  refreshTokens RefreshToken[]
+  children          Child[]
+  refreshTokens     RefreshToken[]
+  emergencyContacts EmergencyContact[]
 
   @@map("users")
 }
@@ -340,4 +341,34 @@ enum ActivityType {
   milestone
   appointment
   checkup
+}
+
+// ============================================================================
+// EMERGENCY CONTACTS
+// ============================================================================
+
+model EmergencyContact {
+  id     String @id @default(uuid())
+  userId String @map("user_id")
+
+  // Contact Information
+  name      String
+  role      String // e.g., "Pediatrician", "Grandmother", "Neighbor"
+  phone     String
+  isPrimary Boolean @default(false) @map("is_primary")
+  isDefault Boolean @default(false) @map("is_default") // For system default contacts
+
+  // Optional details
+  email   String?
+  address String?
+  notes   String?
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("emergency_contacts")
 }

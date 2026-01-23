@@ -18,12 +18,15 @@ export declare class GrowthController {
                 createdAt: Date;
                 updatedAt: Date;
                 childId: string;
+                location: string | null;
+                notes: string | null;
                 measurementDate: Date;
-                ageInMonths: number;
-                ageInDays: number | null;
                 weight: number;
                 height: number;
                 headCircumference: number | null;
+                measuredBy: string | null;
+                ageInMonths: number;
+                ageInDays: number | null;
                 weightPercentile: number | null;
                 heightPercentile: number | null;
                 headCircumferencePercentile: number | null;
@@ -33,9 +36,6 @@ export declare class GrowthController {
                 bmi: number | null;
                 bmiPercentile: number | null;
                 bmiZScore: number | null;
-                measuredBy: string | null;
-                location: string | null;
-                notes: string | null;
             }[];
             summary: {
                 latestWeight: number;
@@ -74,12 +74,15 @@ export declare class GrowthController {
             createdAt: Date;
             updatedAt: Date;
             childId: string;
+            location: string | null;
+            notes: string | null;
             measurementDate: Date;
-            ageInMonths: number;
-            ageInDays: number | null;
             weight: number;
             height: number;
             headCircumference: number | null;
+            measuredBy: string | null;
+            ageInMonths: number;
+            ageInDays: number | null;
             weightPercentile: number | null;
             heightPercentile: number | null;
             headCircumferencePercentile: number | null;
@@ -89,9 +92,6 @@ export declare class GrowthController {
             bmi: number | null;
             bmiPercentile: number | null;
             bmiZScore: number | null;
-            measuredBy: string | null;
-            location: string | null;
-            notes: string | null;
         };
     }>;
     updateMeasurement(measurementId: string, dto: UpdateGrowthMeasurementDto): Promise<{
@@ -101,12 +101,15 @@ export declare class GrowthController {
             createdAt: Date;
             updatedAt: Date;
             childId: string;
+            location: string | null;
+            notes: string | null;
             measurementDate: Date;
-            ageInMonths: number;
-            ageInDays: number | null;
             weight: number;
             height: number;
             headCircumference: number | null;
+            measuredBy: string | null;
+            ageInMonths: number;
+            ageInDays: number | null;
             weightPercentile: number | null;
             heightPercentile: number | null;
             headCircumferencePercentile: number | null;
@@ -116,9 +119,6 @@ export declare class GrowthController {
             bmi: number | null;
             bmiPercentile: number | null;
             bmiZScore: number | null;
-            measuredBy: string | null;
-            location: string | null;
-            notes: string | null;
         };
     }>;
     deleteMeasurement(measurementId: string): Promise<{

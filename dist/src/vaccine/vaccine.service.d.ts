@@ -6,6 +6,8 @@ export declare class VaccineService {
     getAllVaccines(): Promise<{
         id: string;
         name: string;
+        createdAt: Date;
+        updatedAt: Date;
         shortName: string;
         description: string | null;
         scheduledAgeMonths: number;
@@ -18,14 +20,14 @@ export declare class VaccineService {
         contraindications: string[];
         sortOrder: number;
         isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
     }[]>;
     getVaccinesByAgeGroup(): Promise<{
         ageGroup: string;
         vaccines: {
             id: string;
             name: string;
+            createdAt: Date;
+            updatedAt: Date;
             shortName: string;
             description: string | null;
             scheduledAgeMonths: number;
@@ -38,8 +40,6 @@ export declare class VaccineService {
             contraindications: string[];
             sortOrder: number;
             isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
         }[];
     }[]>;
     getChildVaccinationRecords(userId: string, childId: string): Promise<{
@@ -55,6 +55,8 @@ export declare class VaccineService {
             vaccine: {
                 id: string;
                 name: string;
+                createdAt: Date;
+                updatedAt: Date;
                 shortName: string;
                 description: string | null;
                 scheduledAgeMonths: number;
@@ -67,8 +69,6 @@ export declare class VaccineService {
                 contraindications: string[];
                 sortOrder: number;
                 isActive: boolean;
-                createdAt: Date;
-                updatedAt: Date;
             };
             childId: string;
             scheduledDate: string;
@@ -93,6 +93,8 @@ export declare class VaccineService {
             vaccine: {
                 id: string;
                 name: string;
+                createdAt: Date;
+                updatedAt: Date;
                 shortName: string;
                 description: string | null;
                 scheduledAgeMonths: number;
@@ -105,8 +107,6 @@ export declare class VaccineService {
                 contraindications: string[];
                 sortOrder: number;
                 isActive: boolean;
-                createdAt: Date;
-                updatedAt: Date;
             };
             childId: string;
             scheduledDate: string;
@@ -123,6 +123,8 @@ export declare class VaccineService {
         vaccine: {
             id: string;
             name: string;
+            createdAt: Date;
+            updatedAt: Date;
             shortName: string;
             description: string | null;
             scheduledAgeMonths: number;
@@ -135,8 +137,6 @@ export declare class VaccineService {
             contraindications: string[];
             sortOrder: number;
             isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
         };
     } & {
         id: string;
@@ -144,8 +144,8 @@ export declare class VaccineService {
         updatedAt: Date;
         childId: string;
         vaccineId: string;
-        status: import("@prisma/client").$Enums.VaccinationStatus;
         scheduledDate: Date;
+        status: import("@prisma/client").$Enums.VaccinationStatus;
         administeredDate: Date | null;
         administeredBy: string | null;
         location: string | null;
@@ -157,6 +157,8 @@ export declare class VaccineService {
         vaccine: {
             id: string;
             name: string;
+            createdAt: Date;
+            updatedAt: Date;
             shortName: string;
             description: string | null;
             scheduledAgeMonths: number;
@@ -169,8 +171,6 @@ export declare class VaccineService {
             contraindications: string[];
             sortOrder: number;
             isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
         };
     } & {
         id: string;
@@ -178,8 +178,8 @@ export declare class VaccineService {
         updatedAt: Date;
         childId: string;
         vaccineId: string;
-        status: import("@prisma/client").$Enums.VaccinationStatus;
         scheduledDate: Date;
+        status: import("@prisma/client").$Enums.VaccinationStatus;
         administeredDate: Date | null;
         administeredBy: string | null;
         location: string | null;

@@ -87,6 +87,7 @@ export declare class AppointmentService {
     }>;
     getAppointment(appointmentId: string): Promise<{
         child: {
+            emergencyContact: string | null;
             id: string;
             createdAt: Date;
             updatedAt: Date;
@@ -107,7 +108,6 @@ export declare class AppointmentService {
             specialConditions: string[];
             motherName: string | null;
             fatherName: string | null;
-            emergencyContact: string | null;
             address: string | null;
         };
     } & {

@@ -111,6 +111,7 @@ export declare class AppointmentController {
     })[]>;
     getAppointment(id: string): Promise<{
         child: {
+            emergencyContact: string | null;
             id: string;
             createdAt: Date;
             updatedAt: Date;
@@ -131,7 +132,6 @@ export declare class AppointmentController {
             specialConditions: string[];
             motherName: string | null;
             fatherName: string | null;
-            emergencyContact: string | null;
             address: string | null;
         };
     } & {
