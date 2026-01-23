@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { ChildModule } from './child/child.module';
+import { PregnancyModule } from './pregnancy/pregnancy.module';
 import { VaccineModule } from './vaccine/vaccine.module';
 import { GrowthModule } from './growth/growth.module';
 import { AppointmentModule } from './appointment/appointment.module';
@@ -20,6 +21,7 @@ import { EmergencyContactModule } from './emergency-contact/emergency-contact.mo
     PrismaModule,
     AuthModule,
     ChildModule,
+    PregnancyModule,
     VaccineModule,
     GrowthModule,
     AppointmentModule,

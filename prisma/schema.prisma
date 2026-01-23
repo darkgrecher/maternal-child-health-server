@@ -39,6 +39,7 @@ model User {
 
   // Relations
   children          Child[]
+  pregnancies       Pregnancy[]
   refreshTokens     RefreshToken[]
   emergencyContacts EmergencyContact[]
 
@@ -341,6 +342,165 @@ enum ActivityType {
   milestone
   appointment
   checkup
+}
+
+// ============================================================================
+// PREGNANCY PROFILES
+// ============================================================================
+
+model Pregnancy {
+  id     String @id @default(uuid())
+  userId String @map("user_id")
+
+  // Mother's Information
+  motherFirstName   String   @map("mother_first_name")
+  motherLastName    String   @map("mother_last_name")
+  motherDateOfBirth DateTime @map("mother_date_of_birth")
+  motherBloodType   BloodType? @map("mother_blood_type")
+  motherPhotoUri    String?  @map("mother_photo_uri")
+
+  // Pregnancy Information
+  expectedDeliveryDate DateTime  @map("expected_delivery_date") // EDD
+  lastMenstrualPeriod  DateTime? @map("last_menstrual_period") // LMP
+  conceptionDate       DateTime? @map("conception_date")
+  
+  // Current Status
+  status PregnancyStatus @default(active)
+  currentWeek Int?       @map("current_week") // Calculated from LMP/EDD
+  trimester   Int?       // 1, 2, or 3
+  
+  // Medical Information
+  gravida       Int? // Number of pregnancies (including current)
+  para          Int? // Number of deliveries
+  bloodPressure String? @map("blood_pressure")
+  prePregnancyWeight Float? @map("pre_pregnancy_weight") // in kg
+  currentWeight Float?     @map("current_weight") // in kg
+  height        Float?     // in cm
+  
+  // Risk Factors
+  isHighRisk       Boolean @default(false) @map("is_high_risk")
+  riskFactors      String[] @map("risk_factors")
+  medicalConditions String[] @map("medical_conditions")
+  allergies        String[]
+  medications      String[]
+  
+  // Healthcare
+  hospitalName      String? @map("hospital_name")
+  obgynName         String? @map("obgyn_name")
+  obgynContact      String? @map("obgyn_contact")
+  midwifeName       String? @map("midwife_name")
+  midwifeContact    String? @map("midwife_contact")
+  
+  // Baby Information (known before birth)
+  expectedGender Gender? @map("expected_gender") // If known from ultrasound
+  babyNickname   String? @map("baby_nickname") // e.g., "Baby Smith"
+  numberOfBabies Int @default(1) @map("number_of_babies") // For multiple pregnancies
+  
+  // Conversion to Child Profile
+  convertedToChildId String? @unique @map("converted_to_child_id") // Reference to Child after delivery
+  deliveryDate       DateTime? @map("delivery_date")
+  deliveryType       DeliveryType? @map("delivery_type")
+  deliveryNotes      String? @map("delivery_notes")
+  
+  // Emergency Contact specific to pregnancy
+  emergencyContactName  String? @map("emergency_contact_name")
+  emergencyContactPhone String? @map("emergency_contact_phone")
+  emergencyContactRelation String? @map("emergency_contact_relation")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pregnancyCheckups PregnancyCheckup[]
+  pregnancyMeasurements PregnancyMeasurement[]
+
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("pregnancies")
+}
+
+// Pregnancy status
+enum PregnancyStatus {
+  active      // Currently pregnant
+  delivered   // Baby has been born
+  terminated  // Pregnancy ended (miscarriage, etc.)
+  converted   // Converted to child profile
+}
+
+// Regular prenatal checkups
+model PregnancyCheckup {
+  id          String @id @default(uuid())
+  pregnancyId String @map("pregnancy_id")
+  
+  // Checkup details
+  checkupDate   DateTime @map("checkup_date")
+  weekOfPregnancy Int    @map("week_of_pregnancy")
+  
+  // Measurements
+  weight        Float?  // Mother's weight in kg
+  bloodPressureSystolic  Int? @map("blood_pressure_systolic")
+  bloodPressureDiastolic Int? @map("blood_pressure_diastolic")
+  fundalHeight  Float? @map("fundal_height") // in cm
+  fetalHeartRate Int?  @map("fetal_heart_rate") // bpm
+  
+  // Baby's measurements (from ultrasound)
+  fetalWeight    Float? @map("fetal_weight") // Estimated in grams
+  fetalLength    Float? @map("fetal_length") // Crown-rump length in mm
+  amnioticFluid  String? @map("amniotic_fluid") // Normal/Low/High
+  placentaPosition String? @map("placenta_position")
+  
+  // Test results
+  urineProtein   String? @map("urine_protein")
+  urineGlucose   String? @map("urine_glucose")
+  hemoglobin     Float?
+  
+  // Notes and recommendations
+  notes          String?
+  recommendations String[]
+  nextCheckupDate DateTime? @map("next_checkup_date")
+  
+  // Provider
+  providerName String? @map("provider_name")
+  location     String?
+  
+  // Relations
+  pregnancy Pregnancy @relation(fields: [pregnancyId], references: [id], onDelete: Cascade)
+  
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  @@map("pregnancy_checkups")
+}
+
+// Mother's measurements during pregnancy
+model PregnancyMeasurement {
+  id          String @id @default(uuid())
+  pregnancyId String @map("pregnancy_id")
+  
+  // Measurement data
+  measurementDate DateTime @map("measurement_date")
+  weekOfPregnancy Int      @map("week_of_pregnancy")
+  
+  // Physical measurements
+  weight          Float  // in kg
+  bellyCircumference Float? @map("belly_circumference") // in cm
+  bloodPressureSystolic  Int? @map("blood_pressure_systolic")
+  bloodPressureDiastolic Int? @map("blood_pressure_diastolic")
+  
+  // Symptoms/Notes
+  symptoms    String[]
+  mood        String?  // happy, tired, anxious, etc.
+  notes       String?
+  
+  // Relations
+  pregnancy Pregnancy @relation(fields: [pregnancyId], references: [id], onDelete: Cascade)
+  
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  @@map("pregnancy_measurements")
 }
 
 // ============================================================================

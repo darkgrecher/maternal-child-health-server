@@ -17,12 +17,12 @@ export declare class GrowthController {
                 id: string;
                 createdAt: Date;
                 updatedAt: Date;
-                childId: string;
-                location: string | null;
-                notes: string | null;
-                measurementDate: Date;
-                weight: number;
                 height: number;
+                weight: number;
+                notes: string | null;
+                location: string | null;
+                measurementDate: Date;
+                childId: string;
                 headCircumference: number | null;
                 measuredBy: string | null;
                 ageInMonths: number;
@@ -53,7 +53,7 @@ export declare class GrowthController {
         success: boolean;
         data: {
             childId: string;
-            chartType: "weight" | "height" | "head";
+            chartType: "height" | "weight" | "head";
             gender: import("@prisma/client").$Enums.Gender;
             dataPoints: {
                 date: Date;
@@ -73,12 +73,12 @@ export declare class GrowthController {
             id: string;
             createdAt: Date;
             updatedAt: Date;
-            childId: string;
-            location: string | null;
-            notes: string | null;
-            measurementDate: Date;
-            weight: number;
             height: number;
+            weight: number;
+            notes: string | null;
+            location: string | null;
+            measurementDate: Date;
+            childId: string;
             headCircumference: number | null;
             measuredBy: string | null;
             ageInMonths: number;
@@ -100,12 +100,12 @@ export declare class GrowthController {
             id: string;
             createdAt: Date;
             updatedAt: Date;
-            childId: string;
-            location: string | null;
-            notes: string | null;
-            measurementDate: Date;
-            weight: number;
             height: number;
+            weight: number;
+            notes: string | null;
+            location: string | null;
+            measurementDate: Date;
+            childId: string;
             headCircumference: number | null;
             measuredBy: string | null;
             ageInMonths: number;

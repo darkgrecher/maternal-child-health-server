@@ -142,15 +142,15 @@ export declare class VaccineService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        notes: string | null;
+        location: string | null;
+        status: import("@prisma/client").$Enums.VaccinationStatus;
         childId: string;
         vaccineId: string;
         scheduledDate: Date;
-        status: import("@prisma/client").$Enums.VaccinationStatus;
         administeredDate: Date | null;
         administeredBy: string | null;
-        location: string | null;
         batchNumber: string | null;
-        notes: string | null;
         sideEffectsOccurred: string[];
     }>;
     updateVaccinationRecord(userId: string, recordId: string, dto: UpdateVaccinationRecordDto): Promise<{
@@ -176,15 +176,15 @@ export declare class VaccineService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        notes: string | null;
+        location: string | null;
+        status: import("@prisma/client").$Enums.VaccinationStatus;
         childId: string;
         vaccineId: string;
         scheduledDate: Date;
-        status: import("@prisma/client").$Enums.VaccinationStatus;
         administeredDate: Date | null;
         administeredBy: string | null;
-        location: string | null;
         batchNumber: string | null;
-        notes: string | null;
         sideEffectsOccurred: string[];
     }>;
     seedVaccineSchedule(): Promise<{

@@ -14,6 +14,7 @@ const app_service_1 = require("./app.service");
 const prisma_module_1 = require("./prisma/prisma.module");
 const auth_module_1 = require("./auth/auth.module");
 const child_module_1 = require("./child/child.module");
+const pregnancy_module_1 = require("./pregnancy/pregnancy.module");
 const vaccine_module_1 = require("./vaccine/vaccine.module");
 const growth_module_1 = require("./growth/growth.module");
 const appointment_module_1 = require("./appointment/appointment.module");
@@ -32,6 +33,7 @@ exports.AppModule = AppModule = __decorate([
             prisma_module_1.PrismaModule,
             auth_module_1.AuthModule,
             child_module_1.ChildModule,
+            pregnancy_module_1.PregnancyModule,
             vaccine_module_1.VaccineModule,
             growth_module_1.GrowthModule,
             appointment_module_1.AppointmentModule,
