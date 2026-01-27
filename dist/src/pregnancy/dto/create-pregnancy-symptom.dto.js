@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreatePregnancySymptomDto = void 0;
 const class_validator_1 = require("class-validator");
-const swagger_1 = require("@nestjs/swagger");
 class CreatePregnancySymptomDto {
     date;
     weekOfPregnancy;
@@ -20,13 +19,11 @@ class CreatePregnancySymptomDto {
 }
 exports.CreatePregnancySymptomDto = CreatePregnancySymptomDto;
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Date of the symptom record', example: '2026-01-27' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsDateString)(),
     __metadata("design:type", String)
 ], CreatePregnancySymptomDto.prototype, "date", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Week of pregnancy', example: 20, minimum: 1, maximum: 42 }),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(1),
@@ -34,17 +31,11 @@ __decorate([
     __metadata("design:type", Number)
 ], CreatePregnancySymptomDto.prototype, "weekOfPregnancy", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({
-        description: 'Array of symptom IDs',
-        example: ['fatigue', 'nausea', 'backpain'],
-        type: [String]
-    }),
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.IsString)({ each: true }),
     __metadata("design:type", Array)
 ], CreatePregnancySymptomDto.prototype, "symptoms", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Additional notes' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)

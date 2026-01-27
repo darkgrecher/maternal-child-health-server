@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreatePregnancyJournalDto = void 0;
 const class_validator_1 = require("class-validator");
-const swagger_1 = require("@nestjs/swagger");
 class CreatePregnancyJournalDto {
     date;
     weekOfPregnancy;
@@ -21,13 +20,11 @@ class CreatePregnancyJournalDto {
 }
 exports.CreatePregnancyJournalDto = CreatePregnancyJournalDto;
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ description: 'Date of the journal entry', example: '2026-01-27' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsDateString)(),
     __metadata("design:type", String)
 ], CreatePregnancyJournalDto.prototype, "date", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Week of pregnancy', example: 20, minimum: 1, maximum: 42 }),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(1),
@@ -35,23 +32,16 @@ __decorate([
     __metadata("design:type", Number)
 ], CreatePregnancyJournalDto.prototype, "weekOfPregnancy", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Title of the journal entry', example: 'First Kick!' }),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreatePregnancyJournalDto.prototype, "title", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Content of the journal entry' }),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreatePregnancyJournalDto.prototype, "content", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({
-        description: 'Mood at the time of entry',
-        example: 'happy',
-        enum: ['happy', 'excited', 'neutral', 'tired', 'anxious']
-    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsIn)(['happy', 'excited', 'neutral', 'tired', 'anxious']),
