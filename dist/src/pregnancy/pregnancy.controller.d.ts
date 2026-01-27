@@ -3,6 +3,7 @@ import { CreatePregnancyDto, UpdatePregnancyDto, ConvertToChildDto, CreatePregna
 export declare class PregnancyController {
     private readonly pregnancyService;
     constructor(pregnancyService: PregnancyService);
+    private getUserId;
     create(req: any, dto: CreatePregnancyDto): Promise<{
         id: any;
         userId: any;

@@ -16,6 +16,7 @@ import {
   Request,
   HttpCode,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PregnancyService } from './pregnancy.service';
@@ -33,11 +34,22 @@ export class PregnancyController {
   constructor(private readonly pregnancyService: PregnancyService) {}
 
   /**
+   * Helper to get user ID from request
+   */
+  private getUserId(req: any): string {
+    const userId = req.user?.sub;
+    if (!userId) {
+      throw new BadRequestException('User ID not found in token. Please log out and log in again.');
+    }
+    return userId;
+  }
+
+  /**
    * Create a new pregnancy profile
    */
   @Post()
   async create(@Request() req: any, @Body() dto: CreatePregnancyDto) {
-    return this.pregnancyService.create(req.user.id, dto);
+    return this.pregnancyService.create(this.getUserId(req), dto);
   }
 
   /**
@@ -45,7 +57,7 @@ export class PregnancyController {
    */
   @Get()
   async findAll(@Request() req: any) {
-    return this.pregnancyService.findAll(req.user.id);
+    return this.pregnancyService.findAll(this.getUserId(req));
   }
 
   /**
@@ -53,7 +65,7 @@ export class PregnancyController {
    */
   @Get('active')
   async findActive(@Request() req: any) {
-    return this.pregnancyService.findActive(req.user.id);
+    return this.pregnancyService.findActive(this.getUserId(req));
   }
 
   /**
@@ -61,7 +73,7 @@ export class PregnancyController {
    */
   @Get(':id')
   async findOne(@Request() req: any, @Param('id') id: string) {
-    return this.pregnancyService.findOne(req.user.id, id);
+    return this.pregnancyService.findOne(this.getUserId(req), id);
   }
 
   /**
@@ -73,7 +85,7 @@ export class PregnancyController {
     @Param('id') id: string,
     @Body() dto: UpdatePregnancyDto,
   ) {
-    return this.pregnancyService.update(req.user.id, id, dto);
+    return this.pregnancyService.update(this.getUserId(req), id, dto);
   }
 
   /**
@@ -82,7 +94,7 @@ export class PregnancyController {
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   async delete(@Request() req: any, @Param('id') id: string) {
-    return this.pregnancyService.delete(req.user.id, id);
+    return this.pregnancyService.delete(this.getUserId(req), id);
   }
 
   /**
@@ -94,7 +106,7 @@ export class PregnancyController {
     @Param('id') id: string,
     @Body() dto: ConvertToChildDto,
   ) {
-    return this.pregnancyService.convertToChild(req.user.id, id, dto);
+    return this.pregnancyService.convertToChild(this.getUserId(req), id, dto);
   }
 
   // ============================================================================
@@ -110,7 +122,7 @@ export class PregnancyController {
     @Param('id') id: string,
     @Body() dto: CreatePregnancyCheckupDto,
   ) {
-    return this.pregnancyService.addCheckup(req.user.id, id, dto);
+    return this.pregnancyService.addCheckup(req.user.sub, id, dto);
   }
 
   /**
@@ -118,7 +130,7 @@ export class PregnancyController {
    */
   @Get(':id/checkups')
   async getCheckups(@Request() req: any, @Param('id') id: string) {
-    return this.pregnancyService.getCheckups(req.user.id, id);
+    return this.pregnancyService.getCheckups(req.user.sub, id);
   }
 
   // ============================================================================
@@ -134,7 +146,7 @@ export class PregnancyController {
     @Param('id') id: string,
     @Body() dto: CreatePregnancyMeasurementDto,
   ) {
-    return this.pregnancyService.addMeasurement(req.user.id, id, dto);
+    return this.pregnancyService.addMeasurement(req.user.sub, id, dto);
   }
 
   /**
@@ -142,6 +154,6 @@ export class PregnancyController {
    */
   @Get(':id/measurements')
   async getMeasurements(@Request() req: any, @Param('id') id: string) {
-    return this.pregnancyService.getMeasurements(req.user.id, id);
+    return this.pregnancyService.getMeasurements(req.user.sub, id);
   }
 }

@@ -68,12 +68,17 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
     }
     async create(userId, dto) {
         this.logger.log(`Creating pregnancy profile for user: ${userId}`);
+        if (!userId) {
+            throw new Error('User ID is required to create a pregnancy profile');
+        }
         const expectedDeliveryDate = new Date(dto.expectedDeliveryDate);
         const currentWeek = this.calculatePregnancyWeek(expectedDeliveryDate);
         const trimester = this.calculateTrimester(currentWeek);
         const pregnancy = await this.prisma.pregnancy.create({
             data: {
-                userId,
+                user: {
+                    connect: { id: userId },
+                },
                 motherFirstName: dto.motherFirstName,
                 motherLastName: dto.motherLastName,
                 motherDateOfBirth: new Date(dto.motherDateOfBirth),

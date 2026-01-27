@@ -22,38 +22,45 @@ let PregnancyController = class PregnancyController {
     constructor(pregnancyService) {
         this.pregnancyService = pregnancyService;
     }
+    getUserId(req) {
+        const userId = req.user?.sub;
+        if (!userId) {
+            throw new common_1.BadRequestException('User ID not found in token. Please log out and log in again.');
+        }
+        return userId;
+    }
     async create(req, dto) {
-        return this.pregnancyService.create(req.user.id, dto);
+        return this.pregnancyService.create(this.getUserId(req), dto);
     }
     async findAll(req) {
-        return this.pregnancyService.findAll(req.user.id);
+        return this.pregnancyService.findAll(this.getUserId(req));
     }
     async findActive(req) {
-        return this.pregnancyService.findActive(req.user.id);
+        return this.pregnancyService.findActive(this.getUserId(req));
     }
     async findOne(req, id) {
-        return this.pregnancyService.findOne(req.user.id, id);
+        return this.pregnancyService.findOne(this.getUserId(req), id);
     }
     async update(req, id, dto) {
-        return this.pregnancyService.update(req.user.id, id, dto);
+        return this.pregnancyService.update(this.getUserId(req), id, dto);
     }
     async delete(req, id) {
-        return this.pregnancyService.delete(req.user.id, id);
+        return this.pregnancyService.delete(this.getUserId(req), id);
     }
     async convertToChild(req, id, dto) {
-        return this.pregnancyService.convertToChild(req.user.id, id, dto);
+        return this.pregnancyService.convertToChild(this.getUserId(req), id, dto);
     }
     async addCheckup(req, id, dto) {
-        return this.pregnancyService.addCheckup(req.user.id, id, dto);
+        return this.pregnancyService.addCheckup(req.user.sub, id, dto);
     }
     async getCheckups(req, id) {
-        return this.pregnancyService.getCheckups(req.user.id, id);
+        return this.pregnancyService.getCheckups(req.user.sub, id);
     }
     async addMeasurement(req, id, dto) {
-        return this.pregnancyService.addMeasurement(req.user.id, id, dto);
+        return this.pregnancyService.addMeasurement(req.user.sub, id, dto);
     }
     async getMeasurements(req, id) {
-        return this.pregnancyService.getMeasurements(req.user.id, id);
+        return this.pregnancyService.getMeasurements(req.user.sub, id);
     }
 };
 exports.PregnancyController = PregnancyController;
