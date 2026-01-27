@@ -26,6 +26,8 @@ import {
   ConvertToChildDto,
   CreatePregnancyCheckupDto,
   CreatePregnancyMeasurementDto,
+  CreatePregnancySymptomDto,
+  CreatePregnancyJournalDto,
 } from './dto';
 
 @Controller('pregnancies')
@@ -155,5 +157,114 @@ export class PregnancyController {
   @Get(':id/measurements')
   async getMeasurements(@Request() req: any, @Param('id') id: string) {
     return this.pregnancyService.getMeasurements(req.user.sub, id);
+  }
+
+  // ============================================================================
+  // SYMPTOMS
+  // ============================================================================
+
+  /**
+   * Save symptoms for a specific day
+   */
+  @Post(':id/symptoms')
+  async saveSymptoms(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() dto: CreatePregnancySymptomDto,
+  ) {
+    return this.pregnancyService.saveSymptoms(this.getUserId(req), id, dto);
+  }
+
+  /**
+   * Get symptoms history
+   */
+  @Get(':id/symptoms')
+  async getSymptomsHistory(@Request() req: any, @Param('id') id: string) {
+    return this.pregnancyService.getSymptomsHistory(this.getUserId(req), id);
+  }
+
+  /**
+   * Get today's symptoms
+   */
+  @Get(':id/symptoms/today')
+  async getTodaySymptoms(@Request() req: any, @Param('id') id: string) {
+    return this.pregnancyService.getTodaySymptoms(this.getUserId(req), id);
+  }
+
+  // ============================================================================
+  // JOURNAL
+  // ============================================================================
+
+  /**
+   * Create a journal entry
+   */
+  @Post(':id/journals')
+  async createJournalEntry(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() dto: CreatePregnancyJournalDto,
+  ) {
+    return this.pregnancyService.createJournalEntry(this.getUserId(req), id, dto);
+  }
+
+  /**
+   * Get journal entries
+   */
+  @Get(':id/journals')
+  async getJournalEntries(@Request() req: any, @Param('id') id: string) {
+    return this.pregnancyService.getJournalEntries(this.getUserId(req), id);
+  }
+
+  /**
+   * Delete a journal entry
+   */
+  @Delete(':id/journals/:journalId')
+  @HttpCode(HttpStatus.OK)
+  async deleteJournalEntry(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Param('journalId') journalId: string,
+  ) {
+    return this.pregnancyService.deleteJournalEntry(this.getUserId(req), id, journalId);
+  }
+
+  // ============================================================================
+  // MEDICAL INFO
+  // ============================================================================
+
+  /**
+   * Update medical conditions
+   */
+  @Put(':id/medical-conditions')
+  async updateMedicalConditions(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() body: { conditions: string[] },
+  ) {
+    return this.pregnancyService.updateMedicalConditions(this.getUserId(req), id, body.conditions);
+  }
+
+  /**
+   * Update allergies
+   */
+  @Put(':id/allergies')
+  async updateAllergies(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() body: { allergies: string[] },
+  ) {
+    return this.pregnancyService.updateAllergies(this.getUserId(req), id, body.allergies);
+  }
+
+  /**
+   * Update weight
+   */
+  @Put(':id/weight')
+  async updateWeight(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() body: { weight: number },
+  ) {
+    return this.pregnancyService.updateWeight(this.getUserId(req), id, body.weight);
   }
 }

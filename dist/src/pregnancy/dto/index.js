@@ -19,4 +19,6 @@ __exportStar(require("./update-pregnancy.dto"), exports);
 __exportStar(require("./convert-to-child.dto"), exports);
 __exportStar(require("./create-pregnancy-checkup.dto"), exports);
 __exportStar(require("./create-pregnancy-measurement.dto"), exports);
+__exportStar(require("./create-pregnancy-symptom.dto"), exports);
+__exportStar(require("./create-pregnancy-journal.dto"), exports);
 //# sourceMappingURL=index.js.map

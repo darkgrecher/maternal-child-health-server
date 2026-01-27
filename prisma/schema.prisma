@@ -411,6 +411,8 @@ model Pregnancy {
   user                  User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   pregnancyCheckups     PregnancyCheckup[]
   pregnancyMeasurements PregnancyMeasurement[]
+  pregnancySymptoms     PregnancySymptom[]
+  pregnancyJournals     PregnancyJournal[]
 
   // Metadata
   createdAt DateTime @default(now()) @map("created_at")
@@ -501,6 +503,49 @@ model PregnancyMeasurement {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("pregnancy_measurements")
+}
+
+// Daily symptoms tracking for pregnancy
+model PregnancySymptom {
+  id          String @id @default(uuid())
+  pregnancyId String @map("pregnancy_id")
+
+  // Symptom data
+  date            DateTime @default(now())
+  weekOfPregnancy Int      @map("week_of_pregnancy")
+  symptoms        String[] // Array of symptom IDs like ['fatigue', 'nausea', 'backpain']
+  notes           String?
+
+  // Relations
+  pregnancy Pregnancy @relation(fields: [pregnancyId], references: [id], onDelete: Cascade)
+
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("pregnancy_symptoms")
+}
+
+// Pregnancy journal entries
+model PregnancyJournal {
+  id          String @id @default(uuid())
+  pregnancyId String @map("pregnancy_id")
+
+  // Journal entry data
+  date            DateTime @default(now())
+  weekOfPregnancy Int      @map("week_of_pregnancy")
+  title           String
+  content         String
+  mood            String? // happy, excited, neutral, tired, anxious
+
+  // Relations
+  pregnancy Pregnancy @relation(fields: [pregnancyId], references: [id], onDelete: Cascade)
+
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("pregnancy_journals")
 }
 
 // ============================================================================
