@@ -9,8 +9,8 @@ export declare class ActivityService {
         updatedAt: Date;
         date: Date;
         title: string;
-        description: string | null;
         childId: string;
+        description: string | null;
         type: import("@prisma/client").$Enums.ActivityType;
         icon: string | null;
     }[]>;
@@ -20,8 +20,8 @@ export declare class ActivityService {
         updatedAt: Date;
         date: Date;
         title: string;
-        description: string | null;
         childId: string;
+        description: string | null;
         type: import("@prisma/client").$Enums.ActivityType;
         icon: string | null;
     }>;
@@ -31,8 +31,8 @@ export declare class ActivityService {
         updatedAt: Date;
         date: Date;
         title: string;
-        description: string | null;
         childId: string;
+        description: string | null;
         type: import("@prisma/client").$Enums.ActivityType;
         icon: string | null;
     }>;
@@ -42,8 +42,8 @@ export declare class ActivityService {
         updatedAt: Date;
         date: Date;
         title: string;
-        description: string | null;
         childId: string;
+        description: string | null;
         type: import("@prisma/client").$Enums.ActivityType;
         icon: string | null;
     }>;
