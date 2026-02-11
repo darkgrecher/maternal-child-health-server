@@ -7,44 +7,44 @@ export declare class ActivityService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        date: Date;
+        title: string;
         childId: string;
         description: string | null;
         type: import("@prisma/client").$Enums.ActivityType;
-        title: string;
-        date: Date;
         icon: string | null;
     }[]>;
     getActivity(id: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        date: Date;
+        title: string;
         childId: string;
         description: string | null;
         type: import("@prisma/client").$Enums.ActivityType;
-        title: string;
-        date: Date;
         icon: string | null;
     }>;
     createActivity(childId: string, dto: CreateActivityDto): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        date: Date;
+        title: string;
         childId: string;
         description: string | null;
         type: import("@prisma/client").$Enums.ActivityType;
-        title: string;
-        date: Date;
         icon: string | null;
     }>;
     updateActivity(id: string, dto: UpdateActivityDto): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        date: Date;
+        title: string;
         childId: string;
         description: string | null;
         type: import("@prisma/client").$Enums.ActivityType;
-        title: string;
-        date: Date;
         icon: string | null;
     }>;
     deleteActivity(id: string): Promise<{

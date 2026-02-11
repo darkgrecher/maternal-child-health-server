@@ -22,38 +22,72 @@ let PregnancyController = class PregnancyController {
     constructor(pregnancyService) {
         this.pregnancyService = pregnancyService;
     }
+    getUserId(req) {
+        const userId = req.user?.sub;
+        if (!userId) {
+            throw new common_1.BadRequestException('User ID not found in token. Please log out and log in again.');
+        }
+        return userId;
+    }
     async create(req, dto) {
-        return this.pregnancyService.create(req.user.id, dto);
+        return this.pregnancyService.create(this.getUserId(req), dto);
     }
     async findAll(req) {
-        return this.pregnancyService.findAll(req.user.id);
+        return this.pregnancyService.findAll(this.getUserId(req));
     }
     async findActive(req) {
-        return this.pregnancyService.findActive(req.user.id);
+        return this.pregnancyService.findActive(this.getUserId(req));
     }
     async findOne(req, id) {
-        return this.pregnancyService.findOne(req.user.id, id);
+        return this.pregnancyService.findOne(this.getUserId(req), id);
     }
     async update(req, id, dto) {
-        return this.pregnancyService.update(req.user.id, id, dto);
+        return this.pregnancyService.update(this.getUserId(req), id, dto);
     }
     async delete(req, id) {
-        return this.pregnancyService.delete(req.user.id, id);
+        return this.pregnancyService.delete(this.getUserId(req), id);
     }
     async convertToChild(req, id, dto) {
-        return this.pregnancyService.convertToChild(req.user.id, id, dto);
+        return this.pregnancyService.convertToChild(this.getUserId(req), id, dto);
     }
     async addCheckup(req, id, dto) {
-        return this.pregnancyService.addCheckup(req.user.id, id, dto);
+        return this.pregnancyService.addCheckup(req.user.sub, id, dto);
     }
     async getCheckups(req, id) {
-        return this.pregnancyService.getCheckups(req.user.id, id);
+        return this.pregnancyService.getCheckups(req.user.sub, id);
     }
     async addMeasurement(req, id, dto) {
-        return this.pregnancyService.addMeasurement(req.user.id, id, dto);
+        return this.pregnancyService.addMeasurement(req.user.sub, id, dto);
     }
     async getMeasurements(req, id) {
-        return this.pregnancyService.getMeasurements(req.user.id, id);
+        return this.pregnancyService.getMeasurements(req.user.sub, id);
+    }
+    async saveSymptoms(req, id, dto) {
+        return this.pregnancyService.saveSymptoms(this.getUserId(req), id, dto);
+    }
+    async getSymptomsHistory(req, id) {
+        return this.pregnancyService.getSymptomsHistory(this.getUserId(req), id);
+    }
+    async getTodaySymptoms(req, id) {
+        return this.pregnancyService.getTodaySymptoms(this.getUserId(req), id);
+    }
+    async createJournalEntry(req, id, dto) {
+        return this.pregnancyService.createJournalEntry(this.getUserId(req), id, dto);
+    }
+    async getJournalEntries(req, id) {
+        return this.pregnancyService.getJournalEntries(this.getUserId(req), id);
+    }
+    async deleteJournalEntry(req, id, journalId) {
+        return this.pregnancyService.deleteJournalEntry(this.getUserId(req), id, journalId);
+    }
+    async updateMedicalConditions(req, id, body) {
+        return this.pregnancyService.updateMedicalConditions(this.getUserId(req), id, body.conditions);
+    }
+    async updateAllergies(req, id, body) {
+        return this.pregnancyService.updateAllergies(this.getUserId(req), id, body.allergies);
+    }
+    async updateWeight(req, id, body) {
+        return this.pregnancyService.updateWeight(this.getUserId(req), id, body.weight);
     }
 };
 exports.PregnancyController = PregnancyController;
@@ -148,6 +182,85 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], PregnancyController.prototype, "getMeasurements", null);
+__decorate([
+    (0, common_1.Post)(':id/symptoms'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, dto_1.CreatePregnancySymptomDto]),
+    __metadata("design:returntype", Promise)
+], PregnancyController.prototype, "saveSymptoms", null);
+__decorate([
+    (0, common_1.Get)(':id/symptoms'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], PregnancyController.prototype, "getSymptomsHistory", null);
+__decorate([
+    (0, common_1.Get)(':id/symptoms/today'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], PregnancyController.prototype, "getTodaySymptoms", null);
+__decorate([
+    (0, common_1.Post)(':id/journals'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, dto_1.CreatePregnancyJournalDto]),
+    __metadata("design:returntype", Promise)
+], PregnancyController.prototype, "createJournalEntry", null);
+__decorate([
+    (0, common_1.Get)(':id/journals'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], PregnancyController.prototype, "getJournalEntries", null);
+__decorate([
+    (0, common_1.Delete)(':id/journals/:journalId'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Param)('journalId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String]),
+    __metadata("design:returntype", Promise)
+], PregnancyController.prototype, "deleteJournalEntry", null);
+__decorate([
+    (0, common_1.Put)(':id/medical-conditions'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", Promise)
+], PregnancyController.prototype, "updateMedicalConditions", null);
+__decorate([
+    (0, common_1.Put)(':id/allergies'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", Promise)
+], PregnancyController.prototype, "updateAllergies", null);
+__decorate([
+    (0, common_1.Put)(':id/weight'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", Promise)
+], PregnancyController.prototype, "updateWeight", null);
 exports.PregnancyController = PregnancyController = __decorate([
     (0, common_1.Controller)('pregnancies'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

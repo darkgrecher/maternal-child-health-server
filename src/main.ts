@@ -23,8 +23,9 @@ async function bootstrap() {
   // API prefix
   app.setGlobalPrefix('api');
   
-  const port = process.env.PORT ?? 3000;
+  const port = process.env.PORT ?? 3001;
   await app.listen(port);
   console.log(`🚀 Server running on http://localhost:${port}`);
+  console.log(`📱 Mobile app should connect to: http://<your-ip>:${port}/api`);
 }
 bootstrap();
