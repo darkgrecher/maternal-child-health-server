@@ -87,10 +87,10 @@ export declare class AppointmentService {
     }>;
     getAppointment(appointmentId: string): Promise<{
         child: {
-            emergencyContact: string | null;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            emergencyContact: string | null;
             userId: string;
             firstName: string;
             lastName: string;

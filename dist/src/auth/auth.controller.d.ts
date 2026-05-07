@@ -23,13 +23,13 @@ export declare class AuthController {
         success: boolean;
         data: {
             id: string;
-            email: string;
             name: string | null;
+            createdAt: Date;
+            email: string;
             givenName: string | null;
             familyName: string | null;
             picture: string | null;
             lastLoginAt: Date | null;
-            createdAt: Date;
         } | null;
     }>;
     logout(dto: RefreshTokenDto): Promise<{
