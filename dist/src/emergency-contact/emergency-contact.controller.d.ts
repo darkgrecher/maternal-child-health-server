@@ -7,10 +7,10 @@ export declare class EmergencyContactController {
         success: boolean;
         data: {
             id: string;
-            email: string | null;
             name: string;
             createdAt: Date;
             updatedAt: Date;
+            email: string | null;
             userId: string;
             address: string | null;
             notes: string | null;
@@ -24,10 +24,10 @@ export declare class EmergencyContactController {
         success: boolean;
         data: {
             id: string;
-            email: string | null;
             name: string;
             createdAt: Date;
             updatedAt: Date;
+            email: string | null;
             userId: string;
             address: string | null;
             notes: string | null;
@@ -41,10 +41,10 @@ export declare class EmergencyContactController {
         success: boolean;
         data: {
             id: string;
-            email: string | null;
             name: string;
             createdAt: Date;
             updatedAt: Date;
+            email: string | null;
             userId: string;
             address: string | null;
             notes: string | null;
@@ -58,10 +58,10 @@ export declare class EmergencyContactController {
         success: boolean;
         data: {
             id: string;
-            email: string | null;
             name: string;
             createdAt: Date;
             updatedAt: Date;
+            email: string | null;
             userId: string;
             address: string | null;
             notes: string | null;
@@ -79,10 +79,10 @@ export declare class EmergencyContactController {
         success: boolean;
         data: {
             id: string;
-            email: string | null;
             name: string;
             createdAt: Date;
             updatedAt: Date;
+            email: string | null;
             userId: string;
             address: string | null;
             notes: string | null;

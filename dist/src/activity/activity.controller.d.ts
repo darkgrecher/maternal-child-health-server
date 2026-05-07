@@ -7,12 +7,12 @@ export declare class ActivityController {
         success: boolean;
         data: {
             id: string;
+            description: string | null;
             createdAt: Date;
             updatedAt: Date;
             date: Date;
             title: string;
             childId: string;
-            description: string | null;
             type: import("@prisma/client").$Enums.ActivityType;
             icon: string | null;
         }[];
@@ -21,12 +21,12 @@ export declare class ActivityController {
         success: boolean;
         data: {
             id: string;
+            description: string | null;
             createdAt: Date;
             updatedAt: Date;
             date: Date;
             title: string;
             childId: string;
-            description: string | null;
             type: import("@prisma/client").$Enums.ActivityType;
             icon: string | null;
         };
@@ -35,12 +35,12 @@ export declare class ActivityController {
         success: boolean;
         data: {
             id: string;
+            description: string | null;
             createdAt: Date;
             updatedAt: Date;
             date: Date;
             title: string;
             childId: string;
-            description: string | null;
             type: import("@prisma/client").$Enums.ActivityType;
             icon: string | null;
         };
@@ -49,12 +49,12 @@ export declare class ActivityController {
         success: boolean;
         data: {
             id: string;
+            description: string | null;
             createdAt: Date;
             updatedAt: Date;
             date: Date;
             title: string;
             childId: string;
-            description: string | null;
             type: import("@prisma/client").$Enums.ActivityType;
             icon: string | null;
         };

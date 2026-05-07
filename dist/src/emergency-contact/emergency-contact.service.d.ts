@@ -5,10 +5,10 @@ export declare class EmergencyContactService {
     constructor(prisma: PrismaService);
     getUserContacts(userId: string): Promise<{
         id: string;
-        email: string | null;
         name: string;
         createdAt: Date;
         updatedAt: Date;
+        email: string | null;
         userId: string;
         address: string | null;
         notes: string | null;
@@ -19,10 +19,10 @@ export declare class EmergencyContactService {
     }[]>;
     getContact(userId: string, contactId: string): Promise<{
         id: string;
-        email: string | null;
         name: string;
         createdAt: Date;
         updatedAt: Date;
+        email: string | null;
         userId: string;
         address: string | null;
         notes: string | null;
@@ -33,10 +33,10 @@ export declare class EmergencyContactService {
     }>;
     createContact(userId: string, dto: CreateEmergencyContactDto): Promise<{
         id: string;
-        email: string | null;
         name: string;
         createdAt: Date;
         updatedAt: Date;
+        email: string | null;
         userId: string;
         address: string | null;
         notes: string | null;
@@ -47,10 +47,10 @@ export declare class EmergencyContactService {
     }>;
     updateContact(userId: string, contactId: string, dto: UpdateEmergencyContactDto): Promise<{
         id: string;
-        email: string | null;
         name: string;
         createdAt: Date;
         updatedAt: Date;
+        email: string | null;
         userId: string;
         address: string | null;
         notes: string | null;
@@ -64,10 +64,10 @@ export declare class EmergencyContactService {
     }>;
     setPrimaryContact(userId: string, contactId: string): Promise<{
         id: string;
-        email: string | null;
         name: string;
         createdAt: Date;
         updatedAt: Date;
+        email: string | null;
         userId: string;
         address: string | null;
         notes: string | null;
