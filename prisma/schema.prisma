@@ -61,20 +61,20 @@ model RefreshToken {
 }
 
 model Midwife {
-  id            String       @id @default(uuid())
-  email         String       @unique
+  id            String      @id @default(uuid())
+  email         String      @unique
   name          String?
-  givenName     String?      @map("given_name")
-  familyName    String?      @map("family_name")
+  givenName     String?     @map("given_name")
+  familyName    String?     @map("family_name")
   picture       String?
-  auth0Id       String?      @unique @map("auth0_id")
-  passwordHash  String?      @map("password_hash")
-  role          MidwifeRole  @default(midwife)
+  auth0Id       String?     @unique @map("auth0_id")
+  passwordHash  String?     @map("password_hash")
+  role          MidwifeRole @default(midwife)
   phone         String?
-  licenseNumber String?      @map("license_number")
-  facilityName  String?      @map("facility_name")
+  licenseNumber String?     @map("license_number")
+  facilityName  String?     @map("facility_name")
   region        String?
-  lastLoginAt   DateTime?    @map("last_login_at")
+  lastLoginAt   DateTime?   @map("last_login_at")
 
   // Relations
   pregnancies   Pregnancy[]
@@ -394,7 +394,7 @@ model Pregnancy {
   userId String @map("user_id")
 
   // Assigned midwife (optional)
-  midwifeId String?  @map("midwife_id")
+  midwifeId String? @map("midwife_id")
 
   // Mother's Information
   motherFirstName   String     @map("mother_first_name")
@@ -429,9 +429,9 @@ model Pregnancy {
   medications       String[]
 
   // Healthcare
-  hospitalName   String? @map("hospital_name")
-  obgynName      String? @map("obgyn_name")
-  obgynContact   String? @map("obgyn_contact")
+  hospitalName String? @map("hospital_name")
+  obgynName    String? @map("obgyn_name")
+  obgynContact String? @map("obgyn_contact")
 
   // Baby Information (known before birth)
   expectedGender Gender? @map("expected_gender") // If known from ultrasound
