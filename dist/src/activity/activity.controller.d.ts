@@ -7,13 +7,13 @@ export declare class ActivityController {
         success: boolean;
         data: {
             id: string;
-            description: string | null;
             createdAt: Date;
             updatedAt: Date;
-            date: Date;
-            title: string;
+            description: string | null;
             childId: string;
+            title: string;
             type: import("@prisma/client").$Enums.ActivityType;
+            date: Date;
             icon: string | null;
         }[];
     }>;
@@ -21,13 +21,13 @@ export declare class ActivityController {
         success: boolean;
         data: {
             id: string;
-            description: string | null;
             createdAt: Date;
             updatedAt: Date;
-            date: Date;
-            title: string;
+            description: string | null;
             childId: string;
+            title: string;
             type: import("@prisma/client").$Enums.ActivityType;
+            date: Date;
             icon: string | null;
         };
     }>;
@@ -35,13 +35,13 @@ export declare class ActivityController {
         success: boolean;
         data: {
             id: string;
-            description: string | null;
             createdAt: Date;
             updatedAt: Date;
-            date: Date;
-            title: string;
+            description: string | null;
             childId: string;
+            title: string;
             type: import("@prisma/client").$Enums.ActivityType;
+            date: Date;
             icon: string | null;
         };
     }>;
@@ -49,13 +49,13 @@ export declare class ActivityController {
         success: boolean;
         data: {
             id: string;
-            description: string | null;
             createdAt: Date;
             updatedAt: Date;
-            date: Date;
-            title: string;
+            description: string | null;
             childId: string;
+            title: string;
             type: import("@prisma/client").$Enums.ActivityType;
+            date: Date;
             icon: string | null;
         };
     }>;

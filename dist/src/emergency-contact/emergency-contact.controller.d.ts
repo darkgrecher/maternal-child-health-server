@@ -7,68 +7,68 @@ export declare class EmergencyContactController {
         success: boolean;
         data: {
             id: string;
+            email: string | null;
             name: string;
             createdAt: Date;
             updatedAt: Date;
-            email: string | null;
             userId: string;
-            address: string | null;
-            notes: string | null;
             role: string;
             phone: string;
             isPrimary: boolean;
             isDefault: boolean;
+            address: string | null;
+            notes: string | null;
         }[];
     }>;
     getContact(req: any, id: string): Promise<{
         success: boolean;
         data: {
             id: string;
+            email: string | null;
             name: string;
             createdAt: Date;
             updatedAt: Date;
-            email: string | null;
             userId: string;
-            address: string | null;
-            notes: string | null;
             role: string;
             phone: string;
             isPrimary: boolean;
             isDefault: boolean;
+            address: string | null;
+            notes: string | null;
         };
     }>;
     createContact(req: any, dto: CreateEmergencyContactDto): Promise<{
         success: boolean;
         data: {
             id: string;
+            email: string | null;
             name: string;
             createdAt: Date;
             updatedAt: Date;
-            email: string | null;
             userId: string;
-            address: string | null;
-            notes: string | null;
             role: string;
             phone: string;
             isPrimary: boolean;
             isDefault: boolean;
+            address: string | null;
+            notes: string | null;
         };
     }>;
     updateContact(req: any, id: string, dto: UpdateEmergencyContactDto): Promise<{
         success: boolean;
         data: {
             id: string;
+            email: string | null;
             name: string;
             createdAt: Date;
             updatedAt: Date;
-            email: string | null;
             userId: string;
-            address: string | null;
-            notes: string | null;
             role: string;
             phone: string;
             isPrimary: boolean;
             isDefault: boolean;
+            address: string | null;
+            notes: string | null;
         };
     }>;
     deleteContact(req: any, id: string): Promise<{
@@ -79,17 +79,17 @@ export declare class EmergencyContactController {
         success: boolean;
         data: {
             id: string;
+            email: string | null;
             name: string;
             createdAt: Date;
             updatedAt: Date;
-            email: string | null;
             userId: string;
-            address: string | null;
-            notes: string | null;
             role: string;
             phone: string;
             isPrimary: boolean;
             isDefault: boolean;
+            address: string | null;
+            notes: string | null;
         };
     }>;
 }

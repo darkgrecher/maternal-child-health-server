@@ -1,6 +1,33 @@
+import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
+
+const ids = {
+  userId: '8f8c7d7b-8a84-4bd4-9bb2-6b3278d4879a',
+  refreshTokenId: '15a1ce0f-19d2-4b46-9c1a-5b3f6db4a3d9',
+  childId: '1b5f4b24-26f2-4d99-8a6a-4e3dc7a0c0d3',
+  emergencyPrimaryId: '2f0ab4b8-3f1c-43f7-8f09-6f7f6c5f2b91',
+  emergencyDefaultId: 'f1b6b8c6-9f35-4e86-b0c8-2fd4d6338d0e',
+  pregnancyId: 'c3b9c7ed-8d1f-4f9a-a4c6-8f33b80b3e6b',
+  pregnancyCheckupId: '8b0a7a61-1c5b-4fa5-a4a9-69a4f3c7f2c1',
+  pregnancyMeasurementId: '1f43c2fb-8bba-4b55-86ec-1c3f11d8bc84',
+  pregnancySymptomId: 'c4f6a94d-8d65-4b26-8b0d-0e93f5b92b0f',
+  pregnancyJournalId: 'be2c30a5-7b3b-4baf-9652-04ab6a8b47f1',
+  growthMeasurementId: '2b14c33e-7c19-4d84-8f43-4e3c3c9b5d6d',
+  appointmentId: 'd88d6f5b-2b64-4c2a-98a1-4e2cf2d3b8be',
+  activityId: 'a6b5e5a0-9d18-4d1b-9f24-6d4f0f3a7a2c',
+};
+
+const baseDate = new Date('2026-05-08T09:00:00.000Z');
+const childDob = new Date('2024-12-15T00:00:00.000Z');
+
+const addDays = (date: Date, days: number) => new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
+const addMonths = (date: Date, months: number) => {
+  const next = new Date(date);
+  next.setMonth(next.getMonth() + months);
+  return next;
+};
 
 const vaccines = [
   // At Birth
@@ -254,9 +281,140 @@ const vaccines = [
 ];
 
 async function main() {
-  console.log('Start seeding vaccines...');
+  console.log('Seeding database...');
+
+  const user = await prisma.user.upsert({
+    where: { email: 'seed.parent@example.com' },
+    update: {
+      name: 'Asha Perera',
+      givenName: 'Asha',
+      familyName: 'Perera',
+      picture: 'https://example.com/avatar/asha.png',
+      auth0Id: 'auth0|seed-parent',
+      lastLoginAt: baseDate,
+    },
+    create: {
+      id: ids.userId,
+      email: 'seed.parent@example.com',
+      name: 'Asha Perera',
+      givenName: 'Asha',
+      familyName: 'Perera',
+      picture: 'https://example.com/avatar/asha.png',
+      auth0Id: 'auth0|seed-parent',
+      lastLoginAt: baseDate,
+    },
+  });
+
+  await prisma.refreshToken.upsert({
+    where: { token: 'seed-refresh-token' },
+    update: {
+      userId: user.id,
+      expiresAt: addDays(baseDate, 30),
+    },
+    create: {
+      id: ids.refreshTokenId,
+      token: 'seed-refresh-token',
+      userId: user.id,
+      expiresAt: addDays(baseDate, 30),
+    },
+  });
+
+  await prisma.emergencyContact.upsert({
+    where: { id: ids.emergencyPrimaryId },
+    update: {
+      userId: user.id,
+      name: 'Dr. Nuwan Silva',
+      role: 'Pediatrician',
+      phone: '+94 77 123 4567',
+      email: 'nuwan.silva@example.com',
+      isPrimary: true,
+      isDefault: false,
+      address: 'Colombo Children Hospital',
+      notes: 'Primary pediatric contact',
+    },
+    create: {
+      id: ids.emergencyPrimaryId,
+      userId: user.id,
+      name: 'Dr. Nuwan Silva',
+      role: 'Pediatrician',
+      phone: '+94 77 123 4567',
+      email: 'nuwan.silva@example.com',
+      isPrimary: true,
+      isDefault: false,
+      address: 'Colombo Children Hospital',
+      notes: 'Primary pediatric contact',
+    },
+  });
+
+  await prisma.emergencyContact.upsert({
+    where: { id: ids.emergencyDefaultId },
+    update: {
+      userId: user.id,
+      name: 'Emergency Services',
+      role: 'Ambulance',
+      phone: '1990',
+      isPrimary: false,
+      isDefault: true,
+      notes: 'National emergency hotline',
+    },
+    create: {
+      id: ids.emergencyDefaultId,
+      userId: user.id,
+      name: 'Emergency Services',
+      role: 'Ambulance',
+      phone: '1990',
+      isPrimary: false,
+      isDefault: true,
+      notes: 'National emergency hotline',
+    },
+  });
+
+  const child = await prisma.child.upsert({
+    where: { id: ids.childId },
+    update: {
+      userId: user.id,
+      firstName: 'Ravi',
+      lastName: 'Perera',
+      dateOfBirth: childDob,
+      gender: 'male',
+      birthWeight: 3.1,
+      birthHeight: 50,
+      bloodType: 'O_POSITIVE',
+      placeOfBirth: 'Colombo',
+      deliveryType: 'normal',
+      allergies: ['Dust'],
+      specialConditions: [],
+      motherName: 'Asha Perera',
+      fatherName: 'Kasun Perera',
+      emergencyContact: '+94 77 123 4567',
+      address: 'Colombo 07',
+      photoUri: 'https://example.com/avatar/ravi.png',
+    },
+    create: {
+      id: ids.childId,
+      userId: user.id,
+      firstName: 'Ravi',
+      lastName: 'Perera',
+      dateOfBirth: childDob,
+      gender: 'male',
+      birthWeight: 3.1,
+      birthHeight: 50,
+      bloodType: 'O_POSITIVE',
+      placeOfBirth: 'Colombo',
+      deliveryType: 'normal',
+      allergies: ['Dust'],
+      specialConditions: [],
+      motherName: 'Asha Perera',
+      fatherName: 'Kasun Perera',
+      emergencyContact: '+94 77 123 4567',
+      address: 'Colombo 07',
+      photoUri: 'https://example.com/avatar/ravi.png',
+    },
+  });
+
+  const vaccineIdByKey = new Map<string, string>();
   for (const vaccine of vaccines) {
-    const vc = await prisma.vaccine.upsert({
+    const record = await prisma.vaccine.upsert({
       where: {
         shortName_doseNumber: {
           shortName: vaccine.shortName,
@@ -266,8 +424,377 @@ async function main() {
       update: vaccine,
       create: vaccine,
     });
-    console.log(`Upserted vaccine: ${vc.shortName} (Dose ${vc.doseNumber})`);
+    vaccineIdByKey.set(`${record.shortName}|${record.doseNumber}`, record.id);
   }
+
+  const bcgId = vaccineIdByKey.get('BCG|1');
+  const penta1Id = vaccineIdByKey.get('Penta 1|1');
+  const opv1Id = vaccineIdByKey.get('OPV 1|1');
+
+  if (!bcgId || !penta1Id || !opv1Id) {
+    throw new Error('Seed vaccines not found after upsert');
+  }
+
+  await prisma.vaccinationRecord.upsert({
+    where: { childId_vaccineId: { childId: child.id, vaccineId: bcgId } },
+    update: {
+      status: 'completed',
+      scheduledDate: childDob,
+      administeredDate: addDays(childDob, 1),
+      administeredBy: 'Dr. Nuwan Silva',
+      location: 'Colombo Children Hospital',
+      batchNumber: 'BCG-2026-01',
+      notes: 'No adverse reactions',
+      sideEffectsOccurred: ['Small red bump'],
+    },
+    create: {
+      childId: child.id,
+      vaccineId: bcgId,
+      status: 'completed',
+      scheduledDate: childDob,
+      administeredDate: addDays(childDob, 1),
+      administeredBy: 'Dr. Nuwan Silva',
+      location: 'Colombo Children Hospital',
+      batchNumber: 'BCG-2026-01',
+      notes: 'No adverse reactions',
+      sideEffectsOccurred: ['Small red bump'],
+    },
+  });
+
+  await prisma.vaccinationRecord.upsert({
+    where: { childId_vaccineId: { childId: child.id, vaccineId: penta1Id } },
+    update: {
+      status: 'scheduled',
+      scheduledDate: addMonths(childDob, 2),
+      administeredBy: null,
+      location: 'Colombo Children Hospital',
+      sideEffectsOccurred: [],
+    },
+    create: {
+      childId: child.id,
+      vaccineId: penta1Id,
+      status: 'scheduled',
+      scheduledDate: addMonths(childDob, 2),
+      administeredBy: null,
+      location: 'Colombo Children Hospital',
+      sideEffectsOccurred: [],
+    },
+  });
+
+  await prisma.vaccinationRecord.upsert({
+    where: { childId_vaccineId: { childId: child.id, vaccineId: opv1Id } },
+    update: {
+      status: 'scheduled',
+      scheduledDate: addMonths(childDob, 2),
+      location: 'Colombo Children Hospital',
+      sideEffectsOccurred: [],
+    },
+    create: {
+      childId: child.id,
+      vaccineId: opv1Id,
+      status: 'scheduled',
+      scheduledDate: addMonths(childDob, 2),
+      location: 'Colombo Children Hospital',
+      sideEffectsOccurred: [],
+    },
+  });
+
+  await prisma.growthMeasurement.upsert({
+    where: { id: ids.growthMeasurementId },
+    update: {
+      childId: child.id,
+      measurementDate: addMonths(childDob, 2),
+      ageInMonths: 2,
+      ageInDays: 60,
+      weight: 5.2,
+      height: 58,
+      headCircumference: 38,
+      weightPercentile: 55,
+      heightPercentile: 60,
+      headCircumferencePercentile: 50,
+      weightZScore: 0.2,
+      heightZScore: 0.3,
+      headCircumferenceZScore: 0.1,
+      bmi: 15.4,
+      bmiPercentile: 52,
+      bmiZScore: 0.1,
+      measuredBy: 'Clinic Nurse',
+      location: 'Colombo Children Hospital',
+      notes: 'Healthy growth',
+    },
+    create: {
+      id: ids.growthMeasurementId,
+      childId: child.id,
+      measurementDate: addMonths(childDob, 2),
+      ageInMonths: 2,
+      ageInDays: 60,
+      weight: 5.2,
+      height: 58,
+      headCircumference: 38,
+      weightPercentile: 55,
+      heightPercentile: 60,
+      headCircumferencePercentile: 50,
+      weightZScore: 0.2,
+      heightZScore: 0.3,
+      headCircumferenceZScore: 0.1,
+      bmi: 15.4,
+      bmiPercentile: 52,
+      bmiZScore: 0.1,
+      measuredBy: 'Clinic Nurse',
+      location: 'Colombo Children Hospital',
+      notes: 'Healthy growth',
+    },
+  });
+
+  await prisma.appointment.upsert({
+    where: { id: ids.appointmentId },
+    update: {
+      childId: child.id,
+      title: '2-month vaccination visit',
+      type: 'vaccination',
+      dateTime: addDays(baseDate, 10),
+      duration: 30,
+      location: 'Colombo Children Hospital',
+      address: 'Colombo 10',
+      providerName: 'Dr. Nuwan Silva',
+      providerRole: 'Pediatrician',
+      providerPhone: '+94 77 123 4567',
+      status: 'scheduled',
+      notes: 'Bring immunization card',
+      reminderSent: false,
+    },
+    create: {
+      id: ids.appointmentId,
+      childId: child.id,
+      title: '2-month vaccination visit',
+      type: 'vaccination',
+      dateTime: addDays(baseDate, 10),
+      duration: 30,
+      location: 'Colombo Children Hospital',
+      address: 'Colombo 10',
+      providerName: 'Dr. Nuwan Silva',
+      providerRole: 'Pediatrician',
+      providerPhone: '+94 77 123 4567',
+      status: 'scheduled',
+      notes: 'Bring immunization card',
+      reminderSent: false,
+    },
+  });
+
+  await prisma.activity.upsert({
+    where: { id: ids.activityId },
+    update: {
+      childId: child.id,
+      type: 'growth',
+      title: '2-month growth check',
+      description: 'Weight and height recorded',
+      date: addDays(baseDate, -5),
+      icon: 'ruler',
+    },
+    create: {
+      id: ids.activityId,
+      childId: child.id,
+      type: 'growth',
+      title: '2-month growth check',
+      description: 'Weight and height recorded',
+      date: addDays(baseDate, -5),
+      icon: 'ruler',
+    },
+  });
+
+  const pregnancy = await prisma.pregnancy.upsert({
+    where: { id: ids.pregnancyId },
+    update: {
+      userId: user.id,
+      motherFirstName: 'Asha',
+      motherLastName: 'Perera',
+      motherDateOfBirth: new Date('1995-03-12T00:00:00.000Z'),
+      motherBloodType: 'O_POSITIVE',
+      expectedDeliveryDate: new Date('2026-11-18T00:00:00.000Z'),
+      lastMenstrualPeriod: new Date('2026-02-11T00:00:00.000Z'),
+      conceptionDate: new Date('2026-02-25T00:00:00.000Z'),
+      status: 'active',
+      currentWeek: 12,
+      trimester: 1,
+      gravida: 2,
+      para: 1,
+      bloodPressure: '110/70',
+      prePregnancyWeight: 54,
+      currentWeight: 56.5,
+      height: 162,
+      isHighRisk: false,
+      riskFactors: [],
+      medicalConditions: [],
+      allergies: ['Peanuts'],
+      medications: ['Folic acid'],
+      hospitalName: 'Colombo Women Hospital',
+      obgynName: 'Dr. Malini Jayasuriya',
+      obgynContact: '+94 77 555 7799',
+      midwifeName: 'Ms. Priya Fernando',
+      midwifeContact: '+94 77 222 3344',
+      expectedGender: 'female',
+      babyNickname: 'Little Star',
+      numberOfBabies: 1,
+      emergencyContactName: 'Kasun Perera',
+      emergencyContactPhone: '+94 77 000 1111',
+      emergencyContactRelation: 'Spouse',
+    },
+    create: {
+      id: ids.pregnancyId,
+      userId: user.id,
+      motherFirstName: 'Asha',
+      motherLastName: 'Perera',
+      motherDateOfBirth: new Date('1995-03-12T00:00:00.000Z'),
+      motherBloodType: 'O_POSITIVE',
+      expectedDeliveryDate: new Date('2026-11-18T00:00:00.000Z'),
+      lastMenstrualPeriod: new Date('2026-02-11T00:00:00.000Z'),
+      conceptionDate: new Date('2026-02-25T00:00:00.000Z'),
+      status: 'active',
+      currentWeek: 12,
+      trimester: 1,
+      gravida: 2,
+      para: 1,
+      bloodPressure: '110/70',
+      prePregnancyWeight: 54,
+      currentWeight: 56.5,
+      height: 162,
+      isHighRisk: false,
+      riskFactors: [],
+      medicalConditions: [],
+      allergies: ['Peanuts'],
+      medications: ['Folic acid'],
+      hospitalName: 'Colombo Women Hospital',
+      obgynName: 'Dr. Malini Jayasuriya',
+      obgynContact: '+94 77 555 7799',
+      midwifeName: 'Ms. Priya Fernando',
+      midwifeContact: '+94 77 222 3344',
+      expectedGender: 'female',
+      babyNickname: 'Little Star',
+      numberOfBabies: 1,
+      emergencyContactName: 'Kasun Perera',
+      emergencyContactPhone: '+94 77 000 1111',
+      emergencyContactRelation: 'Spouse',
+    },
+  });
+
+  await prisma.pregnancyCheckup.upsert({
+    where: { id: ids.pregnancyCheckupId },
+    update: {
+      pregnancyId: pregnancy.id,
+      checkupDate: new Date('2026-05-05T09:00:00.000Z'),
+      weekOfPregnancy: 11,
+      weight: 56,
+      bloodPressureSystolic: 110,
+      bloodPressureDiastolic: 70,
+      fundalHeight: 11.5,
+      fetalHeartRate: 150,
+      fetalWeight: 45,
+      fetalLength: 60,
+      amnioticFluid: 'Normal',
+      placentaPosition: 'Anterior',
+      urineProtein: 'Negative',
+      urineGlucose: 'Normal',
+      hemoglobin: 12.4,
+      notes: 'Everything looks normal',
+      recommendations: ['Continue prenatal vitamins', 'Stay hydrated'],
+      nextCheckupDate: new Date('2026-06-02T09:00:00.000Z'),
+      providerName: 'Dr. Malini Jayasuriya',
+      location: 'Colombo Women Hospital',
+    },
+    create: {
+      id: ids.pregnancyCheckupId,
+      pregnancyId: pregnancy.id,
+      checkupDate: new Date('2026-05-05T09:00:00.000Z'),
+      weekOfPregnancy: 11,
+      weight: 56,
+      bloodPressureSystolic: 110,
+      bloodPressureDiastolic: 70,
+      fundalHeight: 11.5,
+      fetalHeartRate: 150,
+      fetalWeight: 45,
+      fetalLength: 60,
+      amnioticFluid: 'Normal',
+      placentaPosition: 'Anterior',
+      urineProtein: 'Negative',
+      urineGlucose: 'Normal',
+      hemoglobin: 12.4,
+      notes: 'Everything looks normal',
+      recommendations: ['Continue prenatal vitamins', 'Stay hydrated'],
+      nextCheckupDate: new Date('2026-06-02T09:00:00.000Z'),
+      providerName: 'Dr. Malini Jayasuriya',
+      location: 'Colombo Women Hospital',
+    },
+  });
+
+  await prisma.pregnancyMeasurement.upsert({
+    where: { id: ids.pregnancyMeasurementId },
+    update: {
+      pregnancyId: pregnancy.id,
+      measurementDate: new Date('2026-05-01T08:30:00.000Z'),
+      weekOfPregnancy: 10,
+      weight: 55.6,
+      bellyCircumference: 75,
+      bloodPressureSystolic: 108,
+      bloodPressureDiastolic: 68,
+      symptoms: ['fatigue', 'nausea'],
+      mood: 'tired',
+      notes: 'Morning sickness improving',
+    },
+    create: {
+      id: ids.pregnancyMeasurementId,
+      pregnancyId: pregnancy.id,
+      measurementDate: new Date('2026-05-01T08:30:00.000Z'),
+      weekOfPregnancy: 10,
+      weight: 55.6,
+      bellyCircumference: 75,
+      bloodPressureSystolic: 108,
+      bloodPressureDiastolic: 68,
+      symptoms: ['fatigue', 'nausea'],
+      mood: 'tired',
+      notes: 'Morning sickness improving',
+    },
+  });
+
+  await prisma.pregnancySymptom.upsert({
+    where: { id: ids.pregnancySymptomId },
+    update: {
+      pregnancyId: pregnancy.id,
+      date: new Date('2026-05-03T07:00:00.000Z'),
+      weekOfPregnancy: 10,
+      symptoms: ['nausea', 'backpain'],
+      notes: 'Back pain after long walk',
+    },
+    create: {
+      id: ids.pregnancySymptomId,
+      pregnancyId: pregnancy.id,
+      date: new Date('2026-05-03T07:00:00.000Z'),
+      weekOfPregnancy: 10,
+      symptoms: ['nausea', 'backpain'],
+      notes: 'Back pain after long walk',
+    },
+  });
+
+  await prisma.pregnancyJournal.upsert({
+    where: { id: ids.pregnancyJournalId },
+    update: {
+      pregnancyId: pregnancy.id,
+      date: new Date('2026-05-04T20:00:00.000Z'),
+      weekOfPregnancy: 10,
+      title: 'First ultrasound',
+      content: 'Saw the heartbeat today. Feeling relieved and excited.',
+      mood: 'excited',
+    },
+    create: {
+      id: ids.pregnancyJournalId,
+      pregnancyId: pregnancy.id,
+      date: new Date('2026-05-04T20:00:00.000Z'),
+      weekOfPregnancy: 10,
+      title: 'First ultrasound',
+      content: 'Saw the heartbeat today. Feeling relieved and excited.',
+      mood: 'excited',
+    },
+  });
+
   console.log('Seeding finished.');
 }
 
@@ -275,8 +802,8 @@ main()
   .then(async () => {
     await prisma.$disconnect();
   })
-  .catch(async (e) => {
-    console.error(e);
+  .catch(async (error) => {
+    console.error(error);
     await prisma.$disconnect();
     process.exit(1);
   });

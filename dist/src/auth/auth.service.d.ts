@@ -55,13 +55,13 @@ export declare class AuthService {
     logoutAll(userId: string): Promise<void>;
     getUserById(userId: string): Promise<{
         id: string;
-        name: string | null;
-        createdAt: Date;
         email: string;
+        name: string | null;
         givenName: string | null;
         familyName: string | null;
         picture: string | null;
         lastLoginAt: Date | null;
+        createdAt: Date;
     } | null>;
     private getAccessTokenExpiresIn;
 }
