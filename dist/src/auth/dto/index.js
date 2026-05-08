@@ -18,4 +18,5 @@ __exportStar(require("./google-auth.dto"), exports);
 __exportStar(require("./refresh-token.dto"), exports);
 __exportStar(require("./auth0-auth.dto"), exports);
 __exportStar(require("./midwife-login.dto"), exports);
+__exportStar(require("./midwife-provision.dto"), exports);
 //# sourceMappingURL=index.js.map

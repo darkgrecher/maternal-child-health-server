@@ -13,12 +13,14 @@ import {
   Request,
   HttpCode,
   HttpStatus,
+  ForbiddenException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Auth0AuthDto } from './dto/auth0-auth.dto';
 import { MidwifeLoginDto } from './dto/midwife-login.dto';
+import { MidwifeProvisionDto } from './dto/midwife-provision.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
@@ -61,6 +63,43 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async midwifeLogin(@Body() dto: MidwifeLoginDto) {
     const result = await this.authService.midwifeLogin(dto);
+    return {
+      success: true,
+      data: result,
+    };
+  }
+
+  /**
+   * Admin-only: Provision midwife account
+   * POST /auth/midwife/provision
+   */
+  @Post('midwife/provision')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  async provisionMidwife(@Request() req, @Body() dto: MidwifeProvisionDto) {
+    if (req.user?.actorType !== 'midwife' || req.user?.role !== 'admin') {
+      throw new ForbiddenException('Admin access required');
+    }
+
+    const result = await this.authService.createMidwifeAccount(dto);
+    return {
+      success: true,
+      data: result,
+    };
+  }
+
+  /**
+   * Admin-only: List midwives
+   * GET /auth/midwives
+   */
+  @Get('midwives')
+  @UseGuards(JwtAuthGuard)
+  async listMidwives(@Request() req) {
+    if (req.user?.actorType !== 'midwife' || req.user?.role !== 'admin') {
+      throw new ForbiddenException('Admin access required');
+    }
+
+    const result = await this.authService.listMidwives();
     return {
       success: true,
       data: result,

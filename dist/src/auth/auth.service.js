@@ -108,6 +108,69 @@ let AuthService = AuthService_1 = class AuthService {
             },
         };
     }
+    async createMidwifeAccount(dto) {
+        const email = dto.email.trim().toLowerCase();
+        const existing = await this.prisma.midwife.findUnique({
+            where: { email },
+        });
+        if (existing) {
+            throw new common_1.BadRequestException('Midwife email already exists');
+        }
+        const passwordHash = await bcryptjs_1.default.hash(dto.password, 10);
+        const midwife = await this.prisma.midwife.create({
+            data: {
+                email,
+                passwordHash,
+                role: dto.role ?? 'midwife',
+                name: dto.name?.trim() || undefined,
+                givenName: dto.givenName?.trim() || undefined,
+                familyName: dto.familyName?.trim() || undefined,
+                picture: dto.picture?.trim() || undefined,
+                phone: dto.phone?.trim() || undefined,
+                licenseNumber: dto.licenseNumber?.trim() || undefined,
+                facilityName: dto.facilityName?.trim() || undefined,
+                region: dto.region?.trim() || undefined,
+            },
+        });
+        return {
+            id: midwife.id,
+            email: midwife.email,
+            name: midwife.name,
+            givenName: midwife.givenName,
+            familyName: midwife.familyName,
+            picture: midwife.picture,
+            role: midwife.role,
+            phone: midwife.phone,
+            licenseNumber: midwife.licenseNumber,
+            facilityName: midwife.facilityName,
+            region: midwife.region,
+            createdAt: midwife.createdAt,
+            updatedAt: midwife.updatedAt,
+            lastLoginAt: midwife.lastLoginAt,
+        };
+    }
+    async listMidwives() {
+        const midwives = await this.prisma.midwife.findMany({
+            orderBy: { createdAt: 'desc' },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                givenName: true,
+                familyName: true,
+                picture: true,
+                role: true,
+                phone: true,
+                licenseNumber: true,
+                facilityName: true,
+                region: true,
+                createdAt: true,
+                updatedAt: true,
+                lastLoginAt: true,
+            },
+        });
+        return midwives;
+    }
     async verifyAuth0Token(token) {
         const auth0Domain = this.configService.get('AUTH0_DOMAIN');
         if (!auth0Domain) {

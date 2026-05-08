@@ -4,7 +4,7 @@
  * Service for handling Google OAuth authentication, Auth0 authentication, and JWT token management.
  */
 
-import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { OAuth2Client } from 'google-auth-library';
@@ -14,6 +14,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { Auth0AuthDto } from './dto/auth0-auth.dto';
 import { MidwifeLoginDto } from './dto/midwife-login.dto';
+import { MidwifeProvisionDto } from './dto/midwife-provision.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { MidwifeRole } from '@prisma/client';
 
@@ -165,6 +166,81 @@ export class AuthService {
         lastLoginAt: midwife.lastLoginAt,
       },
     };
+  }
+
+  /**
+   * Admin-only: provision midwife account
+   */
+  async createMidwifeAccount(dto: MidwifeProvisionDto) {
+    const email = dto.email.trim().toLowerCase();
+    const existing = await this.prisma.midwife.findUnique({
+      where: { email },
+    });
+
+    if (existing) {
+      throw new BadRequestException('Midwife email already exists');
+    }
+
+    const passwordHash = await bcrypt.hash(dto.password, 10);
+    const midwife = await this.prisma.midwife.create({
+      data: {
+        email,
+        passwordHash,
+        role: dto.role ?? 'midwife',
+        name: dto.name?.trim() || undefined,
+        givenName: dto.givenName?.trim() || undefined,
+        familyName: dto.familyName?.trim() || undefined,
+        picture: dto.picture?.trim() || undefined,
+        phone: dto.phone?.trim() || undefined,
+        licenseNumber: dto.licenseNumber?.trim() || undefined,
+        facilityName: dto.facilityName?.trim() || undefined,
+        region: dto.region?.trim() || undefined,
+      },
+    });
+
+    return {
+      id: midwife.id,
+      email: midwife.email,
+      name: midwife.name,
+      givenName: midwife.givenName,
+      familyName: midwife.familyName,
+      picture: midwife.picture,
+      role: midwife.role,
+      phone: midwife.phone,
+      licenseNumber: midwife.licenseNumber,
+      facilityName: midwife.facilityName,
+      region: midwife.region,
+      createdAt: midwife.createdAt,
+      updatedAt: midwife.updatedAt,
+      lastLoginAt: midwife.lastLoginAt,
+    };
+  }
+
+  /**
+   * Admin-only: list midwives
+   */
+  async listMidwives() {
+    const midwives = await this.prisma.midwife.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        givenName: true,
+        familyName: true,
+        picture: true,
+        role: true,
+        phone: true,
+        licenseNumber: true,
+        facilityName: true,
+        region: true,
+        createdAt: true,
+        updatedAt: true,
+        lastLoginAt: true,
+      },
+    });
+
+    return midwives;
   }
 
   /**

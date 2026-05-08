@@ -19,6 +19,7 @@ const google_auth_dto_1 = require("./dto/google-auth.dto");
 const refresh_token_dto_1 = require("./dto/refresh-token.dto");
 const auth0_auth_dto_1 = require("./dto/auth0-auth.dto");
 const midwife_login_dto_1 = require("./dto/midwife-login.dto");
+const midwife_provision_dto_1 = require("./dto/midwife-provision.dto");
 const jwt_auth_guard_1 = require("./guards/jwt-auth.guard");
 let AuthController = class AuthController {
     authService;
@@ -41,6 +42,26 @@ let AuthController = class AuthController {
     }
     async midwifeLogin(dto) {
         const result = await this.authService.midwifeLogin(dto);
+        return {
+            success: true,
+            data: result,
+        };
+    }
+    async provisionMidwife(req, dto) {
+        if (req.user?.actorType !== 'midwife' || req.user?.role !== 'admin') {
+            throw new common_1.ForbiddenException('Admin access required');
+        }
+        const result = await this.authService.createMidwifeAccount(dto);
+        return {
+            success: true,
+            data: result,
+        };
+    }
+    async listMidwives(req) {
+        if (req.user?.actorType !== 'midwife' || req.user?.role !== 'admin') {
+            throw new common_1.ForbiddenException('Admin access required');
+        }
+        const result = await this.authService.listMidwives();
         return {
             success: true,
             data: result,
@@ -102,6 +123,24 @@ __decorate([
     __metadata("design:paramtypes", [midwife_login_dto_1.MidwifeLoginDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "midwifeLogin", null);
+__decorate([
+    (0, common_1.Post)('midwife/provision'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.HttpCode)(common_1.HttpStatus.CREATED),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, midwife_provision_dto_1.MidwifeProvisionDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "provisionMidwife", null);
+__decorate([
+    (0, common_1.Get)('midwives'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "listMidwives", null);
 __decorate([
     (0, common_1.Post)('refresh'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
