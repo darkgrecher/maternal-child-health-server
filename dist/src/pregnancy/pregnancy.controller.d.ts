@@ -3,7 +3,7 @@ import { CreatePregnancyDto, UpdatePregnancyDto, ConvertToChildDto, CreatePregna
 export declare class PregnancyController {
     private readonly pregnancyService;
     constructor(pregnancyService: PregnancyService);
-    private getUserId;
+    private getActor;
     create(req: any, dto: CreatePregnancyDto): Promise<{
         id: any;
         userId: any;
@@ -33,8 +33,18 @@ export declare class PregnancyController {
         hospitalName: any;
         obgynName: any;
         obgynContact: any;
+        midwifeId: any;
         midwifeName: any;
         midwifeContact: any;
+        midwife: {
+            id: any;
+            name: any;
+            role: any;
+            phone: any;
+            email: any;
+            facilityName: any;
+            region: any;
+        } | null;
         expectedGender: any;
         babyNickname: any;
         numberOfBabies: any;
@@ -79,8 +89,18 @@ export declare class PregnancyController {
         hospitalName: any;
         obgynName: any;
         obgynContact: any;
+        midwifeId: any;
         midwifeName: any;
         midwifeContact: any;
+        midwife: {
+            id: any;
+            name: any;
+            role: any;
+            phone: any;
+            email: any;
+            facilityName: any;
+            region: any;
+        } | null;
         expectedGender: any;
         babyNickname: any;
         numberOfBabies: any;
@@ -125,8 +145,18 @@ export declare class PregnancyController {
         hospitalName: any;
         obgynName: any;
         obgynContact: any;
+        midwifeId: any;
         midwifeName: any;
         midwifeContact: any;
+        midwife: {
+            id: any;
+            name: any;
+            role: any;
+            phone: any;
+            email: any;
+            facilityName: any;
+            region: any;
+        } | null;
         expectedGender: any;
         babyNickname: any;
         numberOfBabies: any;
@@ -171,8 +201,18 @@ export declare class PregnancyController {
         hospitalName: any;
         obgynName: any;
         obgynContact: any;
+        midwifeId: any;
         midwifeName: any;
         midwifeContact: any;
+        midwife: {
+            id: any;
+            name: any;
+            role: any;
+            phone: any;
+            email: any;
+            facilityName: any;
+            region: any;
+        } | null;
         expectedGender: any;
         babyNickname: any;
         numberOfBabies: any;
@@ -217,8 +257,18 @@ export declare class PregnancyController {
         hospitalName: any;
         obgynName: any;
         obgynContact: any;
+        midwifeId: any;
         midwifeName: any;
         midwifeContact: any;
+        midwife: {
+            id: any;
+            name: any;
+            role: any;
+            phone: any;
+            email: any;
+            facilityName: any;
+            region: any;
+        } | null;
         expectedGender: any;
         babyNickname: any;
         numberOfBabies: any;
@@ -267,8 +317,18 @@ export declare class PregnancyController {
             hospitalName: any;
             obgynName: any;
             obgynContact: any;
+            midwifeId: any;
             midwifeName: any;
             midwifeContact: any;
+            midwife: {
+                id: any;
+                name: any;
+                role: any;
+                phone: any;
+                email: any;
+                facilityName: any;
+                region: any;
+            } | null;
             expectedGender: any;
             babyNickname: any;
             numberOfBabies: any;
@@ -479,8 +539,18 @@ export declare class PregnancyController {
         hospitalName: any;
         obgynName: any;
         obgynContact: any;
+        midwifeId: any;
         midwifeName: any;
         midwifeContact: any;
+        midwife: {
+            id: any;
+            name: any;
+            role: any;
+            phone: any;
+            email: any;
+            facilityName: any;
+            region: any;
+        } | null;
         expectedGender: any;
         babyNickname: any;
         numberOfBabies: any;
@@ -527,8 +597,18 @@ export declare class PregnancyController {
         hospitalName: any;
         obgynName: any;
         obgynContact: any;
+        midwifeId: any;
         midwifeName: any;
         midwifeContact: any;
+        midwife: {
+            id: any;
+            name: any;
+            role: any;
+            phone: any;
+            email: any;
+            facilityName: any;
+            region: any;
+        } | null;
         expectedGender: any;
         babyNickname: any;
         numberOfBabies: any;
@@ -575,8 +655,18 @@ export declare class PregnancyController {
         hospitalName: any;
         obgynName: any;
         obgynContact: any;
+        midwifeId: any;
         midwifeName: any;
         midwifeContact: any;
+        midwife: {
+            id: any;
+            name: any;
+            role: any;
+            phone: any;
+            email: any;
+            facilityName: any;
+            region: any;
+        } | null;
         expectedGender: any;
         babyNickname: any;
         numberOfBabies: any;

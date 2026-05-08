@@ -22,43 +22,46 @@ let ChildController = class ChildController {
     constructor(childService) {
         this.childService = childService;
     }
+    getActor(req) {
+        return { id: req.user.sub, actorType: req.user.actorType || 'user' };
+    }
     async create(req, dto) {
-        const child = await this.childService.create(req.user.sub, dto);
+        const child = await this.childService.create(this.getActor(req), dto);
         return {
             success: true,
             data: child,
         };
     }
     async findAll(req) {
-        const children = await this.childService.findAll(req.user.sub);
+        const children = await this.childService.findAll(this.getActor(req));
         return {
             success: true,
             data: children,
         };
     }
     async findOne(req, id) {
-        const child = await this.childService.findOne(req.user.sub, id);
+        const child = await this.childService.findOne(this.getActor(req), id);
         return {
             success: true,
             data: child,
         };
     }
     async update(req, id, dto) {
-        const child = await this.childService.update(req.user.sub, id, dto);
+        const child = await this.childService.update(this.getActor(req), id, dto);
         return {
             success: true,
             data: child,
         };
     }
     async partialUpdate(req, id, dto) {
-        const child = await this.childService.update(req.user.sub, id, dto);
+        const child = await this.childService.update(this.getActor(req), id, dto);
         return {
             success: true,
             data: child,
         };
     }
     async remove(req, id) {
-        const result = await this.childService.remove(req.user.sub, id);
+        const result = await this.childService.remove(this.getActor(req), id);
         return {
             success: true,
             ...result,

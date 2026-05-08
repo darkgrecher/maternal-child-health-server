@@ -9,15 +9,22 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { OAuth2Client } from 'google-auth-library';
 import jwksRsa from 'jwks-rsa';
+import bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { Auth0AuthDto } from './dto/auth0-auth.dto';
+import { MidwifeLoginDto } from './dto/midwife-login.dto';
 import { v4 as uuidv4 } from 'uuid';
+import { MidwifeRole } from '@prisma/client';
+
+export type ActorType = 'user' | 'midwife';
 
 export interface JwtPayload {
   sub: string;
   email: string;
   name?: string;
+  actorType?: ActorType;
+  role?: MidwifeRole;
 }
 
 export interface AuthTokens {
@@ -44,6 +51,8 @@ export interface Auth0UserInfo {
   familyName?: string;
   picture?: string;
   nickname?: string;
+  role?: string | string[];
+  roles?: string[];
 }
 
 @Injectable()
@@ -76,20 +85,19 @@ export class AuthService {
   /**
    * Authenticate user with Auth0 token
    */
-  async auth0Auth(dto: Auth0AuthDto): Promise<AuthTokens & { user: any }> {
+  async auth0Auth(dto: Auth0AuthDto): Promise<AuthTokens & { user: any; actorType: ActorType }> {
     const auth0User = await this.verifyAuth0Token(dto.auth0Token);
     const user = await this.findOrCreateUserFromAuth0(auth0User);
-    
-    // Update last login
     await this.prisma.user.update({
       where: { id: user.id },
       data: { lastLoginAt: new Date() },
     });
 
-    const tokens = await this.generateTokens(user.id, user.email, user.name);
-    
+    const tokens = await this.generateTokens(user.id, user.email, user.name, 'user');
+
     return {
       ...tokens,
+      actorType: 'user',
       user: {
         id: user.id,
         email: user.email,
@@ -97,7 +105,64 @@ export class AuthService {
         givenName: user.givenName,
         familyName: user.familyName,
         picture: user.picture,
-        auth0Id: (user as any).auth0Id,
+        auth0Id: user.auth0Id,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        lastLoginAt: user.lastLoginAt,
+      },
+    };
+  }
+
+  /**
+   * Authenticate midwife with email/password
+   */
+  async midwifeLogin(dto: MidwifeLoginDto): Promise<AuthTokens & { user: any; actorType: ActorType }> {
+    const email = dto.email.trim().toLowerCase();
+    const midwife = await this.prisma.midwife.findUnique({
+      where: { email },
+    });
+
+    if (!midwife?.passwordHash) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    const isValid = await bcrypt.compare(dto.password, midwife.passwordHash);
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    await this.prisma.midwife.update({
+      where: { id: midwife.id },
+      data: { lastLoginAt: new Date() },
+    });
+
+    const tokens = await this.generateTokens(
+      midwife.id,
+      midwife.email,
+      midwife.name,
+      'midwife',
+      midwife.role,
+    );
+
+    return {
+      ...tokens,
+      actorType: 'midwife',
+      user: {
+        id: midwife.id,
+        email: midwife.email,
+        name: midwife.name,
+        givenName: midwife.givenName,
+        familyName: midwife.familyName,
+        picture: midwife.picture,
+        auth0Id: midwife.auth0Id,
+        role: midwife.role,
+        phone: midwife.phone,
+        licenseNumber: midwife.licenseNumber,
+        facilityName: midwife.facilityName,
+        region: midwife.region,
+        createdAt: midwife.createdAt,
+        updatedAt: midwife.updatedAt,
+        lastLoginAt: midwife.lastLoginAt,
       },
     };
   }
@@ -131,7 +196,7 @@ export class AuthService {
         throw new UnauthorizedException('Invalid Auth0 token payload');
       }
 
-      return {
+      const auth0User: Auth0UserInfo = {
         auth0Id: userInfo.sub,
         email: userInfo.email,
         emailVerified: userInfo.email_verified,
@@ -140,7 +205,14 @@ export class AuthService {
         familyName: userInfo.family_name,
         picture: userInfo.picture,
         nickname: userInfo.nickname,
+        role: userInfo.role,
+        roles: userInfo.roles,
       };
+
+      return {
+        ...auth0User,
+        ...(userInfo as Record<string, unknown>),
+      } as Auth0UserInfo;
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         throw error;
@@ -153,6 +225,7 @@ export class AuthService {
   /**
    * Find existing user or create new one from Auth0
    */
+
   private async findOrCreateUserFromAuth0(auth0User: Auth0UserInfo) {
     // First try to find by auth0Id
     let user = await this.prisma.user.findFirst({
@@ -180,11 +253,10 @@ export class AuthService {
         });
         this.logger.log(`Linked Auth0 account to existing user: ${user.email}`);
       } else {
-        // Create new user - need to generate a placeholder googleId since it's required
+        // Create new user
         user = await this.prisma.user.create({
           data: {
             auth0Id: auth0User.auth0Id,
-            googleId: `auth0_${auth0User.auth0Id}`, // Placeholder for auth0 users
             email: auth0User.email,
             name: auth0User.name,
             givenName: auth0User.givenName,
@@ -236,7 +308,7 @@ export class AuthService {
       data: { lastLoginAt: new Date() },
     });
 
-    return this.generateTokens(user.id, user.email, user.name);
+    return this.generateTokens(user.id, user.email, user.name, 'user');
   }
 
   /**
@@ -432,14 +504,18 @@ export class AuthService {
    * Generate access and refresh tokens
    */
   private async generateTokens(
-    userId: string,
+    actorId: string,
     email: string,
     name?: string | null,
+    actorType: ActorType = 'user',
+    role?: MidwifeRole,
   ): Promise<AuthTokens> {
     const payload: JwtPayload = {
-      sub: userId,
+      sub: actorId,
       email,
       name: name ?? undefined,
+      actorType,
+      role: actorType === 'midwife' ? role : undefined,
     };
 
     const accessToken = this.jwtService.sign(payload);
@@ -453,7 +529,7 @@ export class AuthService {
     await this.prisma.refreshToken.create({
       data: {
         token: refreshToken,
-        userId,
+        ...(actorType === 'midwife' ? { midwifeId: actorId } : { userId: actorId }),
         expiresAt,
       },
     });
@@ -471,7 +547,7 @@ export class AuthService {
   async refreshTokens(refreshToken: string): Promise<AuthTokens> {
     const storedToken = await this.prisma.refreshToken.findUnique({
       where: { token: refreshToken },
-      include: { user: true },
+      include: { user: true, midwife: true },
     });
 
     if (!storedToken) {
@@ -491,11 +567,25 @@ export class AuthService {
       where: { id: storedToken.id },
     });
 
-    // Generate new tokens
+    if (storedToken.midwife) {
+      return this.generateTokens(
+        storedToken.midwife.id,
+        storedToken.midwife.email,
+        storedToken.midwife.name,
+        'midwife',
+        storedToken.midwife.role,
+      );
+    }
+
+    if (!storedToken.user) {
+      throw new UnauthorizedException('Refresh token has no associated account');
+    }
+
     return this.generateTokens(
       storedToken.user.id,
       storedToken.user.email,
       storedToken.user.name,
+      'user',
     );
   }
 
@@ -511,18 +601,41 @@ export class AuthService {
   /**
    * Logout from all devices - invalidate all refresh tokens
    */
-  async logoutAll(userId: string): Promise<void> {
+  async logoutAll(actorId: string, actorType: ActorType): Promise<void> {
     await this.prisma.refreshToken.deleteMany({
-      where: { userId },
+      where: actorType === 'midwife' ? { midwifeId: actorId } : { userId: actorId },
     });
   }
 
   /**
    * Get user by ID
    */
-  async getUserById(userId: string) {
+  async getActorById(actorId: string, actorType: ActorType) {
+    if (actorType === 'midwife') {
+      return this.prisma.midwife.findUnique({
+        where: { id: actorId },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          givenName: true,
+          familyName: true,
+          picture: true,
+          auth0Id: true,
+          role: true,
+          phone: true,
+          licenseNumber: true,
+          facilityName: true,
+          region: true,
+          createdAt: true,
+          updatedAt: true,
+          lastLoginAt: true,
+        },
+      });
+    }
+
     return this.prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: actorId },
       select: {
         id: true,
         email: true,

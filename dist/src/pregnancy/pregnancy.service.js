@@ -66,19 +66,18 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
             return 2;
         return 3;
     }
-    async create(userId, dto) {
-        this.logger.log(`Creating pregnancy profile for user: ${userId}`);
-        if (!userId) {
-            throw new Error('User ID is required to create a pregnancy profile');
+    async create(actor, dto) {
+        this.logger.log(`Creating pregnancy profile for actor: ${actor.id}`);
+        if (actor.actorType !== 'user') {
+            throw new common_1.ForbiddenException('Only users can create pregnancy profiles');
         }
+        const userId = actor.id;
         const expectedDeliveryDate = new Date(dto.expectedDeliveryDate);
         const currentWeek = this.calculatePregnancyWeek(expectedDeliveryDate);
         const trimester = this.calculateTrimester(currentWeek);
         const pregnancy = await this.prisma.pregnancy.create({
             data: {
-                user: {
-                    connect: { id: userId },
-                },
+                userId,
                 motherFirstName: dto.motherFirstName,
                 motherLastName: dto.motherLastName,
                 motherDateOfBirth: new Date(dto.motherDateOfBirth),
@@ -103,8 +102,7 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
                 hospitalName: dto.hospitalName,
                 obgynName: dto.obgynName,
                 obgynContact: dto.obgynContact,
-                midwifeName: dto.midwifeName,
-                midwifeContact: dto.midwifeContact,
+                midwifeId: dto.midwifeId ?? undefined,
                 expectedGender: dto.expectedGender,
                 babyNickname: dto.babyNickname,
                 numberOfBabies: dto.numberOfBabies || 1,
@@ -112,14 +110,16 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
                 emergencyContactPhone: dto.emergencyContactPhone,
                 emergencyContactRelation: dto.emergencyContactRelation,
             },
+            include: { midwife: true },
         });
         return this.formatPregnancy(pregnancy);
     }
-    async findAll(userId) {
+    async findAll(actor) {
         const pregnancies = await this.prisma.pregnancy.findMany({
-            where: { userId },
+            where: actor.actorType === 'midwife' ? { midwifeId: actor.id } : { userId: actor.id },
             orderBy: { createdAt: 'desc' },
             include: {
+                midwife: true,
                 pregnancyCheckups: {
                     orderBy: { checkupDate: 'desc' },
                     take: 1,
@@ -132,14 +132,15 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
         });
         return pregnancies.map(p => this.formatPregnancy(p));
     }
-    async findActive(userId) {
+    async findActive(actor) {
         const pregnancies = await this.prisma.pregnancy.findMany({
             where: {
-                userId,
+                ...(actor.actorType === 'midwife' ? { midwifeId: actor.id } : { userId: actor.id }),
                 status: 'active',
             },
             orderBy: { expectedDeliveryDate: 'asc' },
             include: {
+                midwife: true,
                 pregnancyCheckups: {
                     orderBy: { checkupDate: 'desc' },
                     take: 3,
@@ -152,10 +153,11 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
         });
         return pregnancies.map(p => this.formatPregnancy(p));
     }
-    async findOne(userId, pregnancyId) {
+    async findOne(actor, pregnancyId) {
         const pregnancy = await this.prisma.pregnancy.findUnique({
             where: { id: pregnancyId },
             include: {
+                midwife: true,
                 pregnancyCheckups: {
                     orderBy: { checkupDate: 'desc' },
                 },
@@ -167,19 +169,33 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
         if (!pregnancy) {
             throw new common_1.NotFoundException('Pregnancy profile not found');
         }
-        if (pregnancy.userId !== userId) {
+        if (actor.actorType === 'midwife') {
+            if (pregnancy.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
+            }
+        }
+        else if (pregnancy.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
         }
         return this.formatPregnancy(pregnancy);
     }
-    async update(userId, pregnancyId, dto) {
+    async update(actor, pregnancyId, dto) {
         const pregnancy = await this.prisma.pregnancy.findUnique({
             where: { id: pregnancyId },
         });
         if (!pregnancy) {
             throw new common_1.NotFoundException('Pregnancy profile not found');
         }
-        if (pregnancy.userId !== userId) {
+        if (actor.actorType === 'midwife') {
+            const canClaim = !pregnancy.midwifeId && dto.midwifeId === actor.id;
+            if (pregnancy.midwifeId !== actor.id && !canClaim) {
+                throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
+            }
+            if (dto.midwifeId && dto.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Midwife assignment mismatch');
+            }
+        }
+        else if (pregnancy.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
         }
         let currentWeek = pregnancy.currentWeek;
@@ -216,8 +232,7 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
                 ...(dto.hospitalName !== undefined && { hospitalName: dto.hospitalName }),
                 ...(dto.obgynName !== undefined && { obgynName: dto.obgynName }),
                 ...(dto.obgynContact !== undefined && { obgynContact: dto.obgynContact }),
-                ...(dto.midwifeName !== undefined && { midwifeName: dto.midwifeName }),
-                ...(dto.midwifeContact !== undefined && { midwifeContact: dto.midwifeContact }),
+                ...(dto.midwifeId !== undefined && { midwifeId: dto.midwifeId }),
                 ...(dto.expectedGender && { expectedGender: dto.expectedGender }),
                 ...(dto.babyNickname !== undefined && { babyNickname: dto.babyNickname }),
                 ...(dto.numberOfBabies !== undefined && { numberOfBabies: dto.numberOfBabies }),
@@ -228,17 +243,18 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
                 ...(dto.deliveryType && { deliveryType: dto.deliveryType }),
                 ...(dto.deliveryNotes !== undefined && { deliveryNotes: dto.deliveryNotes }),
             },
+            include: { midwife: true },
         });
         return this.formatPregnancy(updated);
     }
-    async delete(userId, pregnancyId) {
+    async delete(actor, pregnancyId) {
         const pregnancy = await this.prisma.pregnancy.findUnique({
             where: { id: pregnancyId },
         });
         if (!pregnancy) {
             throw new common_1.NotFoundException('Pregnancy profile not found');
         }
-        if (pregnancy.userId !== userId) {
+        if (actor.actorType !== 'user' || pregnancy.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
         }
         await this.prisma.pregnancy.delete({
@@ -246,7 +262,7 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
         });
         return { message: 'Pregnancy profile deleted successfully' };
     }
-    async convertToChild(userId, pregnancyId, dto) {
+    async convertToChild(actor, pregnancyId, dto) {
         this.logger.log(`Converting pregnancy ${pregnancyId} to child profile`);
         const pregnancy = await this.prisma.pregnancy.findUnique({
             where: { id: pregnancyId },
@@ -254,7 +270,7 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
         if (!pregnancy) {
             throw new common_1.NotFoundException('Pregnancy profile not found');
         }
-        if (pregnancy.userId !== userId) {
+        if (actor.actorType !== 'user' || pregnancy.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
         }
         if (pregnancy.status === 'converted') {
@@ -262,7 +278,8 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
         }
         const child = await this.prisma.child.create({
             data: {
-                userId,
+                userId: actor.id,
+                midwifeId: pregnancy.midwifeId,
                 firstName: dto.firstName,
                 lastName: dto.lastName,
                 dateOfBirth: new Date(dto.dateOfBirth),
@@ -296,18 +313,24 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
         return {
             pregnancy: this.formatPregnancy(await this.prisma.pregnancy.findUnique({
                 where: { id: pregnancyId },
+                include: { midwife: true },
             })),
             child: this.formatChild(child),
         };
     }
-    async addCheckup(userId, pregnancyId, dto) {
+    async addCheckup(actor, pregnancyId, dto) {
         const pregnancy = await this.prisma.pregnancy.findUnique({
             where: { id: pregnancyId },
         });
         if (!pregnancy) {
             throw new common_1.NotFoundException('Pregnancy profile not found');
         }
-        if (pregnancy.userId !== userId) {
+        if (actor.actorType === 'midwife') {
+            if (pregnancy.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
+            }
+        }
+        else if (pregnancy.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
         }
         const checkup = await this.prisma.pregnancyCheckup.create({
@@ -342,14 +365,19 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
         }
         return this.formatCheckup(checkup);
     }
-    async getCheckups(userId, pregnancyId) {
+    async getCheckups(actor, pregnancyId) {
         const pregnancy = await this.prisma.pregnancy.findUnique({
             where: { id: pregnancyId },
         });
         if (!pregnancy) {
             throw new common_1.NotFoundException('Pregnancy profile not found');
         }
-        if (pregnancy.userId !== userId) {
+        if (actor.actorType === 'midwife') {
+            if (pregnancy.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
+            }
+        }
+        else if (pregnancy.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
         }
         const checkups = await this.prisma.pregnancyCheckup.findMany({
@@ -358,14 +386,19 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
         });
         return checkups.map(c => this.formatCheckup(c));
     }
-    async addMeasurement(userId, pregnancyId, dto) {
+    async addMeasurement(actor, pregnancyId, dto) {
         const pregnancy = await this.prisma.pregnancy.findUnique({
             where: { id: pregnancyId },
         });
         if (!pregnancy) {
             throw new common_1.NotFoundException('Pregnancy profile not found');
         }
-        if (pregnancy.userId !== userId) {
+        if (actor.actorType === 'midwife') {
+            if (pregnancy.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
+            }
+        }
+        else if (pregnancy.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
         }
         const measurement = await this.prisma.pregnancyMeasurement.create({
@@ -388,14 +421,19 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
         });
         return this.formatMeasurement(measurement);
     }
-    async getMeasurements(userId, pregnancyId) {
+    async getMeasurements(actor, pregnancyId) {
         const pregnancy = await this.prisma.pregnancy.findUnique({
             where: { id: pregnancyId },
         });
         if (!pregnancy) {
             throw new common_1.NotFoundException('Pregnancy profile not found');
         }
-        if (pregnancy.userId !== userId) {
+        if (actor.actorType === 'midwife') {
+            if (pregnancy.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
+            }
+        }
+        else if (pregnancy.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
         }
         const measurements = await this.prisma.pregnancyMeasurement.findMany({
@@ -404,14 +442,19 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
         });
         return measurements.map(m => this.formatMeasurement(m));
     }
-    async saveSymptoms(userId, pregnancyId, dto) {
+    async saveSymptoms(actor, pregnancyId, dto) {
         const pregnancy = await this.prisma.pregnancy.findUnique({
             where: { id: pregnancyId },
         });
         if (!pregnancy) {
             throw new common_1.NotFoundException('Pregnancy profile not found');
         }
-        if (pregnancy.userId !== userId) {
+        if (actor.actorType === 'midwife') {
+            if (pregnancy.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
+            }
+        }
+        else if (pregnancy.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
         }
         const date = dto.date ? new Date(dto.date) : new Date();
@@ -450,14 +493,19 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
         }
         return this.formatSymptom(symptom);
     }
-    async getSymptomsHistory(userId, pregnancyId, limit) {
+    async getSymptomsHistory(actor, pregnancyId, limit) {
         const pregnancy = await this.prisma.pregnancy.findUnique({
             where: { id: pregnancyId },
         });
         if (!pregnancy) {
             throw new common_1.NotFoundException('Pregnancy profile not found');
         }
-        if (pregnancy.userId !== userId) {
+        if (actor.actorType === 'midwife') {
+            if (pregnancy.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
+            }
+        }
+        else if (pregnancy.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
         }
         const symptoms = await this.prisma.pregnancySymptom.findMany({
@@ -467,14 +515,19 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
         });
         return symptoms.map(s => this.formatSymptom(s));
     }
-    async getTodaySymptoms(userId, pregnancyId) {
+    async getTodaySymptoms(actor, pregnancyId) {
         const pregnancy = await this.prisma.pregnancy.findUnique({
             where: { id: pregnancyId },
         });
         if (!pregnancy) {
             throw new common_1.NotFoundException('Pregnancy profile not found');
         }
-        if (pregnancy.userId !== userId) {
+        if (actor.actorType === 'midwife') {
+            if (pregnancy.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
+            }
+        }
+        else if (pregnancy.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
         }
         const today = new Date();
@@ -491,14 +544,19 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
         });
         return symptom ? this.formatSymptom(symptom) : null;
     }
-    async createJournalEntry(userId, pregnancyId, dto) {
+    async createJournalEntry(actor, pregnancyId, dto) {
         const pregnancy = await this.prisma.pregnancy.findUnique({
             where: { id: pregnancyId },
         });
         if (!pregnancy) {
             throw new common_1.NotFoundException('Pregnancy profile not found');
         }
-        if (pregnancy.userId !== userId) {
+        if (actor.actorType === 'midwife') {
+            if (pregnancy.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
+            }
+        }
+        else if (pregnancy.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
         }
         const journal = await this.prisma.pregnancyJournal.create({
@@ -513,14 +571,19 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
         });
         return this.formatJournal(journal);
     }
-    async getJournalEntries(userId, pregnancyId, limit) {
+    async getJournalEntries(actor, pregnancyId, limit) {
         const pregnancy = await this.prisma.pregnancy.findUnique({
             where: { id: pregnancyId },
         });
         if (!pregnancy) {
             throw new common_1.NotFoundException('Pregnancy profile not found');
         }
-        if (pregnancy.userId !== userId) {
+        if (actor.actorType === 'midwife') {
+            if (pregnancy.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
+            }
+        }
+        else if (pregnancy.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
         }
         const journals = await this.prisma.pregnancyJournal.findMany({
@@ -530,14 +593,19 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
         });
         return journals.map(j => this.formatJournal(j));
     }
-    async deleteJournalEntry(userId, pregnancyId, journalId) {
+    async deleteJournalEntry(actor, pregnancyId, journalId) {
         const pregnancy = await this.prisma.pregnancy.findUnique({
             where: { id: pregnancyId },
         });
         if (!pregnancy) {
             throw new common_1.NotFoundException('Pregnancy profile not found');
         }
-        if (pregnancy.userId !== userId) {
+        if (actor.actorType === 'midwife') {
+            if (pregnancy.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
+            }
+        }
+        else if (pregnancy.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
         }
         const journal = await this.prisma.pregnancyJournal.findUnique({
@@ -551,60 +619,78 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
         });
         return { message: 'Journal entry deleted successfully' };
     }
-    async updateMedicalConditions(userId, pregnancyId, conditions) {
+    async updateMedicalConditions(actor, pregnancyId, conditions) {
         const pregnancy = await this.prisma.pregnancy.findUnique({
             where: { id: pregnancyId },
         });
         if (!pregnancy) {
             throw new common_1.NotFoundException('Pregnancy profile not found');
         }
-        if (pregnancy.userId !== userId) {
+        if (actor.actorType === 'midwife') {
+            if (pregnancy.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
+            }
+        }
+        else if (pregnancy.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
         }
         const updated = await this.prisma.pregnancy.update({
             where: { id: pregnancyId },
             data: { medicalConditions: conditions },
             include: {
+                midwife: true,
                 pregnancyCheckups: { orderBy: { checkupDate: 'desc' }, take: 5 },
                 pregnancyMeasurements: { orderBy: { measurementDate: 'desc' }, take: 5 },
             },
         });
         return this.formatPregnancy(updated);
     }
-    async updateAllergies(userId, pregnancyId, allergies) {
+    async updateAllergies(actor, pregnancyId, allergies) {
         const pregnancy = await this.prisma.pregnancy.findUnique({
             where: { id: pregnancyId },
         });
         if (!pregnancy) {
             throw new common_1.NotFoundException('Pregnancy profile not found');
         }
-        if (pregnancy.userId !== userId) {
+        if (actor.actorType === 'midwife') {
+            if (pregnancy.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
+            }
+        }
+        else if (pregnancy.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
         }
         const updated = await this.prisma.pregnancy.update({
             where: { id: pregnancyId },
             data: { allergies },
             include: {
+                midwife: true,
                 pregnancyCheckups: { orderBy: { checkupDate: 'desc' }, take: 5 },
                 pregnancyMeasurements: { orderBy: { measurementDate: 'desc' }, take: 5 },
             },
         });
         return this.formatPregnancy(updated);
     }
-    async updateWeight(userId, pregnancyId, weight) {
+    async updateWeight(actor, pregnancyId, weight) {
         const pregnancy = await this.prisma.pregnancy.findUnique({
             where: { id: pregnancyId },
         });
         if (!pregnancy) {
             throw new common_1.NotFoundException('Pregnancy profile not found');
         }
-        if (pregnancy.userId !== userId) {
+        if (actor.actorType === 'midwife') {
+            if (pregnancy.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
+            }
+        }
+        else if (pregnancy.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
         }
         const updated = await this.prisma.pregnancy.update({
             where: { id: pregnancyId },
             data: { currentWeight: weight },
             include: {
+                midwife: true,
                 pregnancyCheckups: { orderBy: { checkupDate: 'desc' }, take: 5 },
                 pregnancyMeasurements: { orderBy: { measurementDate: 'desc' }, take: 5 },
             },
@@ -643,8 +729,20 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
             hospitalName: pregnancy.hospitalName,
             obgynName: pregnancy.obgynName,
             obgynContact: pregnancy.obgynContact,
-            midwifeName: pregnancy.midwifeName,
-            midwifeContact: pregnancy.midwifeContact,
+            midwifeId: pregnancy.midwifeId,
+            midwifeName: pregnancy.midwife?.name,
+            midwifeContact: pregnancy.midwife?.phone,
+            midwife: pregnancy.midwife
+                ? {
+                    id: pregnancy.midwife.id,
+                    name: pregnancy.midwife.name,
+                    role: pregnancy.midwife.role,
+                    phone: pregnancy.midwife.phone,
+                    email: pregnancy.midwife.email,
+                    facilityName: pregnancy.midwife.facilityName,
+                    region: pregnancy.midwife.region,
+                }
+                : null,
             expectedGender: pregnancy.expectedGender,
             babyNickname: pregnancy.babyNickname,
             numberOfBabies: pregnancy.numberOfBabies,

@@ -1,12 +1,16 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChildDto, UpdateChildDto } from './dto';
+type ActorContext = {
+    id: string;
+    actorType: 'user' | 'midwife';
+};
 export declare class ChildService {
     private readonly prisma;
     private readonly logger;
     constructor(prisma: PrismaService);
     private mapBloodType;
     private mapBloodTypeToDisplay;
-    create(userId: string, dto: CreateChildDto): Promise<{
+    create(actor: ActorContext, dto: CreateChildDto): Promise<{
         id: any;
         chdrNumber: any;
         firstName: any;
@@ -26,11 +30,21 @@ export declare class ChildService {
         fatherName: any;
         emergencyContact: any;
         address: any;
+        midwifeId: any;
+        assignedMidwife: {
+            id: any;
+            name: any;
+            role: string;
+            phone: any;
+            email: any;
+            clinic: any;
+            address: any;
+        } | undefined;
         createdAt: any;
         updatedAt: any;
     }>;
-    findAll(userId: string): Promise<unknown[]>;
-    findOne(userId: string, childId: string): Promise<{
+    findAll(actor: ActorContext): Promise<unknown[]>;
+    findOne(actor: ActorContext, childId: string): Promise<{
         id: any;
         chdrNumber: any;
         firstName: any;
@@ -50,10 +64,20 @@ export declare class ChildService {
         fatherName: any;
         emergencyContact: any;
         address: any;
+        midwifeId: any;
+        assignedMidwife: {
+            id: any;
+            name: any;
+            role: string;
+            phone: any;
+            email: any;
+            clinic: any;
+            address: any;
+        } | undefined;
         createdAt: any;
         updatedAt: any;
     }>;
-    update(userId: string, childId: string, dto: UpdateChildDto): Promise<{
+    update(actor: ActorContext, childId: string, dto: UpdateChildDto): Promise<{
         id: any;
         chdrNumber: any;
         firstName: any;
@@ -73,11 +97,22 @@ export declare class ChildService {
         fatherName: any;
         emergencyContact: any;
         address: any;
+        midwifeId: any;
+        assignedMidwife: {
+            id: any;
+            name: any;
+            role: string;
+            phone: any;
+            email: any;
+            clinic: any;
+            address: any;
+        } | undefined;
         createdAt: any;
         updatedAt: any;
     }>;
-    remove(userId: string, childId: string): Promise<{
+    remove(actor: ActorContext, childId: string): Promise<{
         message: string;
     }>;
     private formatChild;
 }
+export {};

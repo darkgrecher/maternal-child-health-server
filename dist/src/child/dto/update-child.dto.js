@@ -31,6 +31,7 @@ class UpdateChildDto {
     fatherName;
     emergencyContact;
     address;
+    midwifeId;
 }
 exports.UpdateChildDto = UpdateChildDto;
 __decorate([
@@ -131,4 +132,9 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateChildDto.prototype, "address", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], UpdateChildDto.prototype, "midwifeId", void 0);
 //# sourceMappingURL=update-child.dto.js.map

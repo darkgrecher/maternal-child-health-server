@@ -25,8 +25,7 @@ export declare class UpdatePregnancyDto {
     hospitalName?: string;
     obgynName?: string;
     obgynContact?: string;
-    midwifeName?: string;
-    midwifeContact?: string;
+    midwifeId?: string;
     expectedGender?: 'male' | 'female';
     babyNickname?: string;
     numberOfBabies?: number;

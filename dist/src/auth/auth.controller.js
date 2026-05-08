@@ -18,6 +18,7 @@ const auth_service_1 = require("./auth.service");
 const google_auth_dto_1 = require("./dto/google-auth.dto");
 const refresh_token_dto_1 = require("./dto/refresh-token.dto");
 const auth0_auth_dto_1 = require("./dto/auth0-auth.dto");
+const midwife_login_dto_1 = require("./dto/midwife-login.dto");
 const jwt_auth_guard_1 = require("./guards/jwt-auth.guard");
 let AuthController = class AuthController {
     authService;
@@ -38,6 +39,13 @@ let AuthController = class AuthController {
             data: tokens,
         };
     }
+    async midwifeLogin(dto) {
+        const result = await this.authService.midwifeLogin(dto);
+        return {
+            success: true,
+            data: result,
+        };
+    }
     async refreshToken(dto) {
         const tokens = await this.authService.refreshTokens(dto.refreshToken);
         return {
@@ -46,7 +54,8 @@ let AuthController = class AuthController {
         };
     }
     async getProfile(req) {
-        const user = await this.authService.getUserById(req.user.sub);
+        const actorType = req.user.actorType || 'user';
+        const user = await this.authService.getActorById(req.user.sub, actorType);
         return {
             success: true,
             data: user,
@@ -60,7 +69,8 @@ let AuthController = class AuthController {
         };
     }
     async logoutAll(req) {
-        await this.authService.logoutAll(req.user.sub);
+        const actorType = req.user.actorType || 'user';
+        await this.authService.logoutAll(req.user.sub, actorType);
         return {
             success: true,
             message: 'Logged out from all devices',
@@ -84,6 +94,14 @@ __decorate([
     __metadata("design:paramtypes", [google_auth_dto_1.GoogleAuthDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "googleAuth", null);
+__decorate([
+    (0, common_1.Post)('midwife/login'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [midwife_login_dto_1.MidwifeLoginDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "midwifeLogin", null);
 __decorate([
     (0, common_1.Post)('refresh'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),

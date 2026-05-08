@@ -51,11 +51,16 @@ let ChildService = ChildService_1 = class ChildService {
         };
         return mapping[bloodType] || 'unknown';
     }
-    async create(userId, dto) {
-        this.logger.log(`Creating child profile for user: ${userId}`);
+    async create(actor, dto) {
+        this.logger.log(`Creating child profile for actor: ${actor.id}`);
+        if (actor.actorType !== 'user') {
+            throw new common_1.ForbiddenException('Only users can create child profiles');
+        }
+        const userId = actor.id;
         const child = await this.prisma.child.create({
             data: {
                 userId,
+                midwifeId: dto.midwifeId,
                 firstName: dto.firstName,
                 lastName: dto.lastName,
                 dateOfBirth: new Date(dto.dateOfBirth),
@@ -75,36 +80,53 @@ let ChildService = ChildService_1 = class ChildService {
                 emergencyContact: dto.emergencyContact,
                 address: dto.address,
             },
+            include: { midwife: true },
         });
         return this.formatChild(child);
     }
-    async findAll(userId) {
+    async findAll(actor) {
         const children = await this.prisma.child.findMany({
-            where: { userId },
+            where: actor.actorType === 'midwife' ? { midwifeId: actor.id } : { userId: actor.id },
             orderBy: { createdAt: 'desc' },
+            include: { midwife: true },
         });
         return children.map(this.formatChild.bind(this));
     }
-    async findOne(userId, childId) {
+    async findOne(actor, childId) {
         const child = await this.prisma.child.findUnique({
             where: { id: childId },
+            include: { midwife: true },
         });
         if (!child) {
             throw new common_1.NotFoundException('Child not found');
         }
-        if (child.userId !== userId) {
+        if (actor.actorType === 'midwife') {
+            if (child.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied');
+            }
+        }
+        else if (child.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied');
         }
         return this.formatChild(child);
     }
-    async update(userId, childId, dto) {
+    async update(actor, childId, dto) {
         const child = await this.prisma.child.findUnique({
             where: { id: childId },
         });
         if (!child) {
             throw new common_1.NotFoundException('Child not found');
         }
-        if (child.userId !== userId) {
+        if (actor.actorType === 'midwife') {
+            const canClaim = !child.midwifeId && dto.midwifeId === actor.id;
+            if (child.midwifeId !== actor.id && !canClaim) {
+                throw new common_1.ForbiddenException('Access denied');
+            }
+            if (dto.midwifeId && dto.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Midwife assignment mismatch');
+            }
+        }
+        else if (child.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied');
         }
         const updateData = {};
@@ -144,20 +166,23 @@ let ChildService = ChildService_1 = class ChildService {
             updateData.emergencyContact = dto.emergencyContact;
         if (dto.address !== undefined)
             updateData.address = dto.address;
+        if (dto.midwifeId !== undefined)
+            updateData.midwifeId = dto.midwifeId;
         const updated = await this.prisma.child.update({
             where: { id: childId },
             data: updateData,
+            include: { midwife: true },
         });
         return this.formatChild(updated);
     }
-    async remove(userId, childId) {
+    async remove(actor, childId) {
         const child = await this.prisma.child.findUnique({
             where: { id: childId },
         });
         if (!child) {
             throw new common_1.NotFoundException('Child not found');
         }
-        if (child.userId !== userId) {
+        if (actor.actorType !== 'user' || child.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied');
         }
         await this.prisma.child.delete({
@@ -186,6 +211,18 @@ let ChildService = ChildService_1 = class ChildService {
             fatherName: child.fatherName,
             emergencyContact: child.emergencyContact,
             address: child.address,
+            midwifeId: child.midwifeId,
+            assignedMidwife: child.midwife
+                ? {
+                    id: child.midwife.id,
+                    name: child.midwife.name,
+                    role: 'midwife',
+                    phone: child.midwife.phone,
+                    email: child.midwife.email,
+                    clinic: child.midwife.facilityName,
+                    address: child.midwife.region,
+                }
+                : undefined,
             createdAt: child.createdAt.toISOString(),
             updatedAt: child.updatedAt.toISOString(),
         };

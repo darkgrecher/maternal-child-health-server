@@ -3,6 +3,7 @@ import { CreateChildDto, UpdateChildDto } from './dto';
 export declare class ChildController {
     private readonly childService;
     constructor(childService: ChildService);
+    private getActor;
     create(req: any, dto: CreateChildDto): Promise<{
         success: boolean;
         data: {
@@ -25,6 +26,16 @@ export declare class ChildController {
             fatherName: any;
             emergencyContact: any;
             address: any;
+            midwifeId: any;
+            assignedMidwife: {
+                id: any;
+                name: any;
+                role: string;
+                phone: any;
+                email: any;
+                clinic: any;
+                address: any;
+            } | undefined;
             createdAt: any;
             updatedAt: any;
         };
@@ -55,6 +66,16 @@ export declare class ChildController {
             fatherName: any;
             emergencyContact: any;
             address: any;
+            midwifeId: any;
+            assignedMidwife: {
+                id: any;
+                name: any;
+                role: string;
+                phone: any;
+                email: any;
+                clinic: any;
+                address: any;
+            } | undefined;
             createdAt: any;
             updatedAt: any;
         };
@@ -81,6 +102,16 @@ export declare class ChildController {
             fatherName: any;
             emergencyContact: any;
             address: any;
+            midwifeId: any;
+            assignedMidwife: {
+                id: any;
+                name: any;
+                role: string;
+                phone: any;
+                email: any;
+                clinic: any;
+                address: any;
+            } | undefined;
             createdAt: any;
             updatedAt: any;
         };
@@ -107,6 +138,16 @@ export declare class ChildController {
             fatherName: any;
             emergencyContact: any;
             address: any;
+            midwifeId: any;
+            assignedMidwife: {
+                id: any;
+                name: any;
+                role: string;
+                phone: any;
+                email: any;
+                clinic: any;
+                address: any;
+            } | undefined;
             createdAt: any;
             updatedAt: any;
         };

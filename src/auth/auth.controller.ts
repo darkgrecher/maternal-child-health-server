@@ -18,6 +18,7 @@ import { AuthService } from './auth.service';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Auth0AuthDto } from './dto/auth0-auth.dto';
+import { MidwifeLoginDto } from './dto/midwife-login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
@@ -53,6 +54,20 @@ export class AuthController {
   }
 
   /**
+   * Authenticate midwife with email/password
+   * POST /auth/midwife/login
+   */
+  @Post('midwife/login')
+  @HttpCode(HttpStatus.OK)
+  async midwifeLogin(@Body() dto: MidwifeLoginDto) {
+    const result = await this.authService.midwifeLogin(dto);
+    return {
+      success: true,
+      data: result,
+    };
+  }
+
+  /**
    * Refresh access token
    * POST /auth/refresh
    */
@@ -73,7 +88,8 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   async getProfile(@Request() req) {
-    const user = await this.authService.getUserById(req.user.sub);
+    const actorType = req.user.actorType || 'user';
+    const user = await this.authService.getActorById(req.user.sub, actorType);
     return {
       success: true,
       data: user,
@@ -103,7 +119,8 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async logoutAll(@Request() req) {
-    await this.authService.logoutAll(req.user.sub);
+    const actorType = req.user.actorType || 'user';
+    await this.authService.logoutAll(req.user.sub, actorType);
     return {
       success: true,
       message: 'Logged out from all devices',

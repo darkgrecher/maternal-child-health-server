@@ -9,9 +9,9 @@ export declare class EmergencyContactService {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
         role: string;
         phone: string;
+        userId: string;
         isPrimary: boolean;
         isDefault: boolean;
         address: string | null;
@@ -23,9 +23,9 @@ export declare class EmergencyContactService {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
         role: string;
         phone: string;
+        userId: string;
         isPrimary: boolean;
         isDefault: boolean;
         address: string | null;
@@ -37,9 +37,9 @@ export declare class EmergencyContactService {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
         role: string;
         phone: string;
+        userId: string;
         isPrimary: boolean;
         isDefault: boolean;
         address: string | null;
@@ -51,9 +51,9 @@ export declare class EmergencyContactService {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
         role: string;
         phone: string;
+        userId: string;
         isPrimary: boolean;
         isDefault: boolean;
         address: string | null;
@@ -68,9 +68,9 @@ export declare class EmergencyContactService {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
         role: string;
         phone: string;
+        userId: string;
         isPrimary: boolean;
         isDefault: boolean;
         address: string | null;

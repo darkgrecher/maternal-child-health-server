@@ -2,6 +2,7 @@ import { AuthService } from './auth.service';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Auth0AuthDto } from './dto/auth0-auth.dto';
+import { MidwifeLoginDto } from './dto/midwife-login.dto';
 export declare class AuthController {
     private readonly authService;
     constructor(authService: AuthService);
@@ -9,11 +10,19 @@ export declare class AuthController {
         success: boolean;
         data: import("./auth.service").AuthTokens & {
             user: any;
+            actorType: import("./auth.service").ActorType;
         };
     }>;
     googleAuth(dto: GoogleAuthDto): Promise<{
         success: boolean;
         data: import("./auth.service").AuthTokens;
+    }>;
+    midwifeLogin(dto: MidwifeLoginDto): Promise<{
+        success: boolean;
+        data: import("./auth.service").AuthTokens & {
+            user: any;
+            actorType: import("./auth.service").ActorType;
+        };
     }>;
     refreshToken(dto: RefreshTokenDto): Promise<{
         success: boolean;

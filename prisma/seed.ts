@@ -1,10 +1,12 @@
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 const ids = {
   userId: '8f8c7d7b-8a84-4bd4-9bb2-6b3278d4879a',
+  midwifeId: '3d7f02ae-1f7c-4d42-b447-ef42d60f5f25',
   refreshTokenId: '15a1ce0f-19d2-4b46-9c1a-5b3f6db4a3d9',
   childId: '1b5f4b24-26f2-4d99-8a6a-4e3dc7a0c0d3',
   emergencyPrimaryId: '2f0ab4b8-3f1c-43f7-8f09-6f7f6c5f2b91',
@@ -305,6 +307,42 @@ async function main() {
     },
   });
 
+  const midwifePasswordHash = await bcrypt.hash('MidwifePass123!', 10);
+
+  const midwife = await prisma.midwife.upsert({
+    where: { email: 'seed.midwife@example.com' },
+    update: {
+      name: 'Ms. Priya Fernando',
+      givenName: 'Priya',
+      familyName: 'Fernando',
+      picture: 'https://example.com/avatar/priya.png',
+      auth0Id: 'auth0|seed-midwife',
+      passwordHash: midwifePasswordHash,
+      role: 'midwife',
+      phone: '+94 77 222 3344',
+      licenseNumber: 'MW-2024-001',
+      facilityName: 'Colombo Women Hospital',
+      region: 'Colombo District',
+      lastLoginAt: baseDate,
+    },
+    create: {
+      id: ids.midwifeId,
+      email: 'seed.midwife@example.com',
+      name: 'Ms. Priya Fernando',
+      givenName: 'Priya',
+      familyName: 'Fernando',
+      picture: 'https://example.com/avatar/priya.png',
+      auth0Id: 'auth0|seed-midwife',
+      passwordHash: midwifePasswordHash,
+      role: 'midwife',
+      phone: '+94 77 222 3344',
+      licenseNumber: 'MW-2024-001',
+      facilityName: 'Colombo Women Hospital',
+      region: 'Colombo District',
+      lastLoginAt: baseDate,
+    },
+  });
+
   await prisma.refreshToken.upsert({
     where: { token: 'seed-refresh-token' },
     update: {
@@ -373,6 +411,7 @@ async function main() {
     where: { id: ids.childId },
     update: {
       userId: user.id,
+      midwifeId: midwife.id,
       firstName: 'Ravi',
       lastName: 'Perera',
       dateOfBirth: childDob,
@@ -393,6 +432,7 @@ async function main() {
     create: {
       id: ids.childId,
       userId: user.id,
+      midwifeId: midwife.id,
       firstName: 'Ravi',
       lastName: 'Perera',
       dateOfBirth: childDob,
@@ -630,8 +670,7 @@ async function main() {
       hospitalName: 'Colombo Women Hospital',
       obgynName: 'Dr. Malini Jayasuriya',
       obgynContact: '+94 77 555 7799',
-      midwifeName: 'Ms. Priya Fernando',
-      midwifeContact: '+94 77 222 3344',
+      midwifeId: midwife.id,
       expectedGender: 'female',
       babyNickname: 'Little Star',
       numberOfBabies: 1,
@@ -666,8 +705,7 @@ async function main() {
       hospitalName: 'Colombo Women Hospital',
       obgynName: 'Dr. Malini Jayasuriya',
       obgynContact: '+94 77 555 7799',
-      midwifeName: 'Ms. Priya Fernando',
-      midwifeContact: '+94 77 222 3344',
+      midwifeId: midwife.id,
       expectedGender: 'female',
       babyNickname: 'Little Star',
       numberOfBabies: 1,

@@ -40,8 +40,7 @@ class CreatePregnancyDto {
     hospitalName;
     obgynName;
     obgynContact;
-    midwifeName;
-    midwifeContact;
+    midwifeId;
     expectedGender;
     babyNickname;
     numberOfBabies;
@@ -164,14 +163,9 @@ __decorate([
 ], CreatePregnancyDto.prototype, "obgynContact", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
-], CreatePregnancyDto.prototype, "midwifeName", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreatePregnancyDto.prototype, "midwifeContact", void 0);
+], CreatePregnancyDto.prototype, "midwifeId", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEnum)(['male', 'female']),

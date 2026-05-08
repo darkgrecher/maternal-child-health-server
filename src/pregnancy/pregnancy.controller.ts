@@ -36,14 +36,14 @@ export class PregnancyController {
   constructor(private readonly pregnancyService: PregnancyService) {}
 
   /**
-   * Helper to get user ID from request
+   * Helper to get actor context from request
    */
-  private getUserId(req: any): string {
-    const userId = req.user?.sub;
-    if (!userId) {
+  private getActor(req: any): { id: string; actorType: 'user' | 'midwife' } {
+    const actorId = req.user?.sub;
+    if (!actorId) {
       throw new BadRequestException('User ID not found in token. Please log out and log in again.');
     }
-    return userId;
+    return { id: actorId, actorType: req.user?.actorType || 'user' };
   }
 
   /**
@@ -51,7 +51,7 @@ export class PregnancyController {
    */
   @Post()
   async create(@Request() req: any, @Body() dto: CreatePregnancyDto) {
-    return this.pregnancyService.create(this.getUserId(req), dto);
+    return this.pregnancyService.create(this.getActor(req), dto);
   }
 
   /**
@@ -59,7 +59,7 @@ export class PregnancyController {
    */
   @Get()
   async findAll(@Request() req: any) {
-    return this.pregnancyService.findAll(this.getUserId(req));
+    return this.pregnancyService.findAll(this.getActor(req));
   }
 
   /**
@@ -67,7 +67,7 @@ export class PregnancyController {
    */
   @Get('active')
   async findActive(@Request() req: any) {
-    return this.pregnancyService.findActive(this.getUserId(req));
+    return this.pregnancyService.findActive(this.getActor(req));
   }
 
   /**
@@ -75,7 +75,7 @@ export class PregnancyController {
    */
   @Get(':id')
   async findOne(@Request() req: any, @Param('id') id: string) {
-    return this.pregnancyService.findOne(this.getUserId(req), id);
+    return this.pregnancyService.findOne(this.getActor(req), id);
   }
 
   /**
@@ -87,7 +87,7 @@ export class PregnancyController {
     @Param('id') id: string,
     @Body() dto: UpdatePregnancyDto,
   ) {
-    return this.pregnancyService.update(this.getUserId(req), id, dto);
+    return this.pregnancyService.update(this.getActor(req), id, dto);
   }
 
   /**
@@ -96,7 +96,7 @@ export class PregnancyController {
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   async delete(@Request() req: any, @Param('id') id: string) {
-    return this.pregnancyService.delete(this.getUserId(req), id);
+    return this.pregnancyService.delete(this.getActor(req), id);
   }
 
   /**
@@ -108,7 +108,7 @@ export class PregnancyController {
     @Param('id') id: string,
     @Body() dto: ConvertToChildDto,
   ) {
-    return this.pregnancyService.convertToChild(this.getUserId(req), id, dto);
+    return this.pregnancyService.convertToChild(this.getActor(req), id, dto);
   }
 
   // ============================================================================
@@ -124,7 +124,7 @@ export class PregnancyController {
     @Param('id') id: string,
     @Body() dto: CreatePregnancyCheckupDto,
   ) {
-    return this.pregnancyService.addCheckup(req.user.sub, id, dto);
+    return this.pregnancyService.addCheckup(this.getActor(req), id, dto);
   }
 
   /**
@@ -132,7 +132,7 @@ export class PregnancyController {
    */
   @Get(':id/checkups')
   async getCheckups(@Request() req: any, @Param('id') id: string) {
-    return this.pregnancyService.getCheckups(req.user.sub, id);
+    return this.pregnancyService.getCheckups(this.getActor(req), id);
   }
 
   // ============================================================================
@@ -148,7 +148,7 @@ export class PregnancyController {
     @Param('id') id: string,
     @Body() dto: CreatePregnancyMeasurementDto,
   ) {
-    return this.pregnancyService.addMeasurement(req.user.sub, id, dto);
+    return this.pregnancyService.addMeasurement(this.getActor(req), id, dto);
   }
 
   /**
@@ -156,7 +156,7 @@ export class PregnancyController {
    */
   @Get(':id/measurements')
   async getMeasurements(@Request() req: any, @Param('id') id: string) {
-    return this.pregnancyService.getMeasurements(req.user.sub, id);
+    return this.pregnancyService.getMeasurements(this.getActor(req), id);
   }
 
   // ============================================================================
@@ -172,7 +172,7 @@ export class PregnancyController {
     @Param('id') id: string,
     @Body() dto: CreatePregnancySymptomDto,
   ) {
-    return this.pregnancyService.saveSymptoms(this.getUserId(req), id, dto);
+    return this.pregnancyService.saveSymptoms(this.getActor(req), id, dto);
   }
 
   /**
@@ -180,7 +180,7 @@ export class PregnancyController {
    */
   @Get(':id/symptoms')
   async getSymptomsHistory(@Request() req: any, @Param('id') id: string) {
-    return this.pregnancyService.getSymptomsHistory(this.getUserId(req), id);
+    return this.pregnancyService.getSymptomsHistory(this.getActor(req), id);
   }
 
   /**
@@ -188,7 +188,7 @@ export class PregnancyController {
    */
   @Get(':id/symptoms/today')
   async getTodaySymptoms(@Request() req: any, @Param('id') id: string) {
-    return this.pregnancyService.getTodaySymptoms(this.getUserId(req), id);
+    return this.pregnancyService.getTodaySymptoms(this.getActor(req), id);
   }
 
   // ============================================================================
@@ -204,7 +204,7 @@ export class PregnancyController {
     @Param('id') id: string,
     @Body() dto: CreatePregnancyJournalDto,
   ) {
-    return this.pregnancyService.createJournalEntry(this.getUserId(req), id, dto);
+    return this.pregnancyService.createJournalEntry(this.getActor(req), id, dto);
   }
 
   /**
@@ -212,7 +212,7 @@ export class PregnancyController {
    */
   @Get(':id/journals')
   async getJournalEntries(@Request() req: any, @Param('id') id: string) {
-    return this.pregnancyService.getJournalEntries(this.getUserId(req), id);
+    return this.pregnancyService.getJournalEntries(this.getActor(req), id);
   }
 
   /**
@@ -225,7 +225,7 @@ export class PregnancyController {
     @Param('id') id: string,
     @Param('journalId') journalId: string,
   ) {
-    return this.pregnancyService.deleteJournalEntry(this.getUserId(req), id, journalId);
+    return this.pregnancyService.deleteJournalEntry(this.getActor(req), id, journalId);
   }
 
   // ============================================================================
@@ -241,7 +241,7 @@ export class PregnancyController {
     @Param('id') id: string,
     @Body() body: { conditions: string[] },
   ) {
-    return this.pregnancyService.updateMedicalConditions(this.getUserId(req), id, body.conditions);
+    return this.pregnancyService.updateMedicalConditions(this.getActor(req), id, body.conditions);
   }
 
   /**
@@ -253,7 +253,7 @@ export class PregnancyController {
     @Param('id') id: string,
     @Body() body: { allergies: string[] },
   ) {
-    return this.pregnancyService.updateAllergies(this.getUserId(req), id, body.allergies);
+    return this.pregnancyService.updateAllergies(this.getActor(req), id, body.allergies);
   }
 
   /**
@@ -265,6 +265,6 @@ export class PregnancyController {
     @Param('id') id: string,
     @Body() body: { weight: number },
   ) {
-    return this.pregnancyService.updateWeight(this.getUserId(req), id, body.weight);
+    return this.pregnancyService.updateWeight(this.getActor(req), id, body.weight);
   }
 }

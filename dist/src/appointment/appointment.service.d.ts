@@ -91,6 +91,7 @@ export declare class AppointmentService {
             createdAt: Date;
             updatedAt: Date;
             userId: string;
+            midwifeId: string | null;
             address: string | null;
             emergencyContact: string | null;
             chdrNumber: string | null;

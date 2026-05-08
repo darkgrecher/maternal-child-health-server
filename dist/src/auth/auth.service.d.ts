@@ -3,10 +3,15 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { Auth0AuthDto } from './dto/auth0-auth.dto';
+import { MidwifeLoginDto } from './dto/midwife-login.dto';
+import { MidwifeRole } from '@prisma/client';
+export type ActorType = 'user' | 'midwife';
 export interface JwtPayload {
     sub: string;
     email: string;
     name?: string;
+    actorType?: ActorType;
+    role?: MidwifeRole;
 }
 export interface AuthTokens {
     accessToken: string;
@@ -30,6 +35,8 @@ export interface Auth0UserInfo {
     familyName?: string;
     picture?: string;
     nickname?: string;
+    role?: string | string[];
+    roles?: string[];
 }
 export declare class AuthService {
     private readonly prisma;
@@ -41,6 +48,11 @@ export declare class AuthService {
     constructor(prisma: PrismaService, jwtService: JwtService, configService: ConfigService);
     auth0Auth(dto: Auth0AuthDto): Promise<AuthTokens & {
         user: any;
+        actorType: ActorType;
+    }>;
+    midwifeLogin(dto: MidwifeLoginDto): Promise<AuthTokens & {
+        user: any;
+        actorType: ActorType;
     }>;
     private verifyAuth0Token;
     private findOrCreateUserFromAuth0;
@@ -52,8 +64,8 @@ export declare class AuthService {
     private generateTokens;
     refreshTokens(refreshToken: string): Promise<AuthTokens>;
     logout(refreshToken: string): Promise<void>;
-    logoutAll(userId: string): Promise<void>;
-    getUserById(userId: string): Promise<{
+    logoutAll(actorId: string, actorType: ActorType): Promise<void>;
+    getActorById(actorId: string, actorType: ActorType): Promise<{
         id: string;
         email: string;
         name: string | null;

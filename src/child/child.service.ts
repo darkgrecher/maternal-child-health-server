@@ -14,6 +14,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateChildDto, UpdateChildDto, BloodType } from './dto';
 import { Gender as PrismaGender, BloodType as PrismaBloodType, DeliveryType as PrismaDeliveryType } from '@prisma/client';
 
+type ActorContext = {
+  id: string;
+  actorType: 'user' | 'midwife';
+};
+
 @Injectable()
 export class ChildService {
   private readonly logger = new Logger(ChildService.name);
@@ -61,12 +66,19 @@ export class ChildService {
   /**
    * Create a new child profile
    */
-  async create(userId: string, dto: CreateChildDto) {
-    this.logger.log(`Creating child profile for user: ${userId}`);
+  async create(actor: ActorContext, dto: CreateChildDto) {
+    this.logger.log(`Creating child profile for actor: ${actor.id}`);
+
+    if (actor.actorType !== 'user') {
+      throw new ForbiddenException('Only users can create child profiles');
+    }
+
+    const userId = actor.id;
 
     const child = await this.prisma.child.create({
       data: {
         userId,
+        midwifeId: dto.midwifeId,
         firstName: dto.firstName,
         lastName: dto.lastName,
         dateOfBirth: new Date(dto.dateOfBirth),
@@ -86,6 +98,7 @@ export class ChildService {
         emergencyContact: dto.emergencyContact,
         address: dto.address,
       },
+      include: { midwife: true },
     });
 
     return this.formatChild(child);
@@ -94,10 +107,11 @@ export class ChildService {
   /**
    * Get all children for a user
    */
-  async findAll(userId: string) {
+  async findAll(actor: ActorContext) {
     const children = await this.prisma.child.findMany({
-      where: { userId },
+      where: actor.actorType === 'midwife' ? { midwifeId: actor.id } : { userId: actor.id },
       orderBy: { createdAt: 'desc' },
+      include: { midwife: true },
     });
 
     return children.map(this.formatChild.bind(this));
@@ -106,16 +120,21 @@ export class ChildService {
   /**
    * Get a single child by ID
    */
-  async findOne(userId: string, childId: string) {
+  async findOne(actor: ActorContext, childId: string) {
     const child = await this.prisma.child.findUnique({
       where: { id: childId },
+      include: { midwife: true },
     });
 
     if (!child) {
       throw new NotFoundException('Child not found');
     }
 
-    if (child.userId !== userId) {
+    if (actor.actorType === 'midwife') {
+      if (child.midwifeId !== actor.id) {
+        throw new ForbiddenException('Access denied');
+      }
+    } else if (child.userId !== actor.id) {
       throw new ForbiddenException('Access denied');
     }
 
@@ -125,7 +144,7 @@ export class ChildService {
   /**
    * Update a child profile
    */
-  async update(userId: string, childId: string, dto: UpdateChildDto) {
+  async update(actor: ActorContext, childId: string, dto: UpdateChildDto) {
     const child = await this.prisma.child.findUnique({
       where: { id: childId },
     });
@@ -134,7 +153,15 @@ export class ChildService {
       throw new NotFoundException('Child not found');
     }
 
-    if (child.userId !== userId) {
+    if (actor.actorType === 'midwife') {
+      const canClaim = !child.midwifeId && dto.midwifeId === actor.id;
+      if (child.midwifeId !== actor.id && !canClaim) {
+        throw new ForbiddenException('Access denied');
+      }
+      if (dto.midwifeId && dto.midwifeId !== actor.id) {
+        throw new ForbiddenException('Midwife assignment mismatch');
+      }
+    } else if (child.userId !== actor.id) {
       throw new ForbiddenException('Access denied');
     }
 
@@ -158,10 +185,12 @@ export class ChildService {
     if (dto.fatherName !== undefined) updateData.fatherName = dto.fatherName;
     if (dto.emergencyContact !== undefined) updateData.emergencyContact = dto.emergencyContact;
     if (dto.address !== undefined) updateData.address = dto.address;
+    if (dto.midwifeId !== undefined) updateData.midwifeId = dto.midwifeId;
 
     const updated = await this.prisma.child.update({
       where: { id: childId },
       data: updateData,
+      include: { midwife: true },
     });
 
     return this.formatChild(updated);
@@ -170,7 +199,7 @@ export class ChildService {
   /**
    * Delete a child profile
    */
-  async remove(userId: string, childId: string) {
+  async remove(actor: ActorContext, childId: string) {
     const child = await this.prisma.child.findUnique({
       where: { id: childId },
     });
@@ -179,7 +208,7 @@ export class ChildService {
       throw new NotFoundException('Child not found');
     }
 
-    if (child.userId !== userId) {
+    if (actor.actorType !== 'user' || child.userId !== actor.id) {
       throw new ForbiddenException('Access denied');
     }
 
@@ -214,6 +243,18 @@ export class ChildService {
       fatherName: child.fatherName,
       emergencyContact: child.emergencyContact,
       address: child.address,
+      midwifeId: child.midwifeId,
+      assignedMidwife: child.midwife
+        ? {
+            id: child.midwife.id,
+            name: child.midwife.name,
+            role: 'midwife',
+            phone: child.midwife.phone,
+            email: child.midwife.email,
+            clinic: child.midwife.facilityName,
+            address: child.midwife.region,
+          }
+        : undefined,
       createdAt: child.createdAt.toISOString(),
       updatedAt: child.updatedAt.toISOString(),
     };
