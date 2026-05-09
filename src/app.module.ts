@@ -11,6 +11,7 @@ import { GrowthModule } from './growth/growth.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { ActivityModule } from './activity/activity.module';
 import { EmergencyContactModule } from './emergency-contact/emergency-contact.module';
+import { MidwifeLinkModule } from './midwife-link/midwife-link.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { EmergencyContactModule } from './emergency-contact/emergency-contact.mo
     AppointmentModule,
     ActivityModule,
     EmergencyContactModule,
+    MidwifeLinkModule,
   ],
   controllers: [AppController],
   providers: [AppService],
