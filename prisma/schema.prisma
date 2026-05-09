@@ -77,10 +77,10 @@ model Midwife {
   lastLoginAt   DateTime?   @map("last_login_at")
 
   // Relations
-  pregnancies   Pregnancy[]
-  children      Child[]
-  refreshTokens RefreshToken[]
-  linkCodes     MidwifeLinkCode[]
+  pregnancies       Pregnancy[]
+  children          Child[]
+  refreshTokens     RefreshToken[]
+  linkCodes         MidwifeLinkCode[]
   linkNotifications MidwifeLinkNotification[]
 
   // Metadata
@@ -95,16 +95,16 @@ model Midwife {
 // ============================================================================
 
 model MidwifeLinkCode {
-  id         String    @id @default(uuid())
-  code       String    @unique
-  midwifeId  String    @map("midwife_id")
+  id          String                 @id @default(uuid())
+  code        String                 @unique
+  midwifeId   String                 @map("midwife_id")
   profileType MidwifeLinkProfileType @default(child) @map("profile_type")
-  isActive   Boolean   @default(true) @map("is_active")
-  createdAt  DateTime  @default(now()) @map("created_at")
-  lastUsedAt DateTime? @map("last_used_at")
+  isActive    Boolean                @default(true) @map("is_active")
+  createdAt   DateTime               @default(now()) @map("created_at")
+  lastUsedAt  DateTime?              @map("last_used_at")
 
   // Relations
-  midwife Midwife @relation(fields: [midwifeId], references: [id], onDelete: Cascade)
+  midwife       Midwife                   @relation(fields: [midwifeId], references: [id], onDelete: Cascade)
   notifications MidwifeLinkNotification[]
 
   @@index([midwifeId, isActive])
@@ -112,17 +112,17 @@ model MidwifeLinkCode {
 }
 
 model MidwifeLinkNotification {
-  id                  String                     @id @default(uuid())
-  midwifeId           String                     @map("midwife_id")
-  linkCodeId          String?                    @map("link_code_id")
+  id                  String                      @id @default(uuid())
+  midwifeId           String                      @map("midwife_id")
+  linkCodeId          String?                     @map("link_code_id")
   type                MidwifeLinkNotificationType @default(mismatch)
-  expectedProfileType MidwifeLinkProfileType     @map("expected_profile_type")
-  scannedProfileType  MidwifeLinkProfileType     @map("scanned_profile_type")
+  expectedProfileType MidwifeLinkProfileType      @map("expected_profile_type")
+  scannedProfileType  MidwifeLinkProfileType      @map("scanned_profile_type")
   message             String
-  isRead              Boolean                    @default(false) @map("is_read")
-  createdAt           DateTime                   @default(now()) @map("created_at")
+  isRead              Boolean                     @default(false) @map("is_read")
+  createdAt           DateTime                    @default(now()) @map("created_at")
 
-  midwife  Midwife         @relation(fields: [midwifeId], references: [id], onDelete: Cascade)
+  midwife  Midwife          @relation(fields: [midwifeId], references: [id], onDelete: Cascade)
   linkCode MidwifeLinkCode? @relation(fields: [linkCodeId], references: [id], onDelete: SetNull)
 
   @@index([midwifeId, isRead])
