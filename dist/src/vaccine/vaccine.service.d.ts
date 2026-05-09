@@ -1,5 +1,9 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateVaccinationRecordDto } from './dto';
+type ActorContext = {
+    id: string;
+    actorType: 'user' | 'midwife';
+};
 export declare class VaccineService {
     private prisma;
     constructor(prisma: PrismaService);
@@ -42,7 +46,7 @@ export declare class VaccineService {
             isActive: boolean;
         }[];
     }[]>;
-    getChildVaccinationRecords(userId: string, childId: string): Promise<{
+    getChildVaccinationRecords(actor: ActorContext, childId: string): Promise<{
         child: {
             id: string;
             firstName: string;
@@ -119,7 +123,7 @@ export declare class VaccineService {
             status: import("@prisma/client").$Enums.VaccinationStatus;
         } | undefined;
     }>;
-    administerVaccine(userId: string, childId: string, vaccineId: string, dto: UpdateVaccinationRecordDto): Promise<{
+    administerVaccine(actor: ActorContext, childId: string, vaccineId: string, dto: UpdateVaccinationRecordDto): Promise<{
         vaccine: {
             id: string;
             name: string;
@@ -153,7 +157,7 @@ export declare class VaccineService {
         batchNumber: string | null;
         sideEffectsOccurred: string[];
     }>;
-    updateVaccinationRecord(userId: string, recordId: string, dto: UpdateVaccinationRecordDto): Promise<{
+    updateVaccinationRecord(actor: ActorContext, recordId: string, dto: UpdateVaccinationRecordDto): Promise<{
         vaccine: {
             id: string;
             name: string;
@@ -192,3 +196,4 @@ export declare class VaccineService {
         count: number;
     }>;
 }
+export {};

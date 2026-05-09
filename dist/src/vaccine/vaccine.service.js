@@ -41,9 +41,14 @@ let VaccineService = class VaccineService {
             vaccines,
         }));
     }
-    async getChildVaccinationRecords(userId, childId) {
+    async getChildVaccinationRecords(actor, childId) {
         const child = await this.prisma.child.findFirst({
-            where: { id: childId, userId },
+            where: {
+                id: childId,
+                ...(actor.actorType === 'midwife'
+                    ? { midwifeId: actor.id }
+                    : { userId: actor.id }),
+            },
         });
         if (!child) {
             throw new common_1.NotFoundException('Child not found');
@@ -112,9 +117,14 @@ let VaccineService = class VaccineService {
             nextVaccine,
         };
     }
-    async administerVaccine(userId, childId, vaccineId, dto) {
+    async administerVaccine(actor, childId, vaccineId, dto) {
         const child = await this.prisma.child.findFirst({
-            where: { id: childId, userId },
+            where: {
+                id: childId,
+                ...(actor.actorType === 'midwife'
+                    ? { midwifeId: actor.id }
+                    : { userId: actor.id }),
+            },
         });
         if (!child) {
             throw new common_1.NotFoundException('Child not found');
@@ -170,7 +180,7 @@ let VaccineService = class VaccineService {
         });
         return record;
     }
-    async updateVaccinationRecord(userId, recordId, dto) {
+    async updateVaccinationRecord(actor, recordId, dto) {
         const record = await this.prisma.vaccinationRecord.findUnique({
             where: { id: recordId },
             include: { child: true },
@@ -178,7 +188,10 @@ let VaccineService = class VaccineService {
         if (!record) {
             throw new common_1.NotFoundException('Vaccination record not found');
         }
-        if (record.child.userId !== userId) {
+        const isAllowed = actor.actorType === 'midwife'
+            ? record.child.midwifeId === actor.id
+            : record.child.userId === actor.id;
+        if (!isAllowed) {
             throw new common_1.ForbiddenException('Access denied');
         }
         return this.prisma.vaccinationRecord.update({

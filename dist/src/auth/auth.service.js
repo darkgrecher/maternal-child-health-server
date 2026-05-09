@@ -171,6 +171,23 @@ let AuthService = AuthService_1 = class AuthService {
         });
         return midwives;
     }
+    async changeMidwifePassword(midwifeId, dto) {
+        const midwife = await this.prisma.midwife.findUnique({
+            where: { id: midwifeId },
+        });
+        if (!midwife?.passwordHash) {
+            throw new common_1.BadRequestException('Password authentication is not configured for this account');
+        }
+        const isValid = await bcryptjs_1.default.compare(dto.currentPassword, midwife.passwordHash);
+        if (!isValid) {
+            throw new common_1.UnauthorizedException('Current password is incorrect');
+        }
+        const passwordHash = await bcryptjs_1.default.hash(dto.newPassword, 10);
+        await this.prisma.midwife.update({
+            where: { id: midwifeId },
+            data: { passwordHash },
+        });
+    }
     async verifyAuth0Token(token) {
         const auth0Domain = this.configService.get('AUTH0_DOMAIN');
         if (!auth0Domain) {

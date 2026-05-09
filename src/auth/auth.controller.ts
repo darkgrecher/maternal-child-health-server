@@ -21,6 +21,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Auth0AuthDto } from './dto/auth0-auth.dto';
 import { MidwifeLoginDto } from './dto/midwife-login.dto';
 import { MidwifeProvisionDto } from './dto/midwife-provision.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
@@ -66,6 +67,25 @@ export class AuthController {
     return {
       success: true,
       data: result,
+    };
+  }
+
+  /**
+   * Change midwife password
+   * POST /auth/midwife/change-password
+   */
+  @Post('midwife/change-password')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async changePassword(@Request() req, @Body() dto: ChangePasswordDto) {
+    if (req.user?.actorType !== 'midwife') {
+      throw new ForbiddenException('Midwife access required');
+    }
+
+    await this.authService.changeMidwifePassword(req.user.sub, dto);
+    return {
+      success: true,
+      message: 'Password updated successfully',
     };
   }
 

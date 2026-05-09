@@ -3,7 +3,35 @@ import { CreateAppointmentDto, UpdateAppointmentDto } from './dto';
 export declare class AppointmentController {
     private readonly appointmentService;
     constructor(appointmentService: AppointmentService);
-    getChildAppointments(childId: string): Promise<{
+    private getActor;
+    getAppointments(req: any): Promise<{
+        success: boolean;
+        data: ({
+            child: {
+                id: string;
+                firstName: string;
+                lastName: string;
+            };
+        } & {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            address: string | null;
+            notes: string | null;
+            childId: string;
+            status: import("@prisma/client").$Enums.AppointmentStatus;
+            location: string;
+            title: string;
+            type: import("@prisma/client").$Enums.AppointmentType;
+            dateTime: Date;
+            duration: number | null;
+            providerName: string | null;
+            providerRole: string | null;
+            providerPhone: string | null;
+            reminderSent: boolean;
+        })[];
+    }>;
+    getChildAppointments(req: any, childId: string): Promise<{
         childId: string;
         childName: string;
         appointments: {
@@ -109,7 +137,7 @@ export declare class AppointmentController {
         providerPhone: string | null;
         reminderSent: boolean;
     })[]>;
-    getAppointment(id: string): Promise<{
+    getAppointment(req: any, id: string): Promise<{
         child: {
             id: string;
             createdAt: Date;
@@ -153,7 +181,7 @@ export declare class AppointmentController {
         providerPhone: string | null;
         reminderSent: boolean;
     }>;
-    createAppointment(childId: string, createAppointmentDto: CreateAppointmentDto): Promise<{
+    createAppointment(req: any, childId: string, createAppointmentDto: CreateAppointmentDto): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -171,7 +199,7 @@ export declare class AppointmentController {
         providerPhone: string | null;
         reminderSent: boolean;
     }>;
-    updateAppointment(id: string, updateAppointmentDto: UpdateAppointmentDto): Promise<{
+    updateAppointment(req: any, id: string, updateAppointmentDto: UpdateAppointmentDto): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -189,7 +217,7 @@ export declare class AppointmentController {
         providerPhone: string | null;
         reminderSent: boolean;
     }>;
-    cancelAppointment(id: string): Promise<{
+    cancelAppointment(req: any, id: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -207,7 +235,7 @@ export declare class AppointmentController {
         providerPhone: string | null;
         reminderSent: boolean;
     }>;
-    completeAppointment(id: string): Promise<{
+    completeAppointment(req: any, id: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -225,7 +253,7 @@ export declare class AppointmentController {
         providerPhone: string | null;
         reminderSent: boolean;
     }>;
-    deleteAppointment(id: string): Promise<{
+    deleteAppointment(req: any, id: string): Promise<{
         success: boolean;
         message: string;
     }>;

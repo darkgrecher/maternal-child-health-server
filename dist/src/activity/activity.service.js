@@ -17,23 +17,73 @@ let ActivityService = class ActivityService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async getChildActivities(childId) {
-        const activities = await this.prisma.activity.findMany({
-            where: { childId },
-            orderBy: { date: 'desc' },
+    async assertChildAccess(actor, childId) {
+        const child = await this.prisma.child.findUnique({
+            where: { id: childId },
         });
-        return activities;
+        if (!child) {
+            throw new common_1.NotFoundException('Child not found');
+        }
+        if (actor.actorType === 'midwife') {
+            if (child.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied');
+            }
+        }
+        else if (child.userId !== actor.id) {
+            throw new common_1.ForbiddenException('Access denied');
+        }
+        return child;
     }
-    async getActivity(id) {
+    async assertActivityAccess(actor, id) {
         const activity = await this.prisma.activity.findUnique({
             where: { id },
+            include: { child: true },
         });
         if (!activity) {
             throw new common_1.NotFoundException(`Activity with ID ${id} not found`);
         }
+        if (actor.actorType === 'midwife') {
+            if (activity.child.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied');
+            }
+        }
+        else if (activity.child.userId !== actor.id) {
+            throw new common_1.ForbiddenException('Access denied');
+        }
         return activity;
     }
-    async createActivity(childId, dto) {
+    async getActorActivities(actor) {
+        return this.prisma.activity.findMany({
+            where: {
+                child: actor.actorType === 'midwife'
+                    ? { midwifeId: actor.id }
+                    : { userId: actor.id },
+            },
+            include: {
+                child: {
+                    select: { id: true, firstName: true, lastName: true },
+                },
+            },
+            orderBy: { date: 'desc' },
+        });
+    }
+    async getChildActivities(actor, childId) {
+        await this.assertChildAccess(actor, childId);
+        return this.prisma.activity.findMany({
+            where: { childId },
+            orderBy: { date: 'desc' },
+            include: {
+                child: {
+                    select: { id: true, firstName: true, lastName: true },
+                },
+            },
+        });
+    }
+    async getActivity(actor, id) {
+        return this.assertActivityAccess(actor, id);
+    }
+    async createActivity(actor, childId, dto) {
+        await this.assertChildAccess(actor, childId);
         const activity = await this.prisma.activity.create({
             data: {
                 childId,
@@ -46,8 +96,8 @@ let ActivityService = class ActivityService {
         });
         return activity;
     }
-    async updateActivity(id, dto) {
-        await this.getActivity(id);
+    async updateActivity(actor, id, dto) {
+        await this.assertActivityAccess(actor, id);
         const activity = await this.prisma.activity.update({
             where: { id },
             data: {
@@ -60,8 +110,8 @@ let ActivityService = class ActivityService {
         });
         return activity;
     }
-    async deleteActivity(id) {
-        await this.getActivity(id);
+    async deleteActivity(actor, id) {
+        await this.assertActivityAccess(actor, id);
         await this.prisma.activity.delete({
             where: { id },
         });

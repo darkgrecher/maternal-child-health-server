@@ -3,6 +3,7 @@ import { UpdateVaccinationRecordDto } from './dto';
 export declare class VaccineController {
     private readonly vaccineService;
     constructor(vaccineService: VaccineService);
+    private getActor;
     getAllVaccines(): Promise<{
         success: boolean;
         data: {
