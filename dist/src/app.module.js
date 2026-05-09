@@ -21,6 +21,7 @@ const appointment_module_1 = require("./appointment/appointment.module");
 const activity_module_1 = require("./activity/activity.module");
 const emergency_contact_module_1 = require("./emergency-contact/emergency-contact.module");
 const midwife_link_module_1 = require("./midwife-link/midwife-link.module");
+const dashboard_module_1 = require("./dashboard/dashboard.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -41,6 +42,7 @@ exports.AppModule = AppModule = __decorate([
             activity_module_1.ActivityModule,
             emergency_contact_module_1.EmergencyContactModule,
             midwife_link_module_1.MidwifeLinkModule,
+            dashboard_module_1.DashboardModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

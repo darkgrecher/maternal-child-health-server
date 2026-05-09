@@ -12,6 +12,7 @@ import { AppointmentModule } from './appointment/appointment.module';
 import { ActivityModule } from './activity/activity.module';
 import { EmergencyContactModule } from './emergency-contact/emergency-contact.module';
 import { MidwifeLinkModule } from './midwife-link/midwife-link.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { MidwifeLinkModule } from './midwife-link/midwife-link.module';
     ActivityModule,
     EmergencyContactModule,
     MidwifeLinkModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
