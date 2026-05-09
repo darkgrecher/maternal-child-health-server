@@ -13,6 +13,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateVaccinationRecordDto, UpdateVaccinationRecordDto } from './dto';
 import { VaccinationStatus } from '@prisma/client';
 
+type ActorContext = {
+  id: string;
+  actorType: 'user' | 'midwife';
+};
+
 @Injectable()
 export class VaccineService {
   constructor(private prisma: PrismaService) {}
@@ -54,10 +59,14 @@ export class VaccineService {
   /**
    * Get vaccination records for a child
    */
-  async getChildVaccinationRecords(userId: string, childId: string) {
-    // Verify child belongs to user
+  async getChildVaccinationRecords(actor: ActorContext, childId: string) {
     const child = await this.prisma.child.findFirst({
-      where: { id: childId, userId },
+      where: {
+        id: childId,
+        ...(actor.actorType === 'midwife'
+          ? { midwifeId: actor.id }
+          : { userId: actor.id }),
+      },
     });
 
     if (!child) {
@@ -149,14 +158,18 @@ export class VaccineService {
    * Mark a vaccine as administered
    */
   async administerVaccine(
-    userId: string,
+    actor: ActorContext,
     childId: string,
     vaccineId: string,
     dto: UpdateVaccinationRecordDto,
   ) {
-    // Verify child belongs to user
     const child = await this.prisma.child.findFirst({
-      where: { id: childId, userId },
+      where: {
+        id: childId,
+        ...(actor.actorType === 'midwife'
+          ? { midwifeId: actor.id }
+          : { userId: actor.id }),
+      },
     });
 
     if (!child) {
@@ -227,7 +240,7 @@ export class VaccineService {
    * Update a vaccination record
    */
   async updateVaccinationRecord(
-    userId: string,
+    actor: ActorContext,
     recordId: string,
     dto: UpdateVaccinationRecordDto,
   ) {
@@ -241,7 +254,11 @@ export class VaccineService {
       throw new NotFoundException('Vaccination record not found');
     }
 
-    if (record.child.userId !== userId) {
+    const isAllowed = actor.actorType === 'midwife'
+      ? record.child.midwifeId === actor.id
+      : record.child.userId === actor.id;
+
+    if (!isAllowed) {
       throw new ForbiddenException('Access denied');
     }
 

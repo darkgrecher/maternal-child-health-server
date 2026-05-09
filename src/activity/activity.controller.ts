@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { ActivityService } from './activity.service';
@@ -17,12 +18,26 @@ import { JwtAuthGuard } from '../auth/guards';
 export class ActivityController {
   constructor(private readonly activityService: ActivityService) {}
 
+  private getActor(req: any): { id: string; actorType: 'user' | 'midwife' } {
+    return { id: req.user.sub, actorType: req.user.actorType || 'user' };
+  }
+
+  /**
+   * Get all activities for the current actor
+   * GET /activity
+   */
+  @Get()
+  async getActivities(@Request() req) {
+    const activities = await this.activityService.getActorActivities(this.getActor(req));
+    return { success: true, data: activities };
+  }
+
   /**
    * Get all activities for a child
    */
   @Get('child/:childId')
-  async getChildActivities(@Param('childId') childId: string) {
-    const activities = await this.activityService.getChildActivities(childId);
+  async getChildActivities(@Request() req, @Param('childId') childId: string) {
+    const activities = await this.activityService.getChildActivities(this.getActor(req), childId);
     return {
       success: true,
       data: activities,
@@ -33,8 +48,8 @@ export class ActivityController {
    * Get a single activity
    */
   @Get(':id')
-  async getActivity(@Param('id') id: string) {
-    const activity = await this.activityService.getActivity(id);
+  async getActivity(@Request() req, @Param('id') id: string) {
+    const activity = await this.activityService.getActivity(this.getActor(req), id);
     return {
       success: true,
       data: activity,
@@ -46,10 +61,11 @@ export class ActivityController {
    */
   @Post('child/:childId')
   async createActivity(
+    @Request() req,
     @Param('childId') childId: string,
     @Body() dto: CreateActivityDto,
   ) {
-    const activity = await this.activityService.createActivity(childId, dto);
+    const activity = await this.activityService.createActivity(this.getActor(req), childId, dto);
     return {
       success: true,
       data: activity,
@@ -60,8 +76,8 @@ export class ActivityController {
    * Update an activity
    */
   @Put(':id')
-  async updateActivity(@Param('id') id: string, @Body() dto: UpdateActivityDto) {
-    const activity = await this.activityService.updateActivity(id, dto);
+  async updateActivity(@Request() req, @Param('id') id: string, @Body() dto: UpdateActivityDto) {
+    const activity = await this.activityService.updateActivity(this.getActor(req), id, dto);
     return {
       success: true,
       data: activity,
@@ -72,8 +88,8 @@ export class ActivityController {
    * Delete an activity
    */
   @Delete(':id')
-  async deleteActivity(@Param('id') id: string) {
-    const result = await this.activityService.deleteActivity(id);
+  async deleteActivity(@Request() req, @Param('id') id: string) {
+    const result = await this.activityService.deleteActivity(this.getActor(req), id);
     return {
       success: true,
       ...result,

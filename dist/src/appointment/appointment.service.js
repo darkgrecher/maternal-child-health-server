@@ -17,13 +17,59 @@ let AppointmentService = class AppointmentService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async getChildAppointments(childId) {
+    async assertChildAccess(actor, childId) {
         const child = await this.prisma.child.findUnique({
             where: { id: childId },
         });
         if (!child) {
             throw new common_1.NotFoundException('Child not found');
         }
+        if (actor.actorType === 'midwife') {
+            if (child.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied');
+            }
+        }
+        else if (child.userId !== actor.id) {
+            throw new common_1.ForbiddenException('Access denied');
+        }
+        return child;
+    }
+    async assertAppointmentAccess(actor, appointmentId) {
+        const appointment = await this.prisma.appointment.findUnique({
+            where: { id: appointmentId },
+            include: { child: true },
+        });
+        if (!appointment) {
+            throw new common_1.NotFoundException('Appointment not found');
+        }
+        if (actor.actorType === 'midwife') {
+            if (appointment.child.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied');
+            }
+        }
+        else if (appointment.child.userId !== actor.id) {
+            throw new common_1.ForbiddenException('Access denied');
+        }
+        return appointment;
+    }
+    async getActorAppointments(actor) {
+        const appointments = await this.prisma.appointment.findMany({
+            where: {
+                child: actor.actorType === 'midwife'
+                    ? { midwifeId: actor.id }
+                    : { userId: actor.id },
+            },
+            include: {
+                child: {
+                    select: { id: true, firstName: true, lastName: true },
+                },
+            },
+            orderBy: { dateTime: 'desc' },
+        });
+        return appointments;
+    }
+    async getChildAppointments(actor, childId) {
+        const child = await this.assertChildAccess(actor, childId);
         const appointments = await this.prisma.appointment.findMany({
             where: { childId },
             orderBy: { dateTime: 'desc' },
@@ -46,23 +92,11 @@ let AppointmentService = class AppointmentService {
             },
         };
     }
-    async getAppointment(appointmentId) {
-        const appointment = await this.prisma.appointment.findUnique({
-            where: { id: appointmentId },
-            include: { child: true },
-        });
-        if (!appointment) {
-            throw new common_1.NotFoundException('Appointment not found');
-        }
-        return appointment;
+    async getAppointment(actor, appointmentId) {
+        return this.assertAppointmentAccess(actor, appointmentId);
     }
-    async createAppointment(childId, dto) {
-        const child = await this.prisma.child.findUnique({
-            where: { id: childId },
-        });
-        if (!child) {
-            throw new common_1.NotFoundException('Child not found');
-        }
+    async createAppointment(actor, childId, dto) {
+        await this.assertChildAccess(actor, childId);
         const appointment = await this.prisma.appointment.create({
             data: {
                 childId,
@@ -81,13 +115,8 @@ let AppointmentService = class AppointmentService {
         });
         return appointment;
     }
-    async updateAppointment(appointmentId, dto) {
-        const existing = await this.prisma.appointment.findUnique({
-            where: { id: appointmentId },
-        });
-        if (!existing) {
-            throw new common_1.NotFoundException('Appointment not found');
-        }
+    async updateAppointment(actor, appointmentId, dto) {
+        await this.assertAppointmentAccess(actor, appointmentId);
         const appointment = await this.prisma.appointment.update({
             where: { id: appointmentId },
             data: {
@@ -107,49 +136,36 @@ let AppointmentService = class AppointmentService {
         });
         return appointment;
     }
-    async cancelAppointment(appointmentId) {
-        const existing = await this.prisma.appointment.findUnique({
-            where: { id: appointmentId },
-        });
-        if (!existing) {
-            throw new common_1.NotFoundException('Appointment not found');
-        }
+    async cancelAppointment(actor, appointmentId) {
+        await this.assertAppointmentAccess(actor, appointmentId);
         const appointment = await this.prisma.appointment.update({
             where: { id: appointmentId },
             data: { status: 'cancelled' },
         });
         return appointment;
     }
-    async completeAppointment(appointmentId) {
-        const existing = await this.prisma.appointment.findUnique({
-            where: { id: appointmentId },
-        });
-        if (!existing) {
-            throw new common_1.NotFoundException('Appointment not found');
-        }
+    async completeAppointment(actor, appointmentId) {
+        await this.assertAppointmentAccess(actor, appointmentId);
         const appointment = await this.prisma.appointment.update({
             where: { id: appointmentId },
             data: { status: 'completed' },
         });
         return appointment;
     }
-    async deleteAppointment(appointmentId) {
-        const existing = await this.prisma.appointment.findUnique({
-            where: { id: appointmentId },
-        });
-        if (!existing) {
-            throw new common_1.NotFoundException('Appointment not found');
-        }
+    async deleteAppointment(actor, appointmentId) {
+        await this.assertAppointmentAccess(actor, appointmentId);
         await this.prisma.appointment.delete({
             where: { id: appointmentId },
         });
         return { success: true, message: 'Appointment deleted successfully' };
     }
-    async getUserUpcomingAppointments(userId) {
+    async getUpcomingAppointments(actor) {
         const now = new Date();
         const appointments = await this.prisma.appointment.findMany({
             where: {
-                child: { userId },
+                child: actor.actorType === 'midwife'
+                    ? { midwifeId: actor.id }
+                    : { userId: actor.id },
                 dateTime: { gte: now },
                 status: 'scheduled',
             },

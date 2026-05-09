@@ -1,64 +1,94 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAppointmentDto, UpdateAppointmentDto } from './dto';
+type ActorContext = {
+    id: string;
+    actorType: 'user' | 'midwife';
+};
 export declare class AppointmentService {
     private prisma;
     constructor(prisma: PrismaService);
-    getChildAppointments(childId: string): Promise<{
+    private assertChildAccess;
+    private assertAppointmentAccess;
+    getActorAppointments(actor: ActorContext): Promise<({
+        child: {
+            id: string;
+            firstName: string;
+            lastName: string;
+        };
+    } & {
+        id: string;
+        childId: string;
+        title: string;
+        type: import("@prisma/client").$Enums.AppointmentType;
+        dateTime: Date;
+        duration: number | null;
+        location: string;
+        address: string | null;
+        providerName: string | null;
+        providerRole: string | null;
+        providerPhone: string | null;
+        status: import("@prisma/client").$Enums.AppointmentStatus;
+        notes: string | null;
+        reminderSent: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+    })[]>;
+    getChildAppointments(actor: ActorContext, childId: string): Promise<{
         childId: string;
         childName: string;
         appointments: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            address: string | null;
-            notes: string | null;
             childId: string;
-            status: import("@prisma/client").$Enums.AppointmentStatus;
-            location: string;
             title: string;
             type: import("@prisma/client").$Enums.AppointmentType;
             dateTime: Date;
             duration: number | null;
+            location: string;
+            address: string | null;
             providerName: string | null;
             providerRole: string | null;
             providerPhone: string | null;
+            status: import("@prisma/client").$Enums.AppointmentStatus;
+            notes: string | null;
             reminderSent: boolean;
+            createdAt: Date;
+            updatedAt: Date;
         }[];
         upcoming: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            address: string | null;
-            notes: string | null;
             childId: string;
-            status: import("@prisma/client").$Enums.AppointmentStatus;
-            location: string;
             title: string;
             type: import("@prisma/client").$Enums.AppointmentType;
             dateTime: Date;
             duration: number | null;
+            location: string;
+            address: string | null;
             providerName: string | null;
             providerRole: string | null;
             providerPhone: string | null;
+            status: import("@prisma/client").$Enums.AppointmentStatus;
+            notes: string | null;
             reminderSent: boolean;
+            createdAt: Date;
+            updatedAt: Date;
         }[];
         past: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            address: string | null;
-            notes: string | null;
             childId: string;
-            status: import("@prisma/client").$Enums.AppointmentStatus;
-            location: string;
             title: string;
             type: import("@prisma/client").$Enums.AppointmentType;
             dateTime: Date;
             duration: number | null;
+            location: string;
+            address: string | null;
             providerName: string | null;
             providerRole: string | null;
             providerPhone: string | null;
+            status: import("@prisma/client").$Enums.AppointmentStatus;
+            notes: string | null;
             reminderSent: boolean;
+            createdAt: Date;
+            updatedAt: Date;
         }[];
         summary: {
             totalAppointments: number;
@@ -67,33 +97,30 @@ export declare class AppointmentService {
             cancelledCount: number;
             nextAppointment: {
                 id: string;
-                createdAt: Date;
-                updatedAt: Date;
-                address: string | null;
-                notes: string | null;
                 childId: string;
-                status: import("@prisma/client").$Enums.AppointmentStatus;
-                location: string;
                 title: string;
                 type: import("@prisma/client").$Enums.AppointmentType;
                 dateTime: Date;
                 duration: number | null;
+                location: string;
+                address: string | null;
                 providerName: string | null;
                 providerRole: string | null;
                 providerPhone: string | null;
+                status: import("@prisma/client").$Enums.AppointmentStatus;
+                notes: string | null;
                 reminderSent: boolean;
+                createdAt: Date;
+                updatedAt: Date;
             } | null;
         };
     }>;
-    getAppointment(appointmentId: string): Promise<{
+    getAppointment(actor: ActorContext, appointmentId: string): Promise<{
         child: {
             id: string;
+            address: string | null;
             createdAt: Date;
             updatedAt: Date;
-            userId: string;
-            midwifeId: string | null;
-            address: string | null;
-            emergencyContact: string | null;
             chdrNumber: string | null;
             firstName: string;
             lastName: string;
@@ -110,102 +137,105 @@ export declare class AppointmentService {
             specialConditions: string[];
             motherName: string | null;
             fatherName: string | null;
+            emergencyContact: string | null;
+            userId: string;
+            midwifeId: string | null;
         };
     } & {
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        address: string | null;
-        notes: string | null;
         childId: string;
-        status: import("@prisma/client").$Enums.AppointmentStatus;
-        location: string;
         title: string;
         type: import("@prisma/client").$Enums.AppointmentType;
         dateTime: Date;
         duration: number | null;
+        location: string;
+        address: string | null;
         providerName: string | null;
         providerRole: string | null;
         providerPhone: string | null;
+        status: import("@prisma/client").$Enums.AppointmentStatus;
+        notes: string | null;
         reminderSent: boolean;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
-    createAppointment(childId: string, dto: CreateAppointmentDto): Promise<{
+    createAppointment(actor: ActorContext, childId: string, dto: CreateAppointmentDto): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        address: string | null;
-        notes: string | null;
         childId: string;
-        status: import("@prisma/client").$Enums.AppointmentStatus;
-        location: string;
         title: string;
         type: import("@prisma/client").$Enums.AppointmentType;
         dateTime: Date;
         duration: number | null;
+        location: string;
+        address: string | null;
         providerName: string | null;
         providerRole: string | null;
         providerPhone: string | null;
+        status: import("@prisma/client").$Enums.AppointmentStatus;
+        notes: string | null;
         reminderSent: boolean;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
-    updateAppointment(appointmentId: string, dto: UpdateAppointmentDto): Promise<{
+    updateAppointment(actor: ActorContext, appointmentId: string, dto: UpdateAppointmentDto): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        address: string | null;
-        notes: string | null;
         childId: string;
-        status: import("@prisma/client").$Enums.AppointmentStatus;
-        location: string;
         title: string;
         type: import("@prisma/client").$Enums.AppointmentType;
         dateTime: Date;
         duration: number | null;
+        location: string;
+        address: string | null;
         providerName: string | null;
         providerRole: string | null;
         providerPhone: string | null;
+        status: import("@prisma/client").$Enums.AppointmentStatus;
+        notes: string | null;
         reminderSent: boolean;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
-    cancelAppointment(appointmentId: string): Promise<{
+    cancelAppointment(actor: ActorContext, appointmentId: string): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        address: string | null;
-        notes: string | null;
         childId: string;
-        status: import("@prisma/client").$Enums.AppointmentStatus;
-        location: string;
         title: string;
         type: import("@prisma/client").$Enums.AppointmentType;
         dateTime: Date;
         duration: number | null;
+        location: string;
+        address: string | null;
         providerName: string | null;
         providerRole: string | null;
         providerPhone: string | null;
+        status: import("@prisma/client").$Enums.AppointmentStatus;
+        notes: string | null;
         reminderSent: boolean;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
-    completeAppointment(appointmentId: string): Promise<{
+    completeAppointment(actor: ActorContext, appointmentId: string): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        address: string | null;
-        notes: string | null;
         childId: string;
-        status: import("@prisma/client").$Enums.AppointmentStatus;
-        location: string;
         title: string;
         type: import("@prisma/client").$Enums.AppointmentType;
         dateTime: Date;
         duration: number | null;
+        location: string;
+        address: string | null;
         providerName: string | null;
         providerRole: string | null;
         providerPhone: string | null;
+        status: import("@prisma/client").$Enums.AppointmentStatus;
+        notes: string | null;
         reminderSent: boolean;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
-    deleteAppointment(appointmentId: string): Promise<{
+    deleteAppointment(actor: ActorContext, appointmentId: string): Promise<{
         success: boolean;
         message: string;
     }>;
-    getUserUpcomingAppointments(userId: string): Promise<({
+    getUpcomingAppointments(actor: ActorContext): Promise<({
         child: {
             id: string;
             firstName: string;
@@ -213,20 +243,21 @@ export declare class AppointmentService {
         };
     } & {
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        address: string | null;
-        notes: string | null;
         childId: string;
-        status: import("@prisma/client").$Enums.AppointmentStatus;
-        location: string;
         title: string;
         type: import("@prisma/client").$Enums.AppointmentType;
         dateTime: Date;
         duration: number | null;
+        location: string;
+        address: string | null;
         providerName: string | null;
         providerRole: string | null;
         providerPhone: string | null;
+        status: import("@prisma/client").$Enums.AppointmentStatus;
+        notes: string | null;
         reminderSent: boolean;
+        createdAt: Date;
+        updatedAt: Date;
     })[]>;
 }
+export {};

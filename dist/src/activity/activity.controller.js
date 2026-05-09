@@ -22,36 +22,43 @@ let ActivityController = class ActivityController {
     constructor(activityService) {
         this.activityService = activityService;
     }
-    async getChildActivities(childId) {
-        const activities = await this.activityService.getChildActivities(childId);
+    getActor(req) {
+        return { id: req.user.sub, actorType: req.user.actorType || 'user' };
+    }
+    async getActivities(req) {
+        const activities = await this.activityService.getActorActivities(this.getActor(req));
+        return { success: true, data: activities };
+    }
+    async getChildActivities(req, childId) {
+        const activities = await this.activityService.getChildActivities(this.getActor(req), childId);
         return {
             success: true,
             data: activities,
         };
     }
-    async getActivity(id) {
-        const activity = await this.activityService.getActivity(id);
+    async getActivity(req, id) {
+        const activity = await this.activityService.getActivity(this.getActor(req), id);
         return {
             success: true,
             data: activity,
         };
     }
-    async createActivity(childId, dto) {
-        const activity = await this.activityService.createActivity(childId, dto);
+    async createActivity(req, childId, dto) {
+        const activity = await this.activityService.createActivity(this.getActor(req), childId, dto);
         return {
             success: true,
             data: activity,
         };
     }
-    async updateActivity(id, dto) {
-        const activity = await this.activityService.updateActivity(id, dto);
+    async updateActivity(req, id, dto) {
+        const activity = await this.activityService.updateActivity(this.getActor(req), id, dto);
         return {
             success: true,
             data: activity,
         };
     }
-    async deleteActivity(id) {
-        const result = await this.activityService.deleteActivity(id);
+    async deleteActivity(req, id) {
+        const result = await this.activityService.deleteActivity(this.getActor(req), id);
         return {
             success: true,
             ...result,
@@ -60,40 +67,52 @@ let ActivityController = class ActivityController {
 };
 exports.ActivityController = ActivityController;
 __decorate([
-    (0, common_1.Get)('child/:childId'),
-    __param(0, (0, common_1.Param)('childId')),
+    (0, common_1.Get)(),
+    __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ActivityController.prototype, "getActivities", null);
+__decorate([
+    (0, common_1.Get)('child/:childId'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('childId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], ActivityController.prototype, "getChildActivities", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], ActivityController.prototype, "getActivity", null);
 __decorate([
     (0, common_1.Post)('child/:childId'),
-    __param(0, (0, common_1.Param)('childId')),
-    __param(1, (0, common_1.Body)()),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('childId')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, dto_1.CreateActivityDto]),
+    __metadata("design:paramtypes", [Object, String, dto_1.CreateActivityDto]),
     __metadata("design:returntype", Promise)
 ], ActivityController.prototype, "createActivity", null);
 __decorate([
     (0, common_1.Put)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, dto_1.UpdateActivityDto]),
+    __metadata("design:paramtypes", [Object, String, dto_1.UpdateActivityDto]),
     __metadata("design:returntype", Promise)
 ], ActivityController.prototype, "updateActivity", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], ActivityController.prototype, "deleteActivity", null);
 exports.ActivityController = ActivityController = __decorate([

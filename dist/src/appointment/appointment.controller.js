@@ -22,37 +22,52 @@ let AppointmentController = class AppointmentController {
     constructor(appointmentService) {
         this.appointmentService = appointmentService;
     }
-    async getChildAppointments(childId) {
-        return this.appointmentService.getChildAppointments(childId);
+    getActor(req) {
+        return { id: req.user.sub, actorType: req.user.actorType || 'user' };
+    }
+    async getAppointments(req) {
+        const data = await this.appointmentService.getActorAppointments(this.getActor(req));
+        return { success: true, data };
+    }
+    async getChildAppointments(req, childId) {
+        return this.appointmentService.getChildAppointments(this.getActor(req), childId);
     }
     async getUpcomingAppointments(req) {
-        return this.appointmentService.getUserUpcomingAppointments(req.user.sub);
+        return this.appointmentService.getUpcomingAppointments(this.getActor(req));
     }
-    async getAppointment(id) {
-        return this.appointmentService.getAppointment(id);
+    async getAppointment(req, id) {
+        return this.appointmentService.getAppointment(this.getActor(req), id);
     }
-    async createAppointment(childId, createAppointmentDto) {
-        return this.appointmentService.createAppointment(childId, createAppointmentDto);
+    async createAppointment(req, childId, createAppointmentDto) {
+        return this.appointmentService.createAppointment(this.getActor(req), childId, createAppointmentDto);
     }
-    async updateAppointment(id, updateAppointmentDto) {
-        return this.appointmentService.updateAppointment(id, updateAppointmentDto);
+    async updateAppointment(req, id, updateAppointmentDto) {
+        return this.appointmentService.updateAppointment(this.getActor(req), id, updateAppointmentDto);
     }
-    async cancelAppointment(id) {
-        return this.appointmentService.cancelAppointment(id);
+    async cancelAppointment(req, id) {
+        return this.appointmentService.cancelAppointment(this.getActor(req), id);
     }
-    async completeAppointment(id) {
-        return this.appointmentService.completeAppointment(id);
+    async completeAppointment(req, id) {
+        return this.appointmentService.completeAppointment(this.getActor(req), id);
     }
-    async deleteAppointment(id) {
-        return this.appointmentService.deleteAppointment(id);
+    async deleteAppointment(req, id) {
+        return this.appointmentService.deleteAppointment(this.getActor(req), id);
     }
 };
 exports.AppointmentController = AppointmentController;
 __decorate([
-    (0, common_1.Get)('child/:childId'),
-    __param(0, (0, common_1.Param)('childId')),
+    (0, common_1.Get)(),
+    __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AppointmentController.prototype, "getAppointments", null);
+__decorate([
+    (0, common_1.Get)('child/:childId'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('childId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], AppointmentController.prototype, "getChildAppointments", null);
 __decorate([
@@ -64,46 +79,52 @@ __decorate([
 ], AppointmentController.prototype, "getUpcomingAppointments", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], AppointmentController.prototype, "getAppointment", null);
 __decorate([
     (0, common_1.Post)('child/:childId'),
-    __param(0, (0, common_1.Param)('childId')),
-    __param(1, (0, common_1.Body)()),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('childId')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, dto_1.CreateAppointmentDto]),
+    __metadata("design:paramtypes", [Object, String, dto_1.CreateAppointmentDto]),
     __metadata("design:returntype", Promise)
 ], AppointmentController.prototype, "createAppointment", null);
 __decorate([
     (0, common_1.Patch)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, dto_1.UpdateAppointmentDto]),
+    __metadata("design:paramtypes", [Object, String, dto_1.UpdateAppointmentDto]),
     __metadata("design:returntype", Promise)
 ], AppointmentController.prototype, "updateAppointment", null);
 __decorate([
     (0, common_1.Patch)(':id/cancel'),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], AppointmentController.prototype, "cancelAppointment", null);
 __decorate([
     (0, common_1.Patch)(':id/complete'),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], AppointmentController.prototype, "completeAppointment", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], AppointmentController.prototype, "deleteAppointment", null);
 exports.AppointmentController = AppointmentController = __decorate([

@@ -22,6 +22,9 @@ let VaccineController = class VaccineController {
     constructor(vaccineService) {
         this.vaccineService = vaccineService;
     }
+    getActor(req) {
+        return { id: req.user.sub, actorType: req.user.actorType || 'user' };
+    }
     async getAllVaccines() {
         const vaccines = await this.vaccineService.getAllVaccines();
         return {
@@ -37,21 +40,21 @@ let VaccineController = class VaccineController {
         };
     }
     async getChildVaccinationRecords(req, childId) {
-        const data = await this.vaccineService.getChildVaccinationRecords(req.user.sub, childId);
+        const data = await this.vaccineService.getChildVaccinationRecords(this.getActor(req), childId);
         return {
             success: true,
             data,
         };
     }
     async administerVaccine(req, childId, vaccineId, dto) {
-        const record = await this.vaccineService.administerVaccine(req.user.sub, childId, vaccineId, dto);
+        const record = await this.vaccineService.administerVaccine(this.getActor(req), childId, vaccineId, dto);
         return {
             success: true,
             data: record,
         };
     }
     async updateVaccinationRecord(req, recordId, dto) {
-        const record = await this.vaccineService.updateVaccinationRecord(req.user.sub, recordId, dto);
+        const record = await this.vaccineService.updateVaccinationRecord(this.getActor(req), recordId, dto);
         return {
             success: true,
             data: record,

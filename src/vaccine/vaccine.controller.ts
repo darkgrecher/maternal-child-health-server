@@ -24,6 +24,10 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class VaccineController {
   constructor(private readonly vaccineService: VaccineService) {}
 
+  private getActor(req: any): { id: string; actorType: 'user' | 'midwife' } {
+    return { id: req.user.sub, actorType: req.user.actorType || 'user' };
+  }
+
   /**
    * Get all vaccines in the schedule (public)
    * GET /vaccines
@@ -61,7 +65,7 @@ export class VaccineController {
     @Param('childId') childId: string,
   ) {
     const data = await this.vaccineService.getChildVaccinationRecords(
-      req.user.sub,
+      this.getActor(req),
       childId,
     );
     return {
@@ -84,7 +88,7 @@ export class VaccineController {
     @Body() dto: UpdateVaccinationRecordDto,
   ) {
     const record = await this.vaccineService.administerVaccine(
-      req.user.sub,
+      this.getActor(req),
       childId,
       vaccineId,
       dto,
@@ -107,7 +111,7 @@ export class VaccineController {
     @Body() dto: UpdateVaccinationRecordDto,
   ) {
     const record = await this.vaccineService.updateVaccinationRecord(
-      req.user.sub,
+      this.getActor(req),
       recordId,
       dto,
     );

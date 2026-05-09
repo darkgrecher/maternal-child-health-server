@@ -18,13 +18,27 @@ import { JwtAuthGuard } from '../auth/guards';
 export class AppointmentController {
   constructor(private readonly appointmentService: AppointmentService) {}
 
+  private getActor(req: any): { id: string; actorType: 'user' | 'midwife' } {
+    return { id: req.user.sub, actorType: req.user.actorType || 'user' };
+  }
+
+  /**
+   * Get all appointments for the current actor
+   * GET /appointments
+   */
+  @Get()
+  async getAppointments(@Request() req) {
+    const data = await this.appointmentService.getActorAppointments(this.getActor(req));
+    return { success: true, data };
+  }
+
   /**
    * Get all appointments for a child
    * GET /appointments/child/:childId
    */
   @Get('child/:childId')
-  async getChildAppointments(@Param('childId') childId: string) {
-    return this.appointmentService.getChildAppointments(childId);
+  async getChildAppointments(@Request() req, @Param('childId') childId: string) {
+    return this.appointmentService.getChildAppointments(this.getActor(req), childId);
   }
 
   /**
@@ -33,7 +47,7 @@ export class AppointmentController {
    */
   @Get('upcoming')
   async getUpcomingAppointments(@Request() req) {
-    return this.appointmentService.getUserUpcomingAppointments(req.user.sub);
+    return this.appointmentService.getUpcomingAppointments(this.getActor(req));
   }
 
   /**
@@ -41,8 +55,8 @@ export class AppointmentController {
    * GET /appointments/:id
    */
   @Get(':id')
-  async getAppointment(@Param('id') id: string) {
-    return this.appointmentService.getAppointment(id);
+  async getAppointment(@Request() req, @Param('id') id: string) {
+    return this.appointmentService.getAppointment(this.getActor(req), id);
   }
 
   /**
@@ -51,10 +65,11 @@ export class AppointmentController {
    */
   @Post('child/:childId')
   async createAppointment(
+    @Request() req,
     @Param('childId') childId: string,
     @Body() createAppointmentDto: CreateAppointmentDto,
   ) {
-    return this.appointmentService.createAppointment(childId, createAppointmentDto);
+    return this.appointmentService.createAppointment(this.getActor(req), childId, createAppointmentDto);
   }
 
   /**
@@ -63,10 +78,11 @@ export class AppointmentController {
    */
   @Patch(':id')
   async updateAppointment(
+    @Request() req,
     @Param('id') id: string,
     @Body() updateAppointmentDto: UpdateAppointmentDto,
   ) {
-    return this.appointmentService.updateAppointment(id, updateAppointmentDto);
+    return this.appointmentService.updateAppointment(this.getActor(req), id, updateAppointmentDto);
   }
 
   /**
@@ -74,8 +90,8 @@ export class AppointmentController {
    * PATCH /appointments/:id/cancel
    */
   @Patch(':id/cancel')
-  async cancelAppointment(@Param('id') id: string) {
-    return this.appointmentService.cancelAppointment(id);
+  async cancelAppointment(@Request() req, @Param('id') id: string) {
+    return this.appointmentService.cancelAppointment(this.getActor(req), id);
   }
 
   /**
@@ -83,8 +99,8 @@ export class AppointmentController {
    * PATCH /appointments/:id/complete
    */
   @Patch(':id/complete')
-  async completeAppointment(@Param('id') id: string) {
-    return this.appointmentService.completeAppointment(id);
+  async completeAppointment(@Request() req, @Param('id') id: string) {
+    return this.appointmentService.completeAppointment(this.getActor(req), id);
   }
 
   /**
@@ -92,7 +108,7 @@ export class AppointmentController {
    * DELETE /appointments/:id
    */
   @Delete(':id')
-  async deleteAppointment(@Param('id') id: string) {
-    return this.appointmentService.deleteAppointment(id);
+  async deleteAppointment(@Request() req, @Param('id') id: string) {
+    return this.appointmentService.deleteAppointment(this.getActor(req), id);
   }
 }
