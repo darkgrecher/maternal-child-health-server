@@ -5,6 +5,7 @@ import { GoogleAuthDto } from './dto/google-auth.dto';
 import { Auth0AuthDto } from './dto/auth0-auth.dto';
 import { MidwifeLoginDto } from './dto/midwife-login.dto';
 import { MidwifeProvisionDto } from './dto/midwife-provision.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { MidwifeRole } from '@prisma/client';
 export type ActorType = 'user' | 'midwife';
 export interface JwtPayload {
@@ -87,6 +88,7 @@ export declare class AuthService {
         facilityName: string | null;
         region: string | null;
     }[]>;
+    changeMidwifePassword(midwifeId: string, dto: ChangePasswordDto): Promise<void>;
     private verifyAuth0Token;
     private findOrCreateUserFromAuth0;
     googleAuth(dto: GoogleAuthDto): Promise<AuthTokens>;

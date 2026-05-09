@@ -4,6 +4,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Auth0AuthDto } from './dto/auth0-auth.dto';
 import { MidwifeLoginDto } from './dto/midwife-login.dto';
 import { MidwifeProvisionDto } from './dto/midwife-provision.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 export declare class AuthController {
     private readonly authService;
     constructor(authService: AuthService);
@@ -24,6 +25,10 @@ export declare class AuthController {
             user: any;
             actorType: import("./auth.service").ActorType;
         };
+    }>;
+    changePassword(req: any, dto: ChangePasswordDto): Promise<{
+        success: boolean;
+        message: string;
     }>;
     provisionMidwife(req: any, dto: MidwifeProvisionDto): Promise<{
         success: boolean;

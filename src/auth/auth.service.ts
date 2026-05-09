@@ -15,6 +15,7 @@ import { GoogleAuthDto } from './dto/google-auth.dto';
 import { Auth0AuthDto } from './dto/auth0-auth.dto';
 import { MidwifeLoginDto } from './dto/midwife-login.dto';
 import { MidwifeProvisionDto } from './dto/midwife-provision.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { MidwifeRole } from '@prisma/client';
 
@@ -241,6 +242,30 @@ export class AuthService {
     });
 
     return midwives;
+  }
+
+  /**
+   * Change midwife password
+   */
+  async changeMidwifePassword(midwifeId: string, dto: ChangePasswordDto) {
+    const midwife = await this.prisma.midwife.findUnique({
+      where: { id: midwifeId },
+    });
+
+    if (!midwife?.passwordHash) {
+      throw new BadRequestException('Password authentication is not configured for this account');
+    }
+
+    const isValid = await bcrypt.compare(dto.currentPassword, midwife.passwordHash);
+    if (!isValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    const passwordHash = await bcrypt.hash(dto.newPassword, 10);
+    await this.prisma.midwife.update({
+      where: { id: midwifeId },
+      data: { passwordHash },
+    });
   }
 
   /**

@@ -17,14 +17,14 @@ export declare class ActivityService {
         };
     } & {
         id: string;
-        childId: string;
-        type: import("@prisma/client").$Enums.ActivityType;
-        title: string;
-        description: string | null;
-        date: Date;
-        icon: string | null;
         createdAt: Date;
         updatedAt: Date;
+        description: string | null;
+        childId: string;
+        title: string;
+        type: import("@prisma/client").$Enums.ActivityType;
+        date: Date;
+        icon: string | null;
     })[]>;
     getChildActivities(actor: ActorContext, childId: string): Promise<({
         child: {
@@ -34,20 +34,24 @@ export declare class ActivityService {
         };
     } & {
         id: string;
-        childId: string;
-        type: import("@prisma/client").$Enums.ActivityType;
-        title: string;
-        description: string | null;
-        date: Date;
-        icon: string | null;
         createdAt: Date;
         updatedAt: Date;
+        description: string | null;
+        childId: string;
+        title: string;
+        type: import("@prisma/client").$Enums.ActivityType;
+        date: Date;
+        icon: string | null;
     })[]>;
     getActivity(actor: ActorContext, id: string): Promise<{
         child: {
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            userId: string;
+            midwifeId: string | null;
+            address: string | null;
+            emergencyContact: string | null;
             chdrNumber: string | null;
             firstName: string;
             lastName: string;
@@ -64,43 +68,39 @@ export declare class ActivityService {
             specialConditions: string[];
             motherName: string | null;
             fatherName: string | null;
-            emergencyContact: string | null;
-            address: string | null;
-            userId: string;
-            midwifeId: string | null;
         };
     } & {
         id: string;
-        childId: string;
-        type: import("@prisma/client").$Enums.ActivityType;
-        title: string;
-        description: string | null;
-        date: Date;
-        icon: string | null;
         createdAt: Date;
         updatedAt: Date;
+        description: string | null;
+        childId: string;
+        title: string;
+        type: import("@prisma/client").$Enums.ActivityType;
+        date: Date;
+        icon: string | null;
     }>;
     createActivity(actor: ActorContext, childId: string, dto: CreateActivityDto): Promise<{
         id: string;
-        childId: string;
-        type: import("@prisma/client").$Enums.ActivityType;
-        title: string;
-        description: string | null;
-        date: Date;
-        icon: string | null;
         createdAt: Date;
         updatedAt: Date;
+        description: string | null;
+        childId: string;
+        title: string;
+        type: import("@prisma/client").$Enums.ActivityType;
+        date: Date;
+        icon: string | null;
     }>;
     updateActivity(actor: ActorContext, id: string, dto: UpdateActivityDto): Promise<{
         id: string;
-        childId: string;
-        type: import("@prisma/client").$Enums.ActivityType;
-        title: string;
-        description: string | null;
-        date: Date;
-        icon: string | null;
         createdAt: Date;
         updatedAt: Date;
+        description: string | null;
+        childId: string;
+        title: string;
+        type: import("@prisma/client").$Enums.ActivityType;
+        date: Date;
+        icon: string | null;
     }>;
     deleteActivity(actor: ActorContext, id: string): Promise<{
         message: string;

@@ -20,6 +20,7 @@ const refresh_token_dto_1 = require("./dto/refresh-token.dto");
 const auth0_auth_dto_1 = require("./dto/auth0-auth.dto");
 const midwife_login_dto_1 = require("./dto/midwife-login.dto");
 const midwife_provision_dto_1 = require("./dto/midwife-provision.dto");
+const change_password_dto_1 = require("./dto/change-password.dto");
 const jwt_auth_guard_1 = require("./guards/jwt-auth.guard");
 let AuthController = class AuthController {
     authService;
@@ -45,6 +46,16 @@ let AuthController = class AuthController {
         return {
             success: true,
             data: result,
+        };
+    }
+    async changePassword(req, dto) {
+        if (req.user?.actorType !== 'midwife') {
+            throw new common_1.ForbiddenException('Midwife access required');
+        }
+        await this.authService.changeMidwifePassword(req.user.sub, dto);
+        return {
+            success: true,
+            message: 'Password updated successfully',
         };
     }
     async provisionMidwife(req, dto) {
@@ -123,6 +134,16 @@ __decorate([
     __metadata("design:paramtypes", [midwife_login_dto_1.MidwifeLoginDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "midwifeLogin", null);
+__decorate([
+    (0, common_1.Post)('midwife/change-password'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, change_password_dto_1.ChangePasswordDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "changePassword", null);
 __decorate([
     (0, common_1.Post)('midwife/provision'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

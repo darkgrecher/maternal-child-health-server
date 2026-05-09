@@ -14,10 +14,5 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("./google-auth.dto"), exports);
-__exportStar(require("./refresh-token.dto"), exports);
-__exportStar(require("./auth0-auth.dto"), exports);
-__exportStar(require("./midwife-login.dto"), exports);
-__exportStar(require("./midwife-provision.dto"), exports);
-__exportStar(require("./change-password.dto"), exports);
+__exportStar(require("./update-settings.dto"), exports);
 //# sourceMappingURL=index.js.map

@@ -13,6 +13,7 @@ import { ActivityModule } from './activity/activity.module';
 import { EmergencyContactModule } from './emergency-contact/emergency-contact.module';
 import { MidwifeLinkModule } from './midwife-link/midwife-link.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     EmergencyContactModule,
     MidwifeLinkModule,
     DashboardModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

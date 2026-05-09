@@ -14,14 +14,14 @@ export declare class ActivityController {
             };
         } & {
             id: string;
-            childId: string;
-            type: import("@prisma/client").$Enums.ActivityType;
-            title: string;
-            description: string | null;
-            date: Date;
-            icon: string | null;
             createdAt: Date;
             updatedAt: Date;
+            description: string | null;
+            childId: string;
+            title: string;
+            type: import("@prisma/client").$Enums.ActivityType;
+            date: Date;
+            icon: string | null;
         })[];
     }>;
     getChildActivities(req: any, childId: string): Promise<{
@@ -34,14 +34,14 @@ export declare class ActivityController {
             };
         } & {
             id: string;
-            childId: string;
-            type: import("@prisma/client").$Enums.ActivityType;
-            title: string;
-            description: string | null;
-            date: Date;
-            icon: string | null;
             createdAt: Date;
             updatedAt: Date;
+            description: string | null;
+            childId: string;
+            title: string;
+            type: import("@prisma/client").$Enums.ActivityType;
+            date: Date;
+            icon: string | null;
         })[];
     }>;
     getActivity(req: any, id: string): Promise<{
@@ -51,6 +51,10 @@ export declare class ActivityController {
                 id: string;
                 createdAt: Date;
                 updatedAt: Date;
+                userId: string;
+                midwifeId: string | null;
+                address: string | null;
+                emergencyContact: string | null;
                 chdrNumber: string | null;
                 firstName: string;
                 lastName: string;
@@ -67,49 +71,45 @@ export declare class ActivityController {
                 specialConditions: string[];
                 motherName: string | null;
                 fatherName: string | null;
-                emergencyContact: string | null;
-                address: string | null;
-                userId: string;
-                midwifeId: string | null;
             };
         } & {
             id: string;
-            childId: string;
-            type: import("@prisma/client").$Enums.ActivityType;
-            title: string;
-            description: string | null;
-            date: Date;
-            icon: string | null;
             createdAt: Date;
             updatedAt: Date;
+            description: string | null;
+            childId: string;
+            title: string;
+            type: import("@prisma/client").$Enums.ActivityType;
+            date: Date;
+            icon: string | null;
         };
     }>;
     createActivity(req: any, childId: string, dto: CreateActivityDto): Promise<{
         success: boolean;
         data: {
             id: string;
-            childId: string;
-            type: import("@prisma/client").$Enums.ActivityType;
-            title: string;
-            description: string | null;
-            date: Date;
-            icon: string | null;
             createdAt: Date;
             updatedAt: Date;
+            description: string | null;
+            childId: string;
+            title: string;
+            type: import("@prisma/client").$Enums.ActivityType;
+            date: Date;
+            icon: string | null;
         };
     }>;
     updateActivity(req: any, id: string, dto: UpdateActivityDto): Promise<{
         success: boolean;
         data: {
             id: string;
-            childId: string;
-            type: import("@prisma/client").$Enums.ActivityType;
-            title: string;
-            description: string | null;
-            date: Date;
-            icon: string | null;
             createdAt: Date;
             updatedAt: Date;
+            description: string | null;
+            childId: string;
+            title: string;
+            type: import("@prisma/client").$Enums.ActivityType;
+            date: Date;
+            icon: string | null;
         };
     }>;
     deleteActivity(req: any, id: string): Promise<{

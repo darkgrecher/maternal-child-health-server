@@ -76,6 +76,17 @@ model Midwife {
   region        String?
   lastLoginAt   DateTime?   @map("last_login_at")
 
+  // Preferences
+  theme               String  @default("system") @map("theme")
+  language            String  @default("en") @map("language")
+  dateFormat          String  @default("dmy") @map("date_format")
+  notifyAppointments  Boolean @default(true) @map("notify_appointments")
+  notifyVaccinations  Boolean @default(true) @map("notify_vaccinations")
+  notifyHighRisk      Boolean @default(true) @map("notify_high_risk")
+  notifyDailyDigest   Boolean @default(false) @map("notify_daily_digest")
+  notifyEmail         Boolean @default(true) @map("notify_email")
+  notifySms           Boolean @default(false) @map("notify_sms")
+
   // Relations
   pregnancies       Pregnancy[]
   children          Child[]
