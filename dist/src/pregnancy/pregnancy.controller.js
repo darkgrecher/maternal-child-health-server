@@ -22,72 +22,72 @@ let PregnancyController = class PregnancyController {
     constructor(pregnancyService) {
         this.pregnancyService = pregnancyService;
     }
-    getUserId(req) {
-        const userId = req.user?.sub;
-        if (!userId) {
+    getActor(req) {
+        const actorId = req.user?.sub;
+        if (!actorId) {
             throw new common_1.BadRequestException('User ID not found in token. Please log out and log in again.');
         }
-        return userId;
+        return { id: actorId, actorType: req.user?.actorType || 'user' };
     }
     async create(req, dto) {
-        return this.pregnancyService.create(this.getUserId(req), dto);
+        return this.pregnancyService.create(this.getActor(req), dto);
     }
     async findAll(req) {
-        return this.pregnancyService.findAll(this.getUserId(req));
+        return this.pregnancyService.findAll(this.getActor(req));
     }
     async findActive(req) {
-        return this.pregnancyService.findActive(this.getUserId(req));
+        return this.pregnancyService.findActive(this.getActor(req));
     }
     async findOne(req, id) {
-        return this.pregnancyService.findOne(this.getUserId(req), id);
+        return this.pregnancyService.findOne(this.getActor(req), id);
     }
     async update(req, id, dto) {
-        return this.pregnancyService.update(this.getUserId(req), id, dto);
+        return this.pregnancyService.update(this.getActor(req), id, dto);
     }
     async delete(req, id) {
-        return this.pregnancyService.delete(this.getUserId(req), id);
+        return this.pregnancyService.delete(this.getActor(req), id);
     }
     async convertToChild(req, id, dto) {
-        return this.pregnancyService.convertToChild(this.getUserId(req), id, dto);
+        return this.pregnancyService.convertToChild(this.getActor(req), id, dto);
     }
     async addCheckup(req, id, dto) {
-        return this.pregnancyService.addCheckup(req.user.sub, id, dto);
+        return this.pregnancyService.addCheckup(this.getActor(req), id, dto);
     }
     async getCheckups(req, id) {
-        return this.pregnancyService.getCheckups(req.user.sub, id);
+        return this.pregnancyService.getCheckups(this.getActor(req), id);
     }
     async addMeasurement(req, id, dto) {
-        return this.pregnancyService.addMeasurement(req.user.sub, id, dto);
+        return this.pregnancyService.addMeasurement(this.getActor(req), id, dto);
     }
     async getMeasurements(req, id) {
-        return this.pregnancyService.getMeasurements(req.user.sub, id);
+        return this.pregnancyService.getMeasurements(this.getActor(req), id);
     }
     async saveSymptoms(req, id, dto) {
-        return this.pregnancyService.saveSymptoms(this.getUserId(req), id, dto);
+        return this.pregnancyService.saveSymptoms(this.getActor(req), id, dto);
     }
     async getSymptomsHistory(req, id) {
-        return this.pregnancyService.getSymptomsHistory(this.getUserId(req), id);
+        return this.pregnancyService.getSymptomsHistory(this.getActor(req), id);
     }
     async getTodaySymptoms(req, id) {
-        return this.pregnancyService.getTodaySymptoms(this.getUserId(req), id);
+        return this.pregnancyService.getTodaySymptoms(this.getActor(req), id);
     }
     async createJournalEntry(req, id, dto) {
-        return this.pregnancyService.createJournalEntry(this.getUserId(req), id, dto);
+        return this.pregnancyService.createJournalEntry(this.getActor(req), id, dto);
     }
     async getJournalEntries(req, id) {
-        return this.pregnancyService.getJournalEntries(this.getUserId(req), id);
+        return this.pregnancyService.getJournalEntries(this.getActor(req), id);
     }
     async deleteJournalEntry(req, id, journalId) {
-        return this.pregnancyService.deleteJournalEntry(this.getUserId(req), id, journalId);
+        return this.pregnancyService.deleteJournalEntry(this.getActor(req), id, journalId);
     }
     async updateMedicalConditions(req, id, body) {
-        return this.pregnancyService.updateMedicalConditions(this.getUserId(req), id, body.conditions);
+        return this.pregnancyService.updateMedicalConditions(this.getActor(req), id, body.conditions);
     }
     async updateAllergies(req, id, body) {
-        return this.pregnancyService.updateAllergies(this.getUserId(req), id, body.allergies);
+        return this.pregnancyService.updateAllergies(this.getActor(req), id, body.allergies);
     }
     async updateWeight(req, id, body) {
-        return this.pregnancyService.updateWeight(this.getUserId(req), id, body.weight);
+        return this.pregnancyService.updateWeight(this.getActor(req), id, body.weight);
     }
 };
 exports.PregnancyController = PregnancyController;

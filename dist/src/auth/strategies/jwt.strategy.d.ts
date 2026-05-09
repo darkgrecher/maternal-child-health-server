@@ -12,6 +12,14 @@ export declare class JwtStrategy extends JwtStrategy_base {
         sub: string;
         email: string;
         name: string | null;
+        role: import("@prisma/client").$Enums.MidwifeRole;
+        actorType: "midwife";
+    } | {
+        sub: string;
+        email: string;
+        name: string | null;
+        actorType: "user";
+        role?: undefined;
     }>;
 }
 export {};

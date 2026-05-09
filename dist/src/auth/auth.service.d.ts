@@ -3,10 +3,16 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { Auth0AuthDto } from './dto/auth0-auth.dto';
+import { MidwifeLoginDto } from './dto/midwife-login.dto';
+import { MidwifeProvisionDto } from './dto/midwife-provision.dto';
+import { MidwifeRole } from '@prisma/client';
+export type ActorType = 'user' | 'midwife';
 export interface JwtPayload {
     sub: string;
     email: string;
     name?: string;
+    actorType?: ActorType;
+    role?: MidwifeRole;
 }
 export interface AuthTokens {
     accessToken: string;
@@ -30,6 +36,8 @@ export interface Auth0UserInfo {
     familyName?: string;
     picture?: string;
     nickname?: string;
+    role?: string | string[];
+    roles?: string[];
 }
 export declare class AuthService {
     private readonly prisma;
@@ -41,7 +49,44 @@ export declare class AuthService {
     constructor(prisma: PrismaService, jwtService: JwtService, configService: ConfigService);
     auth0Auth(dto: Auth0AuthDto): Promise<AuthTokens & {
         user: any;
+        actorType: ActorType;
     }>;
+    midwifeLogin(dto: MidwifeLoginDto): Promise<AuthTokens & {
+        user: any;
+        actorType: ActorType;
+    }>;
+    createMidwifeAccount(dto: MidwifeProvisionDto): Promise<{
+        id: string;
+        email: string;
+        name: string | null;
+        givenName: string | null;
+        familyName: string | null;
+        picture: string | null;
+        role: import("@prisma/client").$Enums.MidwifeRole;
+        phone: string | null;
+        licenseNumber: string | null;
+        facilityName: string | null;
+        region: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        lastLoginAt: Date | null;
+    }>;
+    listMidwives(): Promise<{
+        id: string;
+        email: string;
+        name: string | null;
+        givenName: string | null;
+        familyName: string | null;
+        picture: string | null;
+        lastLoginAt: Date | null;
+        createdAt: Date;
+        updatedAt: Date;
+        role: import("@prisma/client").$Enums.MidwifeRole;
+        phone: string | null;
+        licenseNumber: string | null;
+        facilityName: string | null;
+        region: string | null;
+    }[]>;
     private verifyAuth0Token;
     private findOrCreateUserFromAuth0;
     googleAuth(dto: GoogleAuthDto): Promise<AuthTokens>;
@@ -52,8 +97,8 @@ export declare class AuthService {
     private generateTokens;
     refreshTokens(refreshToken: string): Promise<AuthTokens>;
     logout(refreshToken: string): Promise<void>;
-    logoutAll(userId: string): Promise<void>;
-    getUserById(userId: string): Promise<{
+    logoutAll(actorId: string, actorType: ActorType): Promise<void>;
+    getActorById(actorId: string, actorType: ActorType): Promise<{
         id: string;
         email: string;
         name: string | null;

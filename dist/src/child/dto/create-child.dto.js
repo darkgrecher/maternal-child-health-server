@@ -53,6 +53,7 @@ class CreateChildDto {
     fatherName;
     emergencyContact;
     address;
+    midwifeId;
 }
 exports.CreateChildDto = CreateChildDto;
 __decorate([
@@ -151,4 +152,9 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateChildDto.prototype, "address", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], CreateChildDto.prototype, "midwifeId", void 0);
 //# sourceMappingURL=create-child.dto.js.map

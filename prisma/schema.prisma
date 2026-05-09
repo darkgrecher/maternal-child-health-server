@@ -50,12 +50,48 @@ model User {
 model RefreshToken {
   id        String   @id @default(uuid())
   token     String   @unique
-  userId    String   @map("user_id")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String?  @map("user_id")
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  midwifeId String?  @map("midwife_id")
+  midwife   Midwife? @relation(fields: [midwifeId], references: [id], onDelete: Cascade)
   expiresAt DateTime @map("expires_at")
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("refresh_tokens")
+}
+
+model Midwife {
+  id            String      @id @default(uuid())
+  email         String      @unique
+  name          String?
+  givenName     String?     @map("given_name")
+  familyName    String?     @map("family_name")
+  picture       String?
+  auth0Id       String?     @unique @map("auth0_id")
+  passwordHash  String?     @map("password_hash")
+  role          MidwifeRole @default(midwife)
+  phone         String?
+  licenseNumber String?     @map("license_number")
+  facilityName  String?     @map("facility_name")
+  region        String?
+  lastLoginAt   DateTime?   @map("last_login_at")
+
+  // Relations
+  pregnancies   Pregnancy[]
+  children      Child[]
+  refreshTokens RefreshToken[]
+
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("midwives")
+}
+
+enum MidwifeRole {
+  midwife
+  admin
+  supervisor
 }
 
 // ============================================================================
@@ -94,6 +130,10 @@ model Child {
   // Owner
   userId String @map("user_id")
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Assigned midwife (optional)
+  midwifeId String?  @map("midwife_id")
+  midwife   Midwife? @relation(fields: [midwifeId], references: [id], onDelete: SetNull)
 
   // Relations
   vaccinationRecords VaccinationRecord[]
@@ -353,6 +393,9 @@ model Pregnancy {
   id     String @id @default(uuid())
   userId String @map("user_id")
 
+  // Assigned midwife (optional)
+  midwifeId String? @map("midwife_id")
+
   // Mother's Information
   motherFirstName   String     @map("mother_first_name")
   motherLastName    String     @map("mother_last_name")
@@ -386,11 +429,9 @@ model Pregnancy {
   medications       String[]
 
   // Healthcare
-  hospitalName   String? @map("hospital_name")
-  obgynName      String? @map("obgyn_name")
-  obgynContact   String? @map("obgyn_contact")
-  midwifeName    String? @map("midwife_name")
-  midwifeContact String? @map("midwife_contact")
+  hospitalName String? @map("hospital_name")
+  obgynName    String? @map("obgyn_name")
+  obgynContact String? @map("obgyn_contact")
 
   // Baby Information (known before birth)
   expectedGender Gender? @map("expected_gender") // If known from ultrasound
@@ -410,6 +451,7 @@ model Pregnancy {
 
   // Relations
   user                  User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  midwife               Midwife?               @relation(fields: [midwifeId], references: [id], onDelete: SetNull)
   pregnancyCheckups     PregnancyCheckup[]
   pregnancyMeasurements PregnancyMeasurement[]
   pregnancySymptoms     PregnancySymptom[]

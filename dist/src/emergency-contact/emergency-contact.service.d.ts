@@ -9,13 +9,13 @@ export declare class EmergencyContactService {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
-        address: string | null;
-        notes: string | null;
         role: string;
         phone: string;
+        userId: string;
         isPrimary: boolean;
         isDefault: boolean;
+        address: string | null;
+        notes: string | null;
     }[]>;
     getContact(userId: string, contactId: string): Promise<{
         id: string;
@@ -23,13 +23,13 @@ export declare class EmergencyContactService {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
-        address: string | null;
-        notes: string | null;
         role: string;
         phone: string;
+        userId: string;
         isPrimary: boolean;
         isDefault: boolean;
+        address: string | null;
+        notes: string | null;
     }>;
     createContact(userId: string, dto: CreateEmergencyContactDto): Promise<{
         id: string;
@@ -37,13 +37,13 @@ export declare class EmergencyContactService {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
-        address: string | null;
-        notes: string | null;
         role: string;
         phone: string;
+        userId: string;
         isPrimary: boolean;
         isDefault: boolean;
+        address: string | null;
+        notes: string | null;
     }>;
     updateContact(userId: string, contactId: string, dto: UpdateEmergencyContactDto): Promise<{
         id: string;
@@ -51,13 +51,13 @@ export declare class EmergencyContactService {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
-        address: string | null;
-        notes: string | null;
         role: string;
         phone: string;
+        userId: string;
         isPrimary: boolean;
         isDefault: boolean;
+        address: string | null;
+        notes: string | null;
     }>;
     deleteContact(userId: string, contactId: string): Promise<{
         message: string;
@@ -68,12 +68,12 @@ export declare class EmergencyContactService {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
-        address: string | null;
-        notes: string | null;
         role: string;
         phone: string;
+        userId: string;
         isPrimary: boolean;
         isDefault: boolean;
+        address: string | null;
+        notes: string | null;
     }>;
 }

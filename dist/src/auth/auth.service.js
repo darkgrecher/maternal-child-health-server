@@ -19,6 +19,7 @@ const jwt_1 = require("@nestjs/jwt");
 const config_1 = require("@nestjs/config");
 const google_auth_library_1 = require("google-auth-library");
 const jwks_rsa_1 = __importDefault(require("jwks-rsa"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const prisma_service_1 = require("../prisma/prisma.service");
 const uuid_1 = require("uuid");
 let AuthService = AuthService_1 = class AuthService {
@@ -50,9 +51,10 @@ let AuthService = AuthService_1 = class AuthService {
             where: { id: user.id },
             data: { lastLoginAt: new Date() },
         });
-        const tokens = await this.generateTokens(user.id, user.email, user.name);
+        const tokens = await this.generateTokens(user.id, user.email, user.name, 'user');
         return {
             ...tokens,
+            actorType: 'user',
             user: {
                 id: user.id,
                 email: user.email,
@@ -61,8 +63,113 @@ let AuthService = AuthService_1 = class AuthService {
                 familyName: user.familyName,
                 picture: user.picture,
                 auth0Id: user.auth0Id,
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt,
+                lastLoginAt: user.lastLoginAt,
             },
         };
+    }
+    async midwifeLogin(dto) {
+        const email = dto.email.trim().toLowerCase();
+        const midwife = await this.prisma.midwife.findUnique({
+            where: { email },
+        });
+        if (!midwife?.passwordHash) {
+            throw new common_1.UnauthorizedException('Invalid email or password');
+        }
+        const isValid = await bcryptjs_1.default.compare(dto.password, midwife.passwordHash);
+        if (!isValid) {
+            throw new common_1.UnauthorizedException('Invalid email or password');
+        }
+        await this.prisma.midwife.update({
+            where: { id: midwife.id },
+            data: { lastLoginAt: new Date() },
+        });
+        const tokens = await this.generateTokens(midwife.id, midwife.email, midwife.name, 'midwife', midwife.role);
+        return {
+            ...tokens,
+            actorType: 'midwife',
+            user: {
+                id: midwife.id,
+                email: midwife.email,
+                name: midwife.name,
+                givenName: midwife.givenName,
+                familyName: midwife.familyName,
+                picture: midwife.picture,
+                auth0Id: midwife.auth0Id,
+                role: midwife.role,
+                phone: midwife.phone,
+                licenseNumber: midwife.licenseNumber,
+                facilityName: midwife.facilityName,
+                region: midwife.region,
+                createdAt: midwife.createdAt,
+                updatedAt: midwife.updatedAt,
+                lastLoginAt: midwife.lastLoginAt,
+            },
+        };
+    }
+    async createMidwifeAccount(dto) {
+        const email = dto.email.trim().toLowerCase();
+        const existing = await this.prisma.midwife.findUnique({
+            where: { email },
+        });
+        if (existing) {
+            throw new common_1.BadRequestException('Midwife email already exists');
+        }
+        const passwordHash = await bcryptjs_1.default.hash(dto.password, 10);
+        const midwife = await this.prisma.midwife.create({
+            data: {
+                email,
+                passwordHash,
+                role: dto.role ?? 'midwife',
+                name: dto.name?.trim() || undefined,
+                givenName: dto.givenName?.trim() || undefined,
+                familyName: dto.familyName?.trim() || undefined,
+                picture: dto.picture?.trim() || undefined,
+                phone: dto.phone?.trim() || undefined,
+                licenseNumber: dto.licenseNumber?.trim() || undefined,
+                facilityName: dto.facilityName?.trim() || undefined,
+                region: dto.region?.trim() || undefined,
+            },
+        });
+        return {
+            id: midwife.id,
+            email: midwife.email,
+            name: midwife.name,
+            givenName: midwife.givenName,
+            familyName: midwife.familyName,
+            picture: midwife.picture,
+            role: midwife.role,
+            phone: midwife.phone,
+            licenseNumber: midwife.licenseNumber,
+            facilityName: midwife.facilityName,
+            region: midwife.region,
+            createdAt: midwife.createdAt,
+            updatedAt: midwife.updatedAt,
+            lastLoginAt: midwife.lastLoginAt,
+        };
+    }
+    async listMidwives() {
+        const midwives = await this.prisma.midwife.findMany({
+            orderBy: { createdAt: 'desc' },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                givenName: true,
+                familyName: true,
+                picture: true,
+                role: true,
+                phone: true,
+                licenseNumber: true,
+                facilityName: true,
+                region: true,
+                createdAt: true,
+                updatedAt: true,
+                lastLoginAt: true,
+            },
+        });
+        return midwives;
     }
     async verifyAuth0Token(token) {
         const auth0Domain = this.configService.get('AUTH0_DOMAIN');
@@ -83,7 +190,7 @@ let AuthService = AuthService_1 = class AuthService {
             if (!userInfo.sub || !userInfo.email) {
                 throw new common_1.UnauthorizedException('Invalid Auth0 token payload');
             }
-            return {
+            const auth0User = {
                 auth0Id: userInfo.sub,
                 email: userInfo.email,
                 emailVerified: userInfo.email_verified,
@@ -92,6 +199,12 @@ let AuthService = AuthService_1 = class AuthService {
                 familyName: userInfo.family_name,
                 picture: userInfo.picture,
                 nickname: userInfo.nickname,
+                role: userInfo.role,
+                roles: userInfo.roles,
+            };
+            return {
+                ...auth0User,
+                ...userInfo,
             };
         }
         catch (error) {
@@ -127,7 +240,6 @@ let AuthService = AuthService_1 = class AuthService {
                 user = await this.prisma.user.create({
                     data: {
                         auth0Id: auth0User.auth0Id,
-                        googleId: `auth0_${auth0User.auth0Id}`,
                         email: auth0User.email,
                         name: auth0User.name,
                         givenName: auth0User.givenName,
@@ -169,7 +281,7 @@ let AuthService = AuthService_1 = class AuthService {
             where: { id: user.id },
             data: { lastLoginAt: new Date() },
         });
-        return this.generateTokens(user.id, user.email, user.name);
+        return this.generateTokens(user.id, user.email, user.name, 'user');
     }
     async exchangeCodeForUserInfo(code, redirectUri) {
         try {
@@ -314,11 +426,13 @@ let AuthService = AuthService_1 = class AuthService {
         }
         return user;
     }
-    async generateTokens(userId, email, name) {
+    async generateTokens(actorId, email, name, actorType = 'user', role) {
         const payload = {
-            sub: userId,
+            sub: actorId,
             email,
             name: name ?? undefined,
+            actorType,
+            role: actorType === 'midwife' ? role : undefined,
         };
         const accessToken = this.jwtService.sign(payload);
         const refreshToken = (0, uuid_1.v4)();
@@ -328,7 +442,7 @@ let AuthService = AuthService_1 = class AuthService {
         await this.prisma.refreshToken.create({
             data: {
                 token: refreshToken,
-                userId,
+                ...(actorType === 'midwife' ? { midwifeId: actorId } : { userId: actorId }),
                 expiresAt,
             },
         });
@@ -341,7 +455,7 @@ let AuthService = AuthService_1 = class AuthService {
     async refreshTokens(refreshToken) {
         const storedToken = await this.prisma.refreshToken.findUnique({
             where: { token: refreshToken },
-            include: { user: true },
+            include: { user: true, midwife: true },
         });
         if (!storedToken) {
             throw new common_1.UnauthorizedException('Invalid refresh token');
@@ -355,21 +469,49 @@ let AuthService = AuthService_1 = class AuthService {
         await this.prisma.refreshToken.deleteMany({
             where: { id: storedToken.id },
         });
-        return this.generateTokens(storedToken.user.id, storedToken.user.email, storedToken.user.name);
+        if (storedToken.midwife) {
+            return this.generateTokens(storedToken.midwife.id, storedToken.midwife.email, storedToken.midwife.name, 'midwife', storedToken.midwife.role);
+        }
+        if (!storedToken.user) {
+            throw new common_1.UnauthorizedException('Refresh token has no associated account');
+        }
+        return this.generateTokens(storedToken.user.id, storedToken.user.email, storedToken.user.name, 'user');
     }
     async logout(refreshToken) {
         await this.prisma.refreshToken.deleteMany({
             where: { token: refreshToken },
         });
     }
-    async logoutAll(userId) {
+    async logoutAll(actorId, actorType) {
         await this.prisma.refreshToken.deleteMany({
-            where: { userId },
+            where: actorType === 'midwife' ? { midwifeId: actorId } : { userId: actorId },
         });
     }
-    async getUserById(userId) {
+    async getActorById(actorId, actorType) {
+        if (actorType === 'midwife') {
+            return this.prisma.midwife.findUnique({
+                where: { id: actorId },
+                select: {
+                    id: true,
+                    email: true,
+                    name: true,
+                    givenName: true,
+                    familyName: true,
+                    picture: true,
+                    auth0Id: true,
+                    role: true,
+                    phone: true,
+                    licenseNumber: true,
+                    facilityName: true,
+                    region: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    lastLoginAt: true,
+                },
+            });
+        }
         return this.prisma.user.findUnique({
-            where: { id: userId },
+            where: { id: actorId },
             select: {
                 id: true,
                 email: true,

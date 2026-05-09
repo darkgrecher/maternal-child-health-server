@@ -1,5 +1,9 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePregnancyDto, UpdatePregnancyDto, ConvertToChildDto, CreatePregnancyCheckupDto, CreatePregnancyMeasurementDto } from './dto';
+type ActorContext = {
+    id: string;
+    actorType: 'user' | 'midwife';
+};
 export declare class PregnancyService {
     private readonly prisma;
     private readonly logger;
@@ -8,7 +12,7 @@ export declare class PregnancyService {
     private mapBloodTypeToDisplay;
     private calculatePregnancyWeek;
     private calculateTrimester;
-    create(userId: string, dto: CreatePregnancyDto): Promise<{
+    create(actor: ActorContext, dto: CreatePregnancyDto): Promise<{
         id: any;
         userId: any;
         motherFirstName: any;
@@ -37,8 +41,18 @@ export declare class PregnancyService {
         hospitalName: any;
         obgynName: any;
         obgynContact: any;
+        midwifeId: any;
         midwifeName: any;
         midwifeContact: any;
+        midwife: {
+            id: any;
+            name: any;
+            role: any;
+            phone: any;
+            email: any;
+            facilityName: any;
+            region: any;
+        } | null;
         expectedGender: any;
         babyNickname: any;
         numberOfBabies: any;
@@ -54,7 +68,7 @@ export declare class PregnancyService {
         createdAt: any;
         updatedAt: any;
     }>;
-    findAll(userId: string): Promise<{
+    findAll(actor: ActorContext): Promise<{
         id: any;
         userId: any;
         motherFirstName: any;
@@ -83,8 +97,18 @@ export declare class PregnancyService {
         hospitalName: any;
         obgynName: any;
         obgynContact: any;
+        midwifeId: any;
         midwifeName: any;
         midwifeContact: any;
+        midwife: {
+            id: any;
+            name: any;
+            role: any;
+            phone: any;
+            email: any;
+            facilityName: any;
+            region: any;
+        } | null;
         expectedGender: any;
         babyNickname: any;
         numberOfBabies: any;
@@ -100,7 +124,7 @@ export declare class PregnancyService {
         createdAt: any;
         updatedAt: any;
     }[]>;
-    findActive(userId: string): Promise<{
+    findActive(actor: ActorContext): Promise<{
         id: any;
         userId: any;
         motherFirstName: any;
@@ -129,8 +153,18 @@ export declare class PregnancyService {
         hospitalName: any;
         obgynName: any;
         obgynContact: any;
+        midwifeId: any;
         midwifeName: any;
         midwifeContact: any;
+        midwife: {
+            id: any;
+            name: any;
+            role: any;
+            phone: any;
+            email: any;
+            facilityName: any;
+            region: any;
+        } | null;
         expectedGender: any;
         babyNickname: any;
         numberOfBabies: any;
@@ -146,7 +180,7 @@ export declare class PregnancyService {
         createdAt: any;
         updatedAt: any;
     }[]>;
-    findOne(userId: string, pregnancyId: string): Promise<{
+    findOne(actor: ActorContext, pregnancyId: string): Promise<{
         id: any;
         userId: any;
         motherFirstName: any;
@@ -175,8 +209,18 @@ export declare class PregnancyService {
         hospitalName: any;
         obgynName: any;
         obgynContact: any;
+        midwifeId: any;
         midwifeName: any;
         midwifeContact: any;
+        midwife: {
+            id: any;
+            name: any;
+            role: any;
+            phone: any;
+            email: any;
+            facilityName: any;
+            region: any;
+        } | null;
         expectedGender: any;
         babyNickname: any;
         numberOfBabies: any;
@@ -192,7 +236,7 @@ export declare class PregnancyService {
         createdAt: any;
         updatedAt: any;
     }>;
-    update(userId: string, pregnancyId: string, dto: UpdatePregnancyDto): Promise<{
+    update(actor: ActorContext, pregnancyId: string, dto: UpdatePregnancyDto): Promise<{
         id: any;
         userId: any;
         motherFirstName: any;
@@ -221,8 +265,18 @@ export declare class PregnancyService {
         hospitalName: any;
         obgynName: any;
         obgynContact: any;
+        midwifeId: any;
         midwifeName: any;
         midwifeContact: any;
+        midwife: {
+            id: any;
+            name: any;
+            role: any;
+            phone: any;
+            email: any;
+            facilityName: any;
+            region: any;
+        } | null;
         expectedGender: any;
         babyNickname: any;
         numberOfBabies: any;
@@ -238,10 +292,10 @@ export declare class PregnancyService {
         createdAt: any;
         updatedAt: any;
     }>;
-    delete(userId: string, pregnancyId: string): Promise<{
+    delete(actor: ActorContext, pregnancyId: string): Promise<{
         message: string;
     }>;
-    convertToChild(userId: string, pregnancyId: string, dto: ConvertToChildDto): Promise<{
+    convertToChild(actor: ActorContext, pregnancyId: string, dto: ConvertToChildDto): Promise<{
         pregnancy: {
             id: any;
             userId: any;
@@ -271,8 +325,18 @@ export declare class PregnancyService {
             hospitalName: any;
             obgynName: any;
             obgynContact: any;
+            midwifeId: any;
             midwifeName: any;
             midwifeContact: any;
+            midwife: {
+                id: any;
+                name: any;
+                role: any;
+                phone: any;
+                email: any;
+                facilityName: any;
+                region: any;
+            } | null;
             expectedGender: any;
             babyNickname: any;
             numberOfBabies: any;
@@ -313,7 +377,7 @@ export declare class PregnancyService {
             updatedAt: any;
         };
     }>;
-    addCheckup(userId: string, pregnancyId: string, dto: CreatePregnancyCheckupDto): Promise<{
+    addCheckup(actor: ActorContext, pregnancyId: string, dto: CreatePregnancyCheckupDto): Promise<{
         id: any;
         pregnancyId: any;
         checkupDate: any;
@@ -339,7 +403,7 @@ export declare class PregnancyService {
         createdAt: any;
         updatedAt: any;
     }>;
-    getCheckups(userId: string, pregnancyId: string): Promise<{
+    getCheckups(actor: ActorContext, pregnancyId: string): Promise<{
         id: any;
         pregnancyId: any;
         checkupDate: any;
@@ -365,7 +429,7 @@ export declare class PregnancyService {
         createdAt: any;
         updatedAt: any;
     }[]>;
-    addMeasurement(userId: string, pregnancyId: string, dto: CreatePregnancyMeasurementDto): Promise<{
+    addMeasurement(actor: ActorContext, pregnancyId: string, dto: CreatePregnancyMeasurementDto): Promise<{
         id: any;
         pregnancyId: any;
         measurementDate: any;
@@ -381,7 +445,7 @@ export declare class PregnancyService {
         createdAt: any;
         updatedAt: any;
     }>;
-    getMeasurements(userId: string, pregnancyId: string): Promise<{
+    getMeasurements(actor: ActorContext, pregnancyId: string): Promise<{
         id: any;
         pregnancyId: any;
         measurementDate: any;
@@ -397,7 +461,7 @@ export declare class PregnancyService {
         createdAt: any;
         updatedAt: any;
     }[]>;
-    saveSymptoms(userId: string, pregnancyId: string, dto: any): Promise<{
+    saveSymptoms(actor: ActorContext, pregnancyId: string, dto: any): Promise<{
         id: any;
         pregnancyId: any;
         date: any;
@@ -407,7 +471,7 @@ export declare class PregnancyService {
         createdAt: any;
         updatedAt: any;
     }>;
-    getSymptomsHistory(userId: string, pregnancyId: string, limit?: number): Promise<{
+    getSymptomsHistory(actor: ActorContext, pregnancyId: string, limit?: number): Promise<{
         id: any;
         pregnancyId: any;
         date: any;
@@ -417,7 +481,7 @@ export declare class PregnancyService {
         createdAt: any;
         updatedAt: any;
     }[]>;
-    getTodaySymptoms(userId: string, pregnancyId: string): Promise<{
+    getTodaySymptoms(actor: ActorContext, pregnancyId: string): Promise<{
         id: any;
         pregnancyId: any;
         date: any;
@@ -427,7 +491,7 @@ export declare class PregnancyService {
         createdAt: any;
         updatedAt: any;
     } | null>;
-    createJournalEntry(userId: string, pregnancyId: string, dto: any): Promise<{
+    createJournalEntry(actor: ActorContext, pregnancyId: string, dto: any): Promise<{
         id: any;
         pregnancyId: any;
         date: any;
@@ -438,7 +502,7 @@ export declare class PregnancyService {
         createdAt: any;
         updatedAt: any;
     }>;
-    getJournalEntries(userId: string, pregnancyId: string, limit?: number): Promise<{
+    getJournalEntries(actor: ActorContext, pregnancyId: string, limit?: number): Promise<{
         id: any;
         pregnancyId: any;
         date: any;
@@ -449,10 +513,10 @@ export declare class PregnancyService {
         createdAt: any;
         updatedAt: any;
     }[]>;
-    deleteJournalEntry(userId: string, pregnancyId: string, journalId: string): Promise<{
+    deleteJournalEntry(actor: ActorContext, pregnancyId: string, journalId: string): Promise<{
         message: string;
     }>;
-    updateMedicalConditions(userId: string, pregnancyId: string, conditions: string[]): Promise<{
+    updateMedicalConditions(actor: ActorContext, pregnancyId: string, conditions: string[]): Promise<{
         id: any;
         userId: any;
         motherFirstName: any;
@@ -481,8 +545,18 @@ export declare class PregnancyService {
         hospitalName: any;
         obgynName: any;
         obgynContact: any;
+        midwifeId: any;
         midwifeName: any;
         midwifeContact: any;
+        midwife: {
+            id: any;
+            name: any;
+            role: any;
+            phone: any;
+            email: any;
+            facilityName: any;
+            region: any;
+        } | null;
         expectedGender: any;
         babyNickname: any;
         numberOfBabies: any;
@@ -498,7 +572,7 @@ export declare class PregnancyService {
         createdAt: any;
         updatedAt: any;
     }>;
-    updateAllergies(userId: string, pregnancyId: string, allergies: string[]): Promise<{
+    updateAllergies(actor: ActorContext, pregnancyId: string, allergies: string[]): Promise<{
         id: any;
         userId: any;
         motherFirstName: any;
@@ -527,8 +601,18 @@ export declare class PregnancyService {
         hospitalName: any;
         obgynName: any;
         obgynContact: any;
+        midwifeId: any;
         midwifeName: any;
         midwifeContact: any;
+        midwife: {
+            id: any;
+            name: any;
+            role: any;
+            phone: any;
+            email: any;
+            facilityName: any;
+            region: any;
+        } | null;
         expectedGender: any;
         babyNickname: any;
         numberOfBabies: any;
@@ -544,7 +628,7 @@ export declare class PregnancyService {
         createdAt: any;
         updatedAt: any;
     }>;
-    updateWeight(userId: string, pregnancyId: string, weight: number): Promise<{
+    updateWeight(actor: ActorContext, pregnancyId: string, weight: number): Promise<{
         id: any;
         userId: any;
         motherFirstName: any;
@@ -573,8 +657,18 @@ export declare class PregnancyService {
         hospitalName: any;
         obgynName: any;
         obgynContact: any;
+        midwifeId: any;
         midwifeName: any;
         midwifeContact: any;
+        midwife: {
+            id: any;
+            name: any;
+            role: any;
+            phone: any;
+            email: any;
+            facilityName: any;
+            region: any;
+        } | null;
         expectedGender: any;
         babyNickname: any;
         numberOfBabies: any;
@@ -597,3 +691,4 @@ export declare class PregnancyService {
     private formatJournal;
     private formatChild;
 }
+export {};

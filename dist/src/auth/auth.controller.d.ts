@@ -2,6 +2,8 @@ import { AuthService } from './auth.service';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Auth0AuthDto } from './dto/auth0-auth.dto';
+import { MidwifeLoginDto } from './dto/midwife-login.dto';
+import { MidwifeProvisionDto } from './dto/midwife-provision.dto';
 export declare class AuthController {
     private readonly authService;
     constructor(authService: AuthService);
@@ -9,11 +11,57 @@ export declare class AuthController {
         success: boolean;
         data: import("./auth.service").AuthTokens & {
             user: any;
+            actorType: import("./auth.service").ActorType;
         };
     }>;
     googleAuth(dto: GoogleAuthDto): Promise<{
         success: boolean;
         data: import("./auth.service").AuthTokens;
+    }>;
+    midwifeLogin(dto: MidwifeLoginDto): Promise<{
+        success: boolean;
+        data: import("./auth.service").AuthTokens & {
+            user: any;
+            actorType: import("./auth.service").ActorType;
+        };
+    }>;
+    provisionMidwife(req: any, dto: MidwifeProvisionDto): Promise<{
+        success: boolean;
+        data: {
+            id: string;
+            email: string;
+            name: string | null;
+            givenName: string | null;
+            familyName: string | null;
+            picture: string | null;
+            role: import("@prisma/client").$Enums.MidwifeRole;
+            phone: string | null;
+            licenseNumber: string | null;
+            facilityName: string | null;
+            region: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            lastLoginAt: Date | null;
+        };
+    }>;
+    listMidwives(req: any): Promise<{
+        success: boolean;
+        data: {
+            id: string;
+            email: string;
+            name: string | null;
+            givenName: string | null;
+            familyName: string | null;
+            picture: string | null;
+            lastLoginAt: Date | null;
+            createdAt: Date;
+            updatedAt: Date;
+            role: import("@prisma/client").$Enums.MidwifeRole;
+            phone: string | null;
+            licenseNumber: string | null;
+            facilityName: string | null;
+            region: string | null;
+        }[];
     }>;
     refreshToken(dto: RefreshTokenDto): Promise<{
         success: boolean;

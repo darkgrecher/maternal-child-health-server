@@ -11,6 +11,7 @@ import {
   IsNumber,
   IsBoolean,
   IsArray,
+  IsUUID,
   Min,
   Max,
 } from 'class-validator';
@@ -121,12 +122,8 @@ export class UpdatePregnancyDto {
   obgynContact?: string;
 
   @IsOptional()
-  @IsString()
-  midwifeName?: string;
-
-  @IsOptional()
-  @IsString()
-  midwifeContact?: string;
+  @IsUUID()
+  midwifeId?: string;
 
   // Baby Information
   @IsOptional()

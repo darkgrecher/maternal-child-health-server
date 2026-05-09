@@ -18,4 +18,5 @@ export declare class UpdateChildDto {
     fatherName?: string;
     emergencyContact?: string;
     address?: string;
+    midwifeId?: string;
 }

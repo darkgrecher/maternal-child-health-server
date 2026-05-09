@@ -29,6 +29,27 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: JwtPayload) {
+    const actorType = payload.actorType ?? 'user';
+
+    if (actorType === 'midwife') {
+      const midwife = await this.prisma.midwife.findUnique({
+        where: { id: payload.sub },
+        select: { id: true, email: true, name: true, role: true },
+      });
+
+      if (!midwife) {
+        throw new UnauthorizedException('Midwife not found');
+      }
+
+      return {
+        sub: midwife.id,
+        email: midwife.email,
+        name: midwife.name,
+        role: midwife.role,
+        actorType,
+      };
+    }
+
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
       select: { id: true, email: true, name: true },
@@ -42,6 +63,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       sub: user.id,
       email: user.email,
       name: user.name,
+      actorType,
     };
   }
 }

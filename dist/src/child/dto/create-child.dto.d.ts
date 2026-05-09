@@ -37,4 +37,5 @@ export declare class CreateChildDto {
     fatherName?: string;
     emergencyContact?: string;
     address?: string;
+    midwifeId?: string;
 }

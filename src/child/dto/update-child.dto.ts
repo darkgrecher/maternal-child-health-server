@@ -9,6 +9,7 @@ import {
   IsEnum,
   IsNumber,
   IsArray,
+  IsUUID,
   Min,
   Max,
 } from 'class-validator';
@@ -94,4 +95,8 @@ export class UpdateChildDto {
   @IsOptional()
   @IsString()
   address?: string;
+
+  @IsOptional()
+  @IsUUID()
+  midwifeId?: string;
 }
