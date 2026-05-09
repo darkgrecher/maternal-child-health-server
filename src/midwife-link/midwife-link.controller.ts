@@ -9,6 +9,7 @@ import {
   Controller,
   ForbiddenException,
   Get,
+  Param,
   Post,
   Request,
   UseGuards,
@@ -45,6 +46,19 @@ export class MidwifeLinkController {
     }
 
     const data = await this.midwifeLinkService.listNotifications(req.user.sub);
+    return { success: true, data };
+  }
+
+  /**
+   * Check QR code status for the current midwife
+   */
+  @Get('status/:code')
+  async getStatus(@Request() req: any, @Param('code') code: string) {
+    if (req.user?.actorType !== 'midwife') {
+      throw new ForbiddenException('Midwife access required');
+    }
+
+    const data = await this.midwifeLinkService.getStatus(req.user.sub, code);
     return { success: true, data };
   }
 

@@ -36,6 +36,13 @@ let MidwifeLinkController = class MidwifeLinkController {
         const data = await this.midwifeLinkService.listNotifications(req.user.sub);
         return { success: true, data };
     }
+    async getStatus(req, code) {
+        if (req.user?.actorType !== 'midwife') {
+            throw new common_1.ForbiddenException('Midwife access required');
+        }
+        const data = await this.midwifeLinkService.getStatus(req.user.sub, code);
+        return { success: true, data };
+    }
     async claim(req, dto) {
         if (req.user?.actorType !== 'user') {
             throw new common_1.ForbiddenException('User access required');
@@ -60,6 +67,14 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], MidwifeLinkController.prototype, "listNotifications", null);
+__decorate([
+    (0, common_1.Get)('status/:code'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('code')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], MidwifeLinkController.prototype, "getStatus", null);
 __decorate([
     (0, common_1.Post)('claim'),
     __param(0, (0, common_1.Request)()),

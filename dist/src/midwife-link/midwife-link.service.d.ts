@@ -22,6 +22,12 @@ export declare class MidwifeLinkService {
             region: string | null;
         };
     }>;
+    getStatus(midwifeId: string, code: string): Promise<{
+        code: string;
+        profileType: import("@prisma/client").$Enums.MidwifeLinkProfileType;
+        isActive: boolean;
+        lastUsedAt: string | null;
+    }>;
     listNotifications(midwifeId: string, limit?: number): Promise<{
         id: string;
         type: "mismatch";

@@ -24,6 +24,15 @@ export declare class MidwifeLinkController {
             isRead: boolean;
         }[];
     }>;
+    getStatus(req: any, code: string): Promise<{
+        success: boolean;
+        data: {
+            code: string;
+            profileType: import("@prisma/client").$Enums.MidwifeLinkProfileType;
+            isActive: boolean;
+            lastUsedAt: string | null;
+        };
+    }>;
     claim(req: any, dto: ClaimMidwifeLinkDto): Promise<{
         success: boolean;
         data: {

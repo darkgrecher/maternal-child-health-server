@@ -121,7 +121,7 @@ export class MidwifeLinkService {
 
     await this.prisma.midwifeLinkCode.update({
       where: { id: link.id },
-      data: { lastUsedAt: new Date() },
+      data: { lastUsedAt: new Date(), isActive: false },
     });
 
     return {
@@ -134,6 +134,23 @@ export class MidwifeLinkService {
         facilityName: link.midwife.facilityName,
         region: link.midwife.region,
       },
+    };
+  }
+
+  async getStatus(midwifeId: string, code: string) {
+    const link = await this.prisma.midwifeLinkCode.findFirst({
+      where: { code, midwifeId },
+    });
+
+    if (!link) {
+      throw new NotFoundException('QR code not found');
+    }
+
+    return {
+      code: link.code,
+      profileType: link.profileType,
+      isActive: link.isActive,
+      lastUsedAt: link.lastUsedAt?.toISOString() ?? null,
     };
   }
 
