@@ -22,7 +22,7 @@ let MidwifeLinkService = class MidwifeLinkService {
     createCode() {
         return (0, crypto_1.randomBytes)(16).toString('base64url');
     }
-    async generate(midwifeId) {
+    async generate(midwifeId, profileType) {
         await this.prisma.midwifeLinkCode.updateMany({
             where: { midwifeId, isActive: true },
             data: { isActive: false },
@@ -32,11 +32,13 @@ let MidwifeLinkService = class MidwifeLinkService {
             data: {
                 midwifeId,
                 code,
+                profileType,
             },
         });
         return {
             code: record.code,
-            qrPayload: `${QR_PREFIX}${record.code}`,
+            profileType: record.profileType,
+            qrPayload: `${QR_PREFIX}${record.profileType}:${record.code}`,
             createdAt: record.createdAt.toISOString(),
         };
     }
@@ -50,6 +52,19 @@ let MidwifeLinkService = class MidwifeLinkService {
         }
         if (!link.midwife) {
             throw new common_1.NotFoundException('Midwife not found');
+        }
+        if (link.profileType !== dto.profileType) {
+            const message = `QR code is for ${link.profileType} profiles. Open the scanner from the ${link.profileType} section.`;
+            await this.prisma.midwifeLinkNotification.create({
+                data: {
+                    midwifeId: link.midwifeId,
+                    linkCodeId: link.id,
+                    expectedProfileType: link.profileType,
+                    scannedProfileType: dto.profileType,
+                    message,
+                },
+            });
+            throw new common_1.BadRequestException(message);
         }
         if (dto.profileType === 'child') {
             const child = await this.prisma.child.findUnique({
@@ -106,6 +121,22 @@ let MidwifeLinkService = class MidwifeLinkService {
                 region: link.midwife.region,
             },
         };
+    }
+    async listNotifications(midwifeId, limit = 5) {
+        const notifications = await this.prisma.midwifeLinkNotification.findMany({
+            where: { midwifeId },
+            orderBy: { createdAt: 'desc' },
+            take: limit,
+        });
+        return notifications.map((notification) => ({
+            id: notification.id,
+            type: notification.type,
+            expectedProfileType: notification.expectedProfileType,
+            scannedProfileType: notification.scannedProfileType,
+            message: notification.message,
+            createdAt: notification.createdAt.toISOString(),
+            isRead: notification.isRead,
+        }));
     }
 };
 exports.MidwifeLinkService = MidwifeLinkService;

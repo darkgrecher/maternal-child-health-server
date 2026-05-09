@@ -22,11 +22,18 @@ let MidwifeLinkController = class MidwifeLinkController {
     constructor(midwifeLinkService) {
         this.midwifeLinkService = midwifeLinkService;
     }
-    async generateQr(req) {
+    async generateQr(req, dto) {
         if (req.user?.actorType !== 'midwife') {
             throw new common_1.ForbiddenException('Midwife access required');
         }
-        const data = await this.midwifeLinkService.generate(req.user.sub);
+        const data = await this.midwifeLinkService.generate(req.user.sub, dto.profileType);
+        return { success: true, data };
+    }
+    async listNotifications(req) {
+        if (req.user?.actorType !== 'midwife') {
+            throw new common_1.ForbiddenException('Midwife access required');
+        }
+        const data = await this.midwifeLinkService.listNotifications(req.user.sub);
         return { success: true, data };
     }
     async claim(req, dto) {
@@ -41,10 +48,18 @@ exports.MidwifeLinkController = MidwifeLinkController;
 __decorate([
     (0, common_1.Post)('qr'),
     __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, dto_1.GenerateMidwifeLinkDto]),
+    __metadata("design:returntype", Promise)
+], MidwifeLinkController.prototype, "generateQr", null);
+__decorate([
+    (0, common_1.Get)('notifications'),
+    __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], MidwifeLinkController.prototype, "generateQr", null);
+], MidwifeLinkController.prototype, "listNotifications", null);
 __decorate([
     (0, common_1.Post)('claim'),
     __param(0, (0, common_1.Request)()),

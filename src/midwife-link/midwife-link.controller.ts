@@ -8,13 +8,14 @@ import {
   Body,
   Controller,
   ForbiddenException,
+  Get,
   Post,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { MidwifeLinkService } from './midwife-link.service';
-import { ClaimMidwifeLinkDto } from './dto';
+import { ClaimMidwifeLinkDto, GenerateMidwifeLinkDto } from './dto';
 
 @Controller('midwife-links')
 @UseGuards(JwtAuthGuard)
@@ -25,12 +26,25 @@ export class MidwifeLinkController {
    * Generate a QR code payload for the current midwife
    */
   @Post('qr')
-  async generateQr(@Request() req: any) {
+  async generateQr(@Request() req: any, @Body() dto: GenerateMidwifeLinkDto) {
     if (req.user?.actorType !== 'midwife') {
       throw new ForbiddenException('Midwife access required');
     }
 
-    const data = await this.midwifeLinkService.generate(req.user.sub);
+    const data = await this.midwifeLinkService.generate(req.user.sub, dto.profileType);
+    return { success: true, data };
+  }
+
+  /**
+   * Get recent QR link notifications for the current midwife
+   */
+  @Get('notifications')
+  async listNotifications(@Request() req: any) {
+    if (req.user?.actorType !== 'midwife') {
+      throw new ForbiddenException('Midwife access required');
+    }
+
+    const data = await this.midwifeLinkService.listNotifications(req.user.sub);
     return { success: true, data };
   }
 

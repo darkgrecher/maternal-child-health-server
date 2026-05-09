@@ -4,10 +4,11 @@
  * Handles QR link generation and profile linking to midwives.
  */
 
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { randomBytes } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { ClaimMidwifeLinkDto } from './dto';
+import { MidwifeLinkProfileType } from '@prisma/client';
 
 const QR_PREFIX = 'mch-midwife:';
 
@@ -19,7 +20,7 @@ export class MidwifeLinkService {
     return randomBytes(16).toString('base64url');
   }
 
-  async generate(midwifeId: string) {
+  async generate(midwifeId: string, profileType: MidwifeLinkProfileType) {
     await this.prisma.midwifeLinkCode.updateMany({
       where: { midwifeId, isActive: true },
       data: { isActive: false },
@@ -30,12 +31,14 @@ export class MidwifeLinkService {
       data: {
         midwifeId,
         code,
+        profileType,
       },
     });
 
     return {
       code: record.code,
-      qrPayload: `${QR_PREFIX}${record.code}`,
+      profileType: record.profileType,
+      qrPayload: `${QR_PREFIX}${record.profileType}:${record.code}`,
       createdAt: record.createdAt.toISOString(),
     };
   }
@@ -52,6 +55,20 @@ export class MidwifeLinkService {
 
     if (!link.midwife) {
       throw new NotFoundException('Midwife not found');
+    }
+
+    if (link.profileType !== dto.profileType) {
+      const message = `QR code is for ${link.profileType} profiles. Open the scanner from the ${link.profileType} section.`;
+      await this.prisma.midwifeLinkNotification.create({
+        data: {
+          midwifeId: link.midwifeId,
+          linkCodeId: link.id,
+          expectedProfileType: link.profileType,
+          scannedProfileType: dto.profileType,
+          message,
+        },
+      });
+      throw new BadRequestException(message);
     }
 
     if (dto.profileType === 'child') {
@@ -118,5 +135,23 @@ export class MidwifeLinkService {
         region: link.midwife.region,
       },
     };
+  }
+
+  async listNotifications(midwifeId: string, limit = 5) {
+    const notifications = await this.prisma.midwifeLinkNotification.findMany({
+      where: { midwifeId },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+
+    return notifications.map((notification) => ({
+      id: notification.id,
+      type: notification.type,
+      expectedProfileType: notification.expectedProfileType,
+      scannedProfileType: notification.scannedProfileType,
+      message: notification.message,
+      createdAt: notification.createdAt.toISOString(),
+      isRead: notification.isRead,
+    }));
   }
 }
