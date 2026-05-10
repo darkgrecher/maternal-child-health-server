@@ -109,10 +109,11 @@ model MidwifeLinkCode {
   id          String                 @id @default(uuid())
   code        String                 @unique
   midwifeId   String                 @map("midwife_id")
-  profileType MidwifeLinkProfileType @default(child) @map("profile_type")
+  profileType MidwifeLinkProfileType @default(any) @map("profile_type")
   isActive    Boolean                @default(true) @map("is_active")
   createdAt   DateTime               @default(now()) @map("created_at")
   lastUsedAt  DateTime?              @map("last_used_at")
+  lastProfileId String?              @map("last_profile_id")
 
   // Relations
   midwife       Midwife                   @relation(fields: [midwifeId], references: [id], onDelete: Cascade)
@@ -141,12 +142,14 @@ model MidwifeLinkNotification {
 }
 
 enum MidwifeLinkProfileType {
+  any
   child
   pregnancy
 }
 
 enum MidwifeLinkNotificationType {
   mismatch
+  unregistered
 }
 
 enum MidwifeRole {

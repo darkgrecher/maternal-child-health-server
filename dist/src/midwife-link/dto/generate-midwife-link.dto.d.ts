@@ -1,3 +1,3 @@
 export declare class GenerateMidwifeLinkDto {
-    profileType: 'child' | 'pregnancy';
+    profileType?: 'child' | 'pregnancy';
 }

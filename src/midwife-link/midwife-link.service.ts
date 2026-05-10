@@ -20,7 +20,8 @@ export class MidwifeLinkService {
     return randomBytes(16).toString('base64url');
   }
 
-  async generate(midwifeId: string, profileType: MidwifeLinkProfileType) {
+  async generate(midwifeId: string, profileType?: MidwifeLinkProfileType) {
+    const resolvedProfileType = profileType ?? 'any';
     await this.prisma.midwifeLinkCode.updateMany({
       where: { midwifeId, isActive: true },
       data: { isActive: false },
@@ -31,7 +32,7 @@ export class MidwifeLinkService {
       data: {
         midwifeId,
         code,
-        profileType,
+        profileType: resolvedProfileType,
       },
     });
 
@@ -57,12 +58,15 @@ export class MidwifeLinkService {
       throw new NotFoundException('Midwife not found');
     }
 
-    if (link.profileType !== dto.profileType) {
+    const resolvedProfileType = link.profileType === 'any' ? dto.profileType : link.profileType;
+
+    if (link.profileType !== 'any' && link.profileType !== dto.profileType) {
       const message = `QR code is for ${link.profileType} profiles. Open the scanner from the ${link.profileType} section.`;
       await this.prisma.midwifeLinkNotification.create({
         data: {
           midwifeId: link.midwifeId,
           linkCodeId: link.id,
+          type: 'mismatch',
           expectedProfileType: link.profileType,
           scannedProfileType: dto.profileType,
           message,
@@ -85,7 +89,18 @@ export class MidwifeLinkService {
       }
 
       if (child.midwifeId && child.midwifeId !== link.midwifeId) {
-        throw new ForbiddenException('Child already assigned to a midwife');
+        const message = 'Child already assigned to a different midwife.';
+        await this.prisma.midwifeLinkNotification.create({
+          data: {
+            midwifeId: link.midwifeId,
+            linkCodeId: link.id,
+            type: 'unregistered',
+            expectedProfileType: resolvedProfileType,
+            scannedProfileType: dto.profileType,
+            message,
+          },
+        });
+        throw new ForbiddenException(message);
       }
 
       if (child.midwifeId !== link.midwifeId) {
@@ -108,7 +123,18 @@ export class MidwifeLinkService {
       }
 
       if (pregnancy.midwifeId && pregnancy.midwifeId !== link.midwifeId) {
-        throw new ForbiddenException('Pregnancy already assigned to a midwife');
+        const message = 'Pregnancy already assigned to a different midwife.';
+        await this.prisma.midwifeLinkNotification.create({
+          data: {
+            midwifeId: link.midwifeId,
+            linkCodeId: link.id,
+            type: 'unregistered',
+            expectedProfileType: resolvedProfileType,
+            scannedProfileType: dto.profileType,
+            message,
+          },
+        });
+        throw new ForbiddenException(message);
       }
 
       if (pregnancy.midwifeId !== link.midwifeId) {
@@ -121,7 +147,12 @@ export class MidwifeLinkService {
 
     await this.prisma.midwifeLinkCode.update({
       where: { id: link.id },
-      data: { lastUsedAt: new Date(), isActive: false },
+      data: {
+        lastUsedAt: new Date(),
+        isActive: false,
+        lastProfileId: dto.profileId,
+        profileType: resolvedProfileType,
+      },
     });
 
     return {
@@ -146,11 +177,31 @@ export class MidwifeLinkService {
       throw new NotFoundException('QR code not found');
     }
 
+    const latestNotification = await this.prisma.midwifeLinkNotification.findFirst({
+      where: { linkCodeId: link.id },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        type: true,
+        message: true,
+        createdAt: true,
+      },
+    });
+
     return {
       code: link.code,
       profileType: link.profileType,
       isActive: link.isActive,
       lastUsedAt: link.lastUsedAt?.toISOString() ?? null,
+      profileId: link.lastProfileId ?? null,
+      notification: latestNotification
+        ? {
+            id: latestNotification.id,
+            type: latestNotification.type,
+            message: latestNotification.message,
+            createdAt: latestNotification.createdAt.toISOString(),
+          }
+        : null,
     };
   }
 
