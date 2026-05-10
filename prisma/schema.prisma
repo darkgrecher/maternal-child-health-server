@@ -106,14 +106,14 @@ model Midwife {
 // ============================================================================
 
 model MidwifeLinkCode {
-  id          String                 @id @default(uuid())
-  code        String                 @unique
-  midwifeId   String                 @map("midwife_id")
-  profileType MidwifeLinkProfileType @default(any) @map("profile_type")
-  isActive    Boolean                @default(true) @map("is_active")
-  createdAt   DateTime               @default(now()) @map("created_at")
-  lastUsedAt  DateTime?              @map("last_used_at")
-  lastProfileId String?              @map("last_profile_id")
+  id            String                 @id @default(uuid())
+  code          String                 @unique
+  midwifeId     String                 @map("midwife_id")
+  profileType   MidwifeLinkProfileType @default(any) @map("profile_type")
+  isActive      Boolean                @default(true) @map("is_active")
+  createdAt     DateTime               @default(now()) @map("created_at")
+  lastUsedAt    DateTime?              @map("last_used_at")
+  lastProfileId String?                @map("last_profile_id")
 
   // Relations
   midwife       Midwife                   @relation(fields: [midwifeId], references: [id], onDelete: Cascade)
