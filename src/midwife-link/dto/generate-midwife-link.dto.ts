@@ -6,6 +6,6 @@ import { IsIn, IsOptional } from 'class-validator';
 
 export class GenerateMidwifeLinkDto {
   @IsOptional()
-  @IsIn(['child', 'pregnancy'])
-  profileType?: 'child' | 'pregnancy';
+  @IsIn(['child', 'pregnancy', 'any'])
+  profileType?: 'child' | 'pregnancy' | 'any';
 }

@@ -17,7 +17,7 @@ class GenerateMidwifeLinkDto {
 exports.GenerateMidwifeLinkDto = GenerateMidwifeLinkDto;
 __decorate([
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsIn)(['child', 'pregnancy']),
+    (0, class_validator_1.IsIn)(['child', 'pregnancy', 'any']),
     __metadata("design:type", String)
 ], GenerateMidwifeLinkDto.prototype, "profileType", void 0);
 //# sourceMappingURL=generate-midwife-link.dto.js.map
