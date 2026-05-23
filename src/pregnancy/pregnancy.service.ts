@@ -327,7 +327,20 @@ export class PregnancyService {
       throw new NotFoundException('Pregnancy profile not found');
     }
 
-    if (actor.actorType !== 'user' || pregnancy.userId !== actor.id) {
+    if (actor.actorType === 'midwife') {
+      if (pregnancy.midwifeId !== actor.id) {
+        throw new ForbiddenException('Access denied to this pregnancy profile');
+      }
+
+      await this.prisma.pregnancy.update({
+        where: { id: pregnancyId },
+        data: { midwifeId: null },
+      });
+
+      return { message: 'Midwife registration removed successfully' };
+    }
+
+    if (pregnancy.userId !== actor.id) {
       throw new ForbiddenException('Access denied to this pregnancy profile');
     }
 
