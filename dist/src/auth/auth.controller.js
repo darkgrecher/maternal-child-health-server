@@ -20,6 +20,7 @@ const refresh_token_dto_1 = require("./dto/refresh-token.dto");
 const auth0_auth_dto_1 = require("./dto/auth0-auth.dto");
 const midwife_login_dto_1 = require("./dto/midwife-login.dto");
 const midwife_provision_dto_1 = require("./dto/midwife-provision.dto");
+const midwife_update_dto_1 = require("./dto/midwife-update.dto");
 const change_password_dto_1 = require("./dto/change-password.dto");
 const jwt_auth_guard_1 = require("./guards/jwt-auth.guard");
 let AuthController = class AuthController {
@@ -73,6 +74,29 @@ let AuthController = class AuthController {
             throw new common_1.ForbiddenException('Admin access required');
         }
         const result = await this.authService.listMidwives();
+        return {
+            success: true,
+            data: result,
+        };
+    }
+    async updateMidwife(req, midwifeId, dto) {
+        if (req.user?.actorType !== 'midwife' || req.user?.role !== 'admin') {
+            throw new common_1.ForbiddenException('Admin access required');
+        }
+        const result = await this.authService.updateMidwife(midwifeId, dto);
+        return {
+            success: true,
+            data: result,
+        };
+    }
+    async deleteMidwife(req, midwifeId) {
+        if (req.user?.actorType !== 'midwife' || req.user?.role !== 'admin') {
+            throw new common_1.ForbiddenException('Admin access required');
+        }
+        if (req.user?.sub === midwifeId) {
+            throw new common_1.BadRequestException('You cannot delete your own account');
+        }
+        const result = await this.authService.deleteMidwife(midwifeId);
         return {
             success: true,
             data: result,
@@ -162,6 +186,25 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "listMidwives", null);
+__decorate([
+    (0, common_1.Patch)('midwives/:id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, midwife_update_dto_1.MidwifeUpdateDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "updateMidwife", null);
+__decorate([
+    (0, common_1.Delete)('midwives/:id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "deleteMidwife", null);
 __decorate([
     (0, common_1.Post)('refresh'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),

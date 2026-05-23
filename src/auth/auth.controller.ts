@@ -8,11 +8,15 @@ import {
   Controller,
   Post,
   Get,
+  Patch,
+  Delete,
   Body,
   UseGuards,
   Request,
+  Param,
   HttpCode,
   HttpStatus,
+  BadRequestException,
   ForbiddenException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -21,6 +25,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Auth0AuthDto } from './dto/auth0-auth.dto';
 import { MidwifeLoginDto } from './dto/midwife-login.dto';
 import { MidwifeProvisionDto } from './dto/midwife-provision.dto';
+import { MidwifeUpdateDto } from './dto/midwife-update.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
@@ -120,6 +125,46 @@ export class AuthController {
     }
 
     const result = await this.authService.listMidwives();
+    return {
+      success: true,
+      data: result,
+    };
+  }
+
+  /**
+   * Admin-only: Update midwife
+   * PATCH /auth/midwives/:id
+   */
+  @Patch('midwives/:id')
+  @UseGuards(JwtAuthGuard)
+  async updateMidwife(@Request() req, @Param('id') midwifeId: string, @Body() dto: MidwifeUpdateDto) {
+    if (req.user?.actorType !== 'midwife' || req.user?.role !== 'admin') {
+      throw new ForbiddenException('Admin access required');
+    }
+
+    const result = await this.authService.updateMidwife(midwifeId, dto);
+    return {
+      success: true,
+      data: result,
+    };
+  }
+
+  /**
+   * Admin-only: Delete midwife
+   * DELETE /auth/midwives/:id
+   */
+  @Delete('midwives/:id')
+  @UseGuards(JwtAuthGuard)
+  async deleteMidwife(@Request() req, @Param('id') midwifeId: string) {
+    if (req.user?.actorType !== 'midwife' || req.user?.role !== 'admin') {
+      throw new ForbiddenException('Admin access required');
+    }
+
+    if (req.user?.sub === midwifeId) {
+      throw new BadRequestException('You cannot delete your own account');
+    }
+
+    const result = await this.authService.deleteMidwife(midwifeId);
     return {
       success: true,
       data: result,

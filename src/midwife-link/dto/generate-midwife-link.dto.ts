@@ -2,9 +2,10 @@
  * Generate Midwife Link DTO
  */
 
-import { IsIn } from 'class-validator';
+import { IsIn, IsOptional } from 'class-validator';
 
 export class GenerateMidwifeLinkDto {
-  @IsIn(['child', 'pregnancy'])
-  profileType: 'child' | 'pregnancy';
+  @IsOptional()
+  @IsIn(['child', 'pregnancy', 'any'])
+  profileType?: 'child' | 'pregnancy' | 'any';
 }

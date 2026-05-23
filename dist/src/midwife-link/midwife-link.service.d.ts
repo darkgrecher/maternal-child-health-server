@@ -5,7 +5,7 @@ export declare class MidwifeLinkService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     private createCode;
-    generate(midwifeId: string, profileType: MidwifeLinkProfileType): Promise<{
+    generate(midwifeId: string, profileType?: MidwifeLinkProfileType): Promise<{
         code: string;
         profileType: import("@prisma/client").$Enums.MidwifeLinkProfileType;
         qrPayload: string;
@@ -27,10 +27,17 @@ export declare class MidwifeLinkService {
         profileType: import("@prisma/client").$Enums.MidwifeLinkProfileType;
         isActive: boolean;
         lastUsedAt: string | null;
+        profileId: string | null;
+        notification: {
+            id: string;
+            type: import("@prisma/client").$Enums.MidwifeLinkNotificationType;
+            message: string;
+            createdAt: string;
+        } | null;
     }>;
     listNotifications(midwifeId: string, limit?: number): Promise<{
         id: string;
-        type: "mismatch";
+        type: import("@prisma/client").$Enums.MidwifeLinkNotificationType;
         expectedProfileType: import("@prisma/client").$Enums.MidwifeLinkProfileType;
         scannedProfileType: import("@prisma/client").$Enums.MidwifeLinkProfileType;
         message: string;

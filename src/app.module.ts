@@ -14,6 +14,11 @@ import { EmergencyContactModule } from './emergency-contact/emergency-contact.mo
 import { MidwifeLinkModule } from './midwife-link/midwife-link.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { SettingsModule } from './settings/settings.module';
+import { AdminAnalyticsModule } from './admin-analytics/admin-analytics.module';
+import { AdminDistrictsModule } from './admin-districts/admin-districts.module';
+import { AdminAlertsModule } from './admin-alerts/admin-alerts.module';
+import { AdminLogsModule } from './admin-logs/admin-logs.module';
+import { AdminReportsModule } from './admin-reports/admin-reports.module';
 
 @Module({
   imports: [
@@ -33,6 +38,11 @@ import { SettingsModule } from './settings/settings.module';
     MidwifeLinkModule,
     DashboardModule,
     SettingsModule,
+    AdminAnalyticsModule,
+    AdminDistrictsModule,
+    AdminAlertsModule,
+    AdminLogsModule,
+    AdminReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

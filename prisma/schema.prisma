@@ -106,13 +106,14 @@ model Midwife {
 // ============================================================================
 
 model MidwifeLinkCode {
-  id          String                 @id @default(uuid())
-  code        String                 @unique
-  midwifeId   String                 @map("midwife_id")
-  profileType MidwifeLinkProfileType @default(child) @map("profile_type")
-  isActive    Boolean                @default(true) @map("is_active")
-  createdAt   DateTime               @default(now()) @map("created_at")
-  lastUsedAt  DateTime?              @map("last_used_at")
+  id            String                 @id @default(uuid())
+  code          String                 @unique
+  midwifeId     String                 @map("midwife_id")
+  profileType   MidwifeLinkProfileType @default(any) @map("profile_type")
+  isActive      Boolean                @default(true) @map("is_active")
+  createdAt     DateTime               @default(now()) @map("created_at")
+  lastUsedAt    DateTime?              @map("last_used_at")
+  lastProfileId String?                @map("last_profile_id")
 
   // Relations
   midwife       Midwife                   @relation(fields: [midwifeId], references: [id], onDelete: Cascade)
@@ -141,12 +142,14 @@ model MidwifeLinkNotification {
 }
 
 enum MidwifeLinkProfileType {
+  any
   child
   pregnancy
 }
 
 enum MidwifeLinkNotificationType {
   mismatch
+  unregistered
 }
 
 enum MidwifeRole {
@@ -444,6 +447,41 @@ enum ActivityType {
   milestone
   appointment
   checkup
+}
+
+// ============================================================================
+// SYSTEM LOGS
+// ============================================================================
+
+model SystemLog {
+  id        String       @id @default(uuid())
+  level     LogLevel     @default(info)
+  source    String
+  event     String?
+  message   String
+  metadata  Json?
+  actorType LogActorType @default(system) @map("actor_type")
+  actorId   String?      @map("actor_id")
+  ipAddress String?      @map("ip_address")
+  userAgent String?      @map("user_agent")
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  @@index([level, createdAt])
+  @@index([actorType, actorId])
+  @@map("system_logs")
+}
+
+enum LogLevel {
+  debug
+  info
+  warn
+  error
+}
+
+enum LogActorType {
+  system
+  user
+  midwife
 }
 
 // ============================================================================

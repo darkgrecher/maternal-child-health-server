@@ -16,7 +16,7 @@ export declare class MidwifeLinkController {
         success: boolean;
         data: {
             id: string;
-            type: "mismatch";
+            type: import("@prisma/client").$Enums.MidwifeLinkNotificationType;
             expectedProfileType: import("@prisma/client").$Enums.MidwifeLinkProfileType;
             scannedProfileType: import("@prisma/client").$Enums.MidwifeLinkProfileType;
             message: string;
@@ -31,6 +31,13 @@ export declare class MidwifeLinkController {
             profileType: import("@prisma/client").$Enums.MidwifeLinkProfileType;
             isActive: boolean;
             lastUsedAt: string | null;
+            profileId: string | null;
+            notification: {
+                id: string;
+                type: import("@prisma/client").$Enums.MidwifeLinkNotificationType;
+                message: string;
+                createdAt: string;
+            } | null;
         };
     }>;
     claim(req: any, dto: ClaimMidwifeLinkDto): Promise<{
