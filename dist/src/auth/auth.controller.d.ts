@@ -59,14 +59,14 @@ export declare class AuthController {
             givenName: string | null;
             familyName: string | null;
             picture: string | null;
+            lastLoginAt: Date | null;
+            createdAt: Date;
+            updatedAt: Date;
             role: import("@prisma/client").$Enums.MidwifeRole;
             phone: string | null;
             licenseNumber: string | null;
             facilityName: string | null;
             region: string | null;
-            lastLoginAt: Date | null;
-            createdAt: Date;
-            updatedAt: Date;
         }[];
     }>;
     updateMidwife(req: any, midwifeId: string, dto: MidwifeUpdateDto): Promise<{
