@@ -23,6 +23,7 @@ const emergency_contact_module_1 = require("./emergency-contact/emergency-contac
 const midwife_link_module_1 = require("./midwife-link/midwife-link.module");
 const dashboard_module_1 = require("./dashboard/dashboard.module");
 const settings_module_1 = require("./settings/settings.module");
+const admin_analytics_module_1 = require("./admin-analytics/admin-analytics.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -45,6 +46,7 @@ exports.AppModule = AppModule = __decorate([
             midwife_link_module_1.MidwifeLinkModule,
             dashboard_module_1.DashboardModule,
             settings_module_1.SettingsModule,
+            admin_analytics_module_1.AdminAnalyticsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

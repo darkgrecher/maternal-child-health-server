@@ -14,6 +14,7 @@ import { EmergencyContactModule } from './emergency-contact/emergency-contact.mo
 import { MidwifeLinkModule } from './midwife-link/midwife-link.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { SettingsModule } from './settings/settings.module';
+import { AdminAnalyticsModule } from './admin-analytics/admin-analytics.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { SettingsModule } from './settings/settings.module';
     MidwifeLinkModule,
     DashboardModule,
     SettingsModule,
+    AdminAnalyticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
