@@ -24,6 +24,7 @@ const midwife_link_module_1 = require("./midwife-link/midwife-link.module");
 const dashboard_module_1 = require("./dashboard/dashboard.module");
 const settings_module_1 = require("./settings/settings.module");
 const admin_analytics_module_1 = require("./admin-analytics/admin-analytics.module");
+const admin_districts_module_1 = require("./admin-districts/admin-districts.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -47,6 +48,7 @@ exports.AppModule = AppModule = __decorate([
             dashboard_module_1.DashboardModule,
             settings_module_1.SettingsModule,
             admin_analytics_module_1.AdminAnalyticsModule,
+            admin_districts_module_1.AdminDistrictsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

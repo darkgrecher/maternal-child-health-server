@@ -15,6 +15,7 @@ import { MidwifeLinkModule } from './midwife-link/midwife-link.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { SettingsModule } from './settings/settings.module';
 import { AdminAnalyticsModule } from './admin-analytics/admin-analytics.module';
+import { AdminDistrictsModule } from './admin-districts/admin-districts.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { AdminAnalyticsModule } from './admin-analytics/admin-analytics.module';
     DashboardModule,
     SettingsModule,
     AdminAnalyticsModule,
+    AdminDistrictsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
