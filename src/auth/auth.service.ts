@@ -15,6 +15,7 @@ import { GoogleAuthDto } from './dto/google-auth.dto';
 import { Auth0AuthDto } from './dto/auth0-auth.dto';
 import { MidwifeLoginDto } from './dto/midwife-login.dto';
 import { MidwifeProvisionDto } from './dto/midwife-provision.dto';
+import { MidwifeUpdateDto } from './dto/midwife-update.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { MidwifeRole } from '@prisma/client';
@@ -242,6 +243,109 @@ export class AuthService {
     });
 
     return midwives;
+  }
+
+  /**
+   * Admin-only: update midwife account
+   */
+  async updateMidwife(midwifeId: string, dto: MidwifeUpdateDto) {
+    const existingMidwife = await this.prisma.midwife.findUnique({
+      where: { id: midwifeId },
+    });
+
+    if (!existingMidwife) {
+      throw new BadRequestException('Midwife not found');
+    }
+
+    const toNullable = (value?: string) => {
+      if (value === undefined) return undefined;
+      const trimmed = value.trim();
+      return trimmed ? trimmed : null;
+    };
+
+    const data: {
+      email?: string;
+      name?: string | null;
+      givenName?: string | null;
+      familyName?: string | null;
+      picture?: string | null;
+      role?: MidwifeRole;
+      phone?: string | null;
+      licenseNumber?: string | null;
+      facilityName?: string | null;
+      region?: string | null;
+    } = {
+      name: toNullable(dto.name),
+      givenName: toNullable(dto.givenName),
+      familyName: toNullable(dto.familyName),
+      picture: toNullable(dto.picture),
+      phone: toNullable(dto.phone),
+      licenseNumber: toNullable(dto.licenseNumber),
+      facilityName: toNullable(dto.facilityName),
+      region: toNullable(dto.region),
+    };
+
+    if (dto.role) {
+      data.role = dto.role;
+    }
+
+    if (dto.email) {
+      const email = dto.email.trim().toLowerCase();
+      const emailOwner = await this.prisma.midwife.findUnique({
+        where: { email },
+      });
+
+      if (emailOwner && emailOwner.id !== midwifeId) {
+        throw new BadRequestException('Midwife email already exists');
+      }
+
+      data.email = email;
+    }
+
+    const midwife = await this.prisma.midwife.update({
+      where: { id: midwifeId },
+      data,
+    });
+
+    return {
+      id: midwife.id,
+      email: midwife.email,
+      name: midwife.name,
+      givenName: midwife.givenName,
+      familyName: midwife.familyName,
+      picture: midwife.picture,
+      role: midwife.role,
+      phone: midwife.phone,
+      licenseNumber: midwife.licenseNumber,
+      facilityName: midwife.facilityName,
+      region: midwife.region,
+      createdAt: midwife.createdAt,
+      updatedAt: midwife.updatedAt,
+      lastLoginAt: midwife.lastLoginAt,
+    };
+  }
+
+  /**
+   * Admin-only: delete midwife account
+   */
+  async deleteMidwife(midwifeId: string) {
+    const midwife = await this.prisma.midwife.findUnique({
+      where: { id: midwifeId },
+      select: {
+        id: true,
+        email: true,
+      },
+    });
+
+    if (!midwife) {
+      throw new BadRequestException('Midwife not found');
+    }
+
+    await this.prisma.midwife.delete({
+      where: { id: midwifeId },
+    });
+
+    return midwife;
   }
 
   /**
