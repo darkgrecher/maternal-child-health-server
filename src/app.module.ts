@@ -16,6 +16,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { SettingsModule } from './settings/settings.module';
 import { AdminAnalyticsModule } from './admin-analytics/admin-analytics.module';
 import { AdminDistrictsModule } from './admin-districts/admin-districts.module';
+import { AdminAlertsModule } from './admin-alerts/admin-alerts.module';
 import { AdminLogsModule } from './admin-logs/admin-logs.module';
 import { AdminReportsModule } from './admin-reports/admin-reports.module';
 
@@ -39,6 +40,7 @@ import { AdminReportsModule } from './admin-reports/admin-reports.module';
     SettingsModule,
     AdminAnalyticsModule,
     AdminDistrictsModule,
+    AdminAlertsModule,
     AdminLogsModule,
     AdminReportsModule,
   ],
