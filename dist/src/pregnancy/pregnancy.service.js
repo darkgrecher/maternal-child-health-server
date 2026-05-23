@@ -254,7 +254,17 @@ let PregnancyService = PregnancyService_1 = class PregnancyService {
         if (!pregnancy) {
             throw new common_1.NotFoundException('Pregnancy profile not found');
         }
-        if (actor.actorType !== 'user' || pregnancy.userId !== actor.id) {
+        if (actor.actorType === 'midwife') {
+            if (pregnancy.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
+            }
+            await this.prisma.pregnancy.update({
+                where: { id: pregnancyId },
+                data: { midwifeId: null },
+            });
+            return { message: 'Midwife registration removed successfully' };
+        }
+        if (pregnancy.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied to this pregnancy profile');
         }
         await this.prisma.pregnancy.delete({

@@ -208,7 +208,20 @@ export class ChildService {
       throw new NotFoundException('Child not found');
     }
 
-    if (actor.actorType !== 'user' || child.userId !== actor.id) {
+    if (actor.actorType === 'midwife') {
+      if (child.midwifeId !== actor.id) {
+        throw new ForbiddenException('Access denied');
+      }
+
+      await this.prisma.child.update({
+        where: { id: childId },
+        data: { midwifeId: null },
+      });
+
+      return { message: 'Midwife registration removed successfully' };
+    }
+
+    if (child.userId !== actor.id) {
       throw new ForbiddenException('Access denied');
     }
 

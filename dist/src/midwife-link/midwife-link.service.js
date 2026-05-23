@@ -69,8 +69,9 @@ let MidwifeLinkService = class MidwifeLinkService {
             });
             throw new common_1.BadRequestException(message);
         }
+        const isProfileSpecific = link.profileType !== 'any';
         if (dto.profileType === 'child') {
-            const child = await this.prisma.child.findUnique({
+            let child = await this.prisma.child.findUnique({
                 where: { id: dto.profileId },
             });
             if (!child) {
@@ -80,18 +81,26 @@ let MidwifeLinkService = class MidwifeLinkService {
                 throw new common_1.ForbiddenException('Access denied');
             }
             if (!child.midwifeId) {
-                const message = 'Unregistered child profile attempted to link.';
-                await this.prisma.midwifeLinkNotification.create({
-                    data: {
-                        midwifeId: link.midwifeId,
-                        linkCodeId: link.id,
-                        type: 'unregistered',
-                        expectedProfileType: resolvedProfileType,
-                        scannedProfileType: dto.profileType,
-                        message,
-                    },
-                });
-                throw new common_1.ForbiddenException('This child profile is unregistered. Ask your midwife to register you before scanning.');
+                if (isProfileSpecific) {
+                    child = await this.prisma.child.update({
+                        where: { id: child.id },
+                        data: { midwifeId: link.midwifeId },
+                    });
+                }
+                else {
+                    const message = 'Unregistered child profile attempted to link.';
+                    await this.prisma.midwifeLinkNotification.create({
+                        data: {
+                            midwifeId: link.midwifeId,
+                            linkCodeId: link.id,
+                            type: 'unregistered',
+                            expectedProfileType: resolvedProfileType,
+                            scannedProfileType: dto.profileType,
+                            message,
+                        },
+                    });
+                    throw new common_1.ForbiddenException('This child profile is unregistered. Ask your midwife to register you before scanning.');
+                }
             }
             if (child.midwifeId !== link.midwifeId) {
                 const message = 'Child already assigned to a different midwife.';
@@ -109,7 +118,7 @@ let MidwifeLinkService = class MidwifeLinkService {
             }
         }
         else {
-            const pregnancy = await this.prisma.pregnancy.findUnique({
+            let pregnancy = await this.prisma.pregnancy.findUnique({
                 where: { id: dto.profileId },
             });
             if (!pregnancy) {
@@ -119,18 +128,26 @@ let MidwifeLinkService = class MidwifeLinkService {
                 throw new common_1.ForbiddenException('Access denied');
             }
             if (!pregnancy.midwifeId) {
-                const message = 'Unregistered pregnancy profile attempted to link.';
-                await this.prisma.midwifeLinkNotification.create({
-                    data: {
-                        midwifeId: link.midwifeId,
-                        linkCodeId: link.id,
-                        type: 'unregistered',
-                        expectedProfileType: resolvedProfileType,
-                        scannedProfileType: dto.profileType,
-                        message,
-                    },
-                });
-                throw new common_1.ForbiddenException('This pregnancy profile is unregistered. Ask your midwife to register you before scanning.');
+                if (isProfileSpecific) {
+                    pregnancy = await this.prisma.pregnancy.update({
+                        where: { id: pregnancy.id },
+                        data: { midwifeId: link.midwifeId },
+                    });
+                }
+                else {
+                    const message = 'Unregistered pregnancy profile attempted to link.';
+                    await this.prisma.midwifeLinkNotification.create({
+                        data: {
+                            midwifeId: link.midwifeId,
+                            linkCodeId: link.id,
+                            type: 'unregistered',
+                            expectedProfileType: resolvedProfileType,
+                            scannedProfileType: dto.profileType,
+                            message,
+                        },
+                    });
+                    throw new common_1.ForbiddenException('This pregnancy profile is unregistered. Ask your midwife to register you before scanning.');
+                }
             }
             if (pregnancy.midwifeId !== link.midwifeId) {
                 const message = 'Pregnancy already assigned to a different midwife.';

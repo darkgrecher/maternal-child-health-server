@@ -182,7 +182,17 @@ let ChildService = ChildService_1 = class ChildService {
         if (!child) {
             throw new common_1.NotFoundException('Child not found');
         }
-        if (actor.actorType !== 'user' || child.userId !== actor.id) {
+        if (actor.actorType === 'midwife') {
+            if (child.midwifeId !== actor.id) {
+                throw new common_1.ForbiddenException('Access denied');
+            }
+            await this.prisma.child.update({
+                where: { id: childId },
+                data: { midwifeId: null },
+            });
+            return { message: 'Midwife registration removed successfully' };
+        }
+        if (child.userId !== actor.id) {
             throw new common_1.ForbiddenException('Access denied');
         }
         await this.prisma.child.delete({

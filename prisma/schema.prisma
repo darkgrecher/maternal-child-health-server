@@ -450,6 +450,108 @@ enum ActivityType {
 }
 
 // ============================================================================
+// NOTIFICATIONS
+// ============================================================================
+
+model Notification {
+  id          String              @id @default(uuid())
+  type        NotificationType
+  channel     NotificationChannel
+  title       String
+  message     String
+  data        Json?
+  scheduledAt DateTime?           @map("scheduled_at")
+  sentAt      DateTime?           @map("sent_at")
+
+  // Relations
+  recipients NotificationRecipient[]
+
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("notifications")
+}
+
+model NotificationRecipient {
+  id             String             @id @default(uuid())
+  notificationId String             @map("notification_id")
+  actorType      RecipientActorType @map("actor_type")
+  actorId        String             @map("actor_id")
+  isRead         Boolean            @default(false) @map("is_read")
+  readAt         DateTime?          @map("read_at")
+  deliveredAt    DateTime?          @map("delivered_at")
+  deliveryError  String?            @map("delivery_error")
+
+  // Relations
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([notificationId, actorType, actorId])
+  @@index([actorType, actorId, isRead])
+  @@map("notification_recipients")
+}
+
+model DeviceToken {
+  id         String             @id @default(uuid())
+  actorType  RecipientActorType @map("actor_type")
+  actorId    String             @map("actor_id")
+  deviceId   String             @map("device_id")
+  token      String             @unique
+  isActive   Boolean            @default(true) @map("is_active")
+  lastUsedAt DateTime?          @map("last_used_at")
+
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([actorType, actorId, deviceId])
+  @@index([actorType, actorId])
+  @@map("device_tokens")
+}
+
+model WebPushSubscription {
+  id        String             @id @default(uuid())
+  actorType RecipientActorType @map("actor_type")
+  actorId   String             @map("actor_id")
+  endpoint  String
+  p256dh    String             @map("p256dh")
+  auth      String             @map("auth")
+  userAgent String?            @map("user_agent")
+  isActive  Boolean            @default(true) @map("is_active")
+
+  // Metadata
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([actorType, actorId, endpoint])
+  @@index([actorType, actorId])
+  @@map("web_push_subscriptions")
+}
+
+enum NotificationType {
+  appointment
+  vaccination
+  high_risk
+  daily_digest
+  system
+}
+
+enum NotificationChannel {
+  in_app
+  email
+  sms
+  push
+  web_push
+}
+
+enum RecipientActorType {
+  user
+  midwife
+}
+
+// ============================================================================
 // SYSTEM LOGS
 // ============================================================================
 
