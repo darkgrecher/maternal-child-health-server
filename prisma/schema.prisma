@@ -479,8 +479,8 @@ model NotificationRecipient {
   actorType      RecipientActorType @map("actor_type")
   actorId        String             @map("actor_id")
   isRead         Boolean            @default(false) @map("is_read")
-  readAt         DateTime?           @map("read_at")
-  deliveredAt    DateTime?           @map("delivered_at")
+  readAt         DateTime?          @map("read_at")
+  deliveredAt    DateTime?          @map("delivered_at")
   deliveryError  String?            @map("delivery_error")
 
   // Relations
@@ -501,7 +501,7 @@ model DeviceToken {
   deviceId   String             @map("device_id")
   token      String             @unique
   isActive   Boolean            @default(true) @map("is_active")
-  lastUsedAt DateTime?           @map("last_used_at")
+  lastUsedAt DateTime?          @map("last_used_at")
 
   // Metadata
   createdAt DateTime @default(now()) @map("created_at")
