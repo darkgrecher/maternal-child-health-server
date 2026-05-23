@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -19,6 +20,8 @@ import { AdminDistrictsModule } from './admin-districts/admin-districts.module';
 import { AdminAlertsModule } from './admin-alerts/admin-alerts.module';
 import { AdminLogsModule } from './admin-logs/admin-logs.module';
 import { AdminReportsModule } from './admin-reports/admin-reports.module';
+import { AdminNotificationsModule } from './admin-notifications/admin-notifications.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -26,6 +29,7 @@ import { AdminReportsModule } from './admin-reports/admin-reports.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,
     ChildModule,
@@ -43,6 +47,8 @@ import { AdminReportsModule } from './admin-reports/admin-reports.module';
     AdminAlertsModule,
     AdminLogsModule,
     AdminReportsModule,
+    AdminNotificationsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
