@@ -14,9 +14,9 @@ export declare class EmergencyContactController {
             role: string;
             phone: string;
             userId: string;
+            address: string | null;
             isPrimary: boolean;
             isDefault: boolean;
-            address: string | null;
             notes: string | null;
         }[];
     }>;
@@ -31,9 +31,9 @@ export declare class EmergencyContactController {
             role: string;
             phone: string;
             userId: string;
+            address: string | null;
             isPrimary: boolean;
             isDefault: boolean;
-            address: string | null;
             notes: string | null;
         };
     }>;
@@ -48,9 +48,9 @@ export declare class EmergencyContactController {
             role: string;
             phone: string;
             userId: string;
+            address: string | null;
             isPrimary: boolean;
             isDefault: boolean;
-            address: string | null;
             notes: string | null;
         };
     }>;
@@ -65,9 +65,9 @@ export declare class EmergencyContactController {
             role: string;
             phone: string;
             userId: string;
+            address: string | null;
             isPrimary: boolean;
             isDefault: boolean;
-            address: string | null;
             notes: string | null;
         };
     }>;
@@ -86,9 +86,9 @@ export declare class EmergencyContactController {
             role: string;
             phone: string;
             userId: string;
+            address: string | null;
             isPrimary: boolean;
             isDefault: boolean;
-            address: string | null;
             notes: string | null;
         };
     }>;

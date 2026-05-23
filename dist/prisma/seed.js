@@ -22,6 +22,11 @@ const ids = {
     growthMeasurementId: '2b14c33e-7c19-4d84-8f43-4e3c3c9b5d6d',
     appointmentId: 'd88d6f5b-2b64-4c2a-98a1-4e2cf2d3b8be',
     activityId: 'a6b5e5a0-9d18-4d1b-9f24-6d4f0f3a7a2c',
+    systemLogInfoId: '0f2d54d6-1f4e-4cc9-8ee9-2b266f7fd72d',
+    systemLogWarnId: 'c45a9b68-8a5c-4b2c-b8b9-89c8f7a7e6ef',
+    systemLogErrorId: '6ff8bd5d-b786-4af5-b9f8-2f1f11f89bb0',
+    systemLogUserId: 'f45e4f7a-ef8f-4d26-9d5c-7f5d8ec8f82c',
+    systemLogMidwifeId: 'f332c56a-9d9e-48fa-b796-b6a2da7f3d4d',
 };
 const baseDate = new Date('2026-05-08T09:00:00.000Z');
 const childDob = new Date('2024-12-15T00:00:00.000Z');
@@ -343,6 +348,81 @@ async function main() {
             expiresAt: addDays(baseDate, 30),
         },
     });
+    const logEntries = [
+        {
+            id: ids.systemLogInfoId,
+            data: {
+                level: client_1.LogLevel.info,
+                source: 'scheduler',
+                event: 'backup.completed',
+                message: 'Daily backup completed successfully',
+                actorType: client_1.LogActorType.system,
+                createdAt: addDays(baseDate, -1),
+                metadata: { durationMinutes: 6 },
+            },
+        },
+        {
+            id: ids.systemLogWarnId,
+            data: {
+                level: client_1.LogLevel.warn,
+                source: 'notifications',
+                event: 'email.degraded',
+                message: 'Email delivery latency above threshold',
+                actorType: client_1.LogActorType.system,
+                createdAt: addDays(baseDate, -2),
+                metadata: { latencyMs: 3200 },
+            },
+        },
+        {
+            id: ids.systemLogErrorId,
+            data: {
+                level: client_1.LogLevel.error,
+                source: 'payments',
+                event: 'provider.timeout',
+                message: 'Third-party provider timed out during charge',
+                actorType: client_1.LogActorType.system,
+                createdAt: addDays(baseDate, -3),
+                metadata: { provider: 'HealthPay', retries: 2 },
+            },
+        },
+        {
+            id: ids.systemLogUserId,
+            data: {
+                level: client_1.LogLevel.info,
+                source: 'profile',
+                event: 'user.update',
+                message: 'User updated profile details',
+                actorType: client_1.LogActorType.user,
+                actorId: user.id,
+                createdAt: addDays(baseDate, -1),
+                metadata: { updatedFields: ['phone', 'address'] },
+                ipAddress: '203.94.2.18',
+                userAgent: 'Mozilla/5.0',
+            },
+        },
+        {
+            id: ids.systemLogMidwifeId,
+            data: {
+                level: client_1.LogLevel.info,
+                source: 'auth',
+                event: 'midwife.login',
+                message: 'Midwife signed in successfully',
+                actorType: client_1.LogActorType.midwife,
+                actorId: midwife.id,
+                createdAt: baseDate,
+                metadata: { method: 'password' },
+                ipAddress: '198.51.100.22',
+                userAgent: 'Mozilla/5.0',
+            },
+        },
+    ];
+    for (const entry of logEntries) {
+        await prisma.systemLog.upsert({
+            where: { id: entry.id },
+            update: entry.data,
+            create: { id: entry.id, ...entry.data },
+        });
+    }
     await prisma.emergencyContact.upsert({
         where: { id: ids.emergencyPrimaryId },
         update: {

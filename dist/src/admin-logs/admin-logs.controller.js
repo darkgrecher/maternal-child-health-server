@@ -12,52 +12,38 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AdminDistrictsController = void 0;
+exports.AdminLogsController = void 0;
 const common_1 = require("@nestjs/common");
 const guards_1 = require("../auth/guards");
-const admin_districts_service_1 = require("./admin-districts.service");
-const dto_1 = require("./dto");
-let AdminDistrictsController = class AdminDistrictsController {
-    adminDistrictsService;
-    constructor(adminDistrictsService) {
-        this.adminDistrictsService = adminDistrictsService;
+const admin_logs_service_1 = require("./admin-logs.service");
+let AdminLogsController = class AdminLogsController {
+    adminLogsService;
+    constructor(adminLogsService) {
+        this.adminLogsService = adminLogsService;
     }
     assertAdminAccess(req) {
         if (req.user?.actorType !== 'midwife' || req.user?.role !== 'admin') {
             throw new common_1.ForbiddenException('Admin access required');
         }
     }
-    async getDistricts(req) {
+    async getLogs(req, query) {
         this.assertAdminAccess(req);
-        const data = await this.adminDistrictsService.getDistricts();
-        return { success: true, data };
-    }
-    async updateMidwifeRegion(req, midwifeId, dto) {
-        this.assertAdminAccess(req);
-        const data = await this.adminDistrictsService.updateMidwifeRegion(midwifeId, dto);
+        const data = await this.adminLogsService.getLogs(query);
         return { success: true, data };
     }
 };
-exports.AdminDistrictsController = AdminDistrictsController;
+exports.AdminLogsController = AdminLogsController;
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
-], AdminDistrictsController.prototype, "getDistricts", null);
-__decorate([
-    (0, common_1.Patch)('midwives/:midwifeId'),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Param)('midwifeId')),
-    __param(2, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, dto_1.UpdateMidwifeRegionDto]),
-    __metadata("design:returntype", Promise)
-], AdminDistrictsController.prototype, "updateMidwifeRegion", null);
-exports.AdminDistrictsController = AdminDistrictsController = __decorate([
-    (0, common_1.Controller)('admin/districts'),
+], AdminLogsController.prototype, "getLogs", null);
+exports.AdminLogsController = AdminLogsController = __decorate([
+    (0, common_1.Controller)('admin/logs'),
     (0, common_1.UseGuards)(guards_1.JwtAuthGuard),
-    __metadata("design:paramtypes", [admin_districts_service_1.AdminDistrictsService])
-], AdminDistrictsController);
-//# sourceMappingURL=admin-districts.controller.js.map
+    __metadata("design:paramtypes", [admin_logs_service_1.AdminLogsService])
+], AdminLogsController);
+//# sourceMappingURL=admin-logs.controller.js.map

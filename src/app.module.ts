@@ -16,6 +16,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { SettingsModule } from './settings/settings.module';
 import { AdminAnalyticsModule } from './admin-analytics/admin-analytics.module';
 import { AdminDistrictsModule } from './admin-districts/admin-districts.module';
+import { AdminLogsModule } from './admin-logs/admin-logs.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { AdminDistrictsModule } from './admin-districts/admin-districts.module';
     SettingsModule,
     AdminAnalyticsModule,
     AdminDistrictsModule,
+    AdminLogsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

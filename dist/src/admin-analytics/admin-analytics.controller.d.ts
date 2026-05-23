@@ -28,37 +28,37 @@ export declare class AdminAnalyticsController {
                     current: number;
                     previous: number;
                     changePercent: number | null;
-                    direction: "up" | "down" | "flat";
+                    direction: "flat" | "up" | "down";
                 };
                 newMidwives: {
                     current: number;
                     previous: number;
                     changePercent: number | null;
-                    direction: "up" | "down" | "flat";
+                    direction: "flat" | "up" | "down";
                 };
                 newChildren: {
                     current: number;
                     previous: number;
                     changePercent: number | null;
-                    direction: "up" | "down" | "flat";
+                    direction: "flat" | "up" | "down";
                 };
                 newPregnancies: {
                     current: number;
                     previous: number;
                     changePercent: number | null;
-                    direction: "up" | "down" | "flat";
+                    direction: "flat" | "up" | "down";
                 };
                 appointments: {
                     current: number;
                     previous: number;
                     changePercent: number | null;
-                    direction: "up" | "down" | "flat";
+                    direction: "flat" | "up" | "down";
                 };
                 vaccinations: {
                     current: number;
                     previous: number;
                     changePercent: number | null;
-                    direction: "up" | "down" | "flat";
+                    direction: "flat" | "up" | "down";
                 };
             };
             series: {

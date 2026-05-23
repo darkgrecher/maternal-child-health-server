@@ -12,9 +12,9 @@ export declare class EmergencyContactService {
         role: string;
         phone: string;
         userId: string;
+        address: string | null;
         isPrimary: boolean;
         isDefault: boolean;
-        address: string | null;
         notes: string | null;
     }[]>;
     getContact(userId: string, contactId: string): Promise<{
@@ -26,9 +26,9 @@ export declare class EmergencyContactService {
         role: string;
         phone: string;
         userId: string;
+        address: string | null;
         isPrimary: boolean;
         isDefault: boolean;
-        address: string | null;
         notes: string | null;
     }>;
     createContact(userId: string, dto: CreateEmergencyContactDto): Promise<{
@@ -40,9 +40,9 @@ export declare class EmergencyContactService {
         role: string;
         phone: string;
         userId: string;
+        address: string | null;
         isPrimary: boolean;
         isDefault: boolean;
-        address: string | null;
         notes: string | null;
     }>;
     updateContact(userId: string, contactId: string, dto: UpdateEmergencyContactDto): Promise<{
@@ -54,9 +54,9 @@ export declare class EmergencyContactService {
         role: string;
         phone: string;
         userId: string;
+        address: string | null;
         isPrimary: boolean;
         isDefault: boolean;
-        address: string | null;
         notes: string | null;
     }>;
     deleteContact(userId: string, contactId: string): Promise<{
@@ -71,9 +71,9 @@ export declare class EmergencyContactService {
         role: string;
         phone: string;
         userId: string;
+        address: string | null;
         isPrimary: boolean;
         isDefault: boolean;
-        address: string | null;
         notes: string | null;
     }>;
 }

@@ -450,6 +450,41 @@ enum ActivityType {
 }
 
 // ============================================================================
+// SYSTEM LOGS
+// ============================================================================
+
+model SystemLog {
+  id        String       @id @default(uuid())
+  level     LogLevel     @default(info)
+  source    String
+  event     String?
+  message   String
+  metadata  Json?
+  actorType LogActorType @default(system) @map("actor_type")
+  actorId   String?      @map("actor_id")
+  ipAddress String?      @map("ip_address")
+  userAgent String?      @map("user_agent")
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  @@index([level, createdAt])
+  @@index([actorType, actorId])
+  @@map("system_logs")
+}
+
+enum LogLevel {
+  debug
+  info
+  warn
+  error
+}
+
+enum LogActorType {
+  system
+  user
+  midwife
+}
+
+// ============================================================================
 // PREGNANCY PROFILES
 // ============================================================================
 
