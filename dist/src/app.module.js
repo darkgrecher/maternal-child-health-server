@@ -26,6 +26,7 @@ const settings_module_1 = require("./settings/settings.module");
 const admin_analytics_module_1 = require("./admin-analytics/admin-analytics.module");
 const admin_districts_module_1 = require("./admin-districts/admin-districts.module");
 const admin_logs_module_1 = require("./admin-logs/admin-logs.module");
+const admin_reports_module_1 = require("./admin-reports/admin-reports.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -51,6 +52,7 @@ exports.AppModule = AppModule = __decorate([
             admin_analytics_module_1.AdminAnalyticsModule,
             admin_districts_module_1.AdminDistrictsModule,
             admin_logs_module_1.AdminLogsModule,
+            admin_reports_module_1.AdminReportsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

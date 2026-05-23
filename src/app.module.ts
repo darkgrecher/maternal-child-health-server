@@ -17,6 +17,7 @@ import { SettingsModule } from './settings/settings.module';
 import { AdminAnalyticsModule } from './admin-analytics/admin-analytics.module';
 import { AdminDistrictsModule } from './admin-districts/admin-districts.module';
 import { AdminLogsModule } from './admin-logs/admin-logs.module';
+import { AdminReportsModule } from './admin-reports/admin-reports.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { AdminLogsModule } from './admin-logs/admin-logs.module';
     AdminAnalyticsModule,
     AdminDistrictsModule,
     AdminLogsModule,
+    AdminReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
